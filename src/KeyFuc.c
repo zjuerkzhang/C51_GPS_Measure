@@ -388,11 +388,12 @@ void KeyOperate()
 									TEST3[danjiasel-6]++;
 
 								}
-
+                                /*
 								else if(danjiasel==5)
 								{
 									danjiasel = 0;	
 								}
+								*/
 								break;
 							}
 							case 3:	 
@@ -430,11 +431,13 @@ void KeyOperate()
 									else
 									TEST3[danjiasel-6]--;
 
-								}		
+								}
+								/*
 								else if(danjiasel==0)
 								{
 									danjiasel = 5;	
 								}
+								*/
 								break; 
 							}
 						}
@@ -484,43 +487,50 @@ void KeyOperate()
 						{
 							case 1:	 
 							{
-
+								/*
 								if(FLAG4 == 0)
 								{
 								danwei_zouchang_sel= ~danwei_zouchang_sel;	
 								}
 								else
+								*/
 								{
 								danwei_mianji_sel=~danwei_mianji_sel;
 								}
 								
 								break;
 							}
+							/*
 							case 2:	
 							{
 
 								FLAG4 = ~FLAG4;
 								break;
 							}
+							*/
 							case 3:	 
 							{
+								/*
 								if(FLAG4 == 0)
 								{
 								danwei_zouchang_sel= ~danwei_zouchang_sel;	
 								}
 								else
+								*/
 								{
 								danwei_mianji_sel=~danwei_mianji_sel;
 								}
 								
 								break;
 							}
+							/*
 							case 4:	 
 							{
 
 								FLAG4 = ~FLAG4;
 								break; 
 							}
+							*/
 						}
 
 						FLAG3 = 1;
