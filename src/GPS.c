@@ -225,7 +225,7 @@ void uart(void) interrupt 4
 
 			switch (cmd_number)
 			{
-				case 1: 
+				case 1: 	// GPGGA
 						switch(seg_count)
 						{
 							case 2: 

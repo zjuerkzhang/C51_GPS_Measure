@@ -108,11 +108,11 @@ unsigned char keyscan()
 				{
 					if(!KEY_LEFT_DOWN)	
 					{
-						KeyPressValue = 1;
+						KeyPressValue = 1;	// left
 					}
 					else if(!KEY_RIGHT_UP)
 					{
-					 KeyPressValue = 2;
+					 KeyPressValue = 2;		// up
 					}	
 				}
 				
@@ -124,24 +124,24 @@ unsigned char keyscan()
 				{	
 					if(!KEY_RIGHT_UP)
 					{
-						 KeyPressValue = 3;
+						 KeyPressValue = 3;		// right
 					}
 					else if(!KEY_LEFT_DOWN)	
 					{
 
-						KeyPressValue = 4;
+						KeyPressValue = 4;		// down
 					}
 				}
 			}
 			else
 			{
-				 KeyPressValue = 5;
+				 KeyPressValue = 5;				// ok
 			}
 
 		}
 		else
 		{
-			KeyPressValue = 0;
+			KeyPressValue = 0;		// none key
 			
 		}
 		while(!KEY_OK)
@@ -155,7 +155,7 @@ unsigned char keyscan()
 	else if(!key_BL)
 	{
 
-		KeyPressValue = 6;
+		KeyPressValue = 6;	// menu
 		/*
 		delay_ms(20);
 		if(!key_BL)
