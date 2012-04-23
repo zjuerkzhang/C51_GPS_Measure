@@ -27,7 +27,7 @@ void INT0_int() interrupt 0
 {
 
    	unsigned char i;
-	for(i = 0;i<200;i++)
+	for(i = 0;i<150;i++)
  	{
 		delay_ms(70);
 		if(Power_key)

@@ -55,6 +55,7 @@ extern bit GPS_Point_Updata_SatNum;
 extern bit danwei_zouchang_sel;	
 extern bit danwei_mianji_sel;
 extern bit Cacul_GoOn_F;
+unsigned key_press_count = 0;
 
 void PowerUpSeque()
 {
@@ -62,7 +63,7 @@ void PowerUpSeque()
 
    	P3M0 |= 0x10;
 	P3M1 &= 0xef;
-	LCD_BL = 0;
+	LCD_BL = 1;
 
 	P1M0 |= 0x20;
 	P1M1 &= 0xdf;
@@ -160,7 +161,7 @@ void main()
 	 GPS_UPDATA = 0;
 	 FLAG3 = 1;
 	}  
-	if(PowerDownCount>50)
+	if(PowerDownCount>40)
 		{
 		//	LCD_BL = 0;
 			display_PowerD_LOGO();	
@@ -277,8 +278,17 @@ void main()
 		 if(keyscan()) 
 		{
 			KeyOperate();
-			
+			key_press_count = 0;
 		}
+		 else
+		 {
+			 key_press_count++;
+			 if(key_press_count >= 400)	// 20s
+			 {
+				 key_press_count = 0;
+				 LCD_BL = 0;
+			 }
+		 }
 
 		if(!Power_key) 
 		{
@@ -323,6 +333,8 @@ void main()
 
 		}
 	  	 TimerNumber ++;
+	  	TH0 = 0x4C;
+	  	TL0 = 0x00;
 	   	EA = 1;
 		ET0 = 1;
 		TR0 = 1;
