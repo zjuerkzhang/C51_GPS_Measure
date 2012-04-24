@@ -1059,6 +1059,7 @@ void display_CeLiang_Page()
 			   				   Display_Chinese(wei3,0,80); //..
 			   				   Display_Chinese(kong,0,96); //..
 			   				   Display_Chinese(yuan,0,112); //Ԫ
+			   }
 			}
 			else if(1 == FLAG1)
 			{
