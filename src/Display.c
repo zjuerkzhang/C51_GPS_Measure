@@ -696,7 +696,7 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 				Display_Chinese(kong,4,80);
 				Display_Chinese(yuan,4,96);
 			Display_Chinese(kong,4,112);
-/*
+
 			if(Sel_flag == 5)
 			{
 			Revers_Data(chang,1,0); 
@@ -735,7 +735,7 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 			
 			Display_Chinese(yuan,1,96);
 			Display_Chinese(kong,1,112);
-*/
+
 
 }
 
