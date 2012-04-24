@@ -319,10 +319,7 @@ void KeyOperate()
 							{
 							if(2 == FLAG1)	
 							{
-							DanweiState = 0x00 | danwei_mianji_sel;
-							DanweiState<<=1;
-							DanweiState =  DanweiState|danwei_zouchang_sel;
-							Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
+
 							FLAG1 = 0;
 							
 							}
@@ -335,8 +332,14 @@ void KeyOperate()
 
 							Cacul_GoOn_F = 0;
 							}
-							else  FLAG1++;	
-											
+							else
+							{
+								DanweiState = 0x00 | danwei_mianji_sel;
+								DanweiState<<=1;
+								DanweiState =  DanweiState|danwei_zouchang_sel;
+								Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
+								FLAG1++;
+							}
 							break;	
 							}
 						}
