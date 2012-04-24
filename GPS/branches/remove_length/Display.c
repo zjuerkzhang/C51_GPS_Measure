@@ -742,6 +742,28 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 
 void Update_danwei_page4_5_1_2(bit Sel_zouchang_flag,bit Sel_mianji_flag,bit sel_ZCMJ_SEL)	  
 {
+	Display_Chinese(mian,4,0); //面
+	Display_Chinese(ji2,4,16); //积
+
+	Display_Chinese(maohao,4,32); //:
+	if(Sel_mianji_flag == 0)
+	{
+		Revers_Data(mu,4,48);//亩
+		Display_Chinese(kong,4,64);
+		Display_Chinese(gong,4,80); //公
+		Display_Chinese(qing,4,96); //倾
+	}
+	else
+	{
+		Display_Chinese(mu,4,48); //亩
+		Display_Chinese(kong,4,64);
+		Revers_Data(gong,4,80);//公
+		Revers_Data(qing,4,96);//倾
+	}
+
+	Display_Chinese(kong,4,112);
+
+#if 0
 			if(sel_ZCMJ_SEL == 0)
 			{
 			Revers_Data(zou,4,0);//米
@@ -802,7 +824,7 @@ void Update_danwei_page4_5_1_2(bit Sel_zouchang_flag,bit Sel_mianji_flag,bit sel
 
 			
 			Display_Chinese(kong,1,112);
-
+#endif
 }
 
 void Update_Idle_Page7(unsigned int Timer_L,unsigned int BatQuan_L,unsigned int StarNum_L,bit signal_L)
@@ -961,14 +983,82 @@ void display_CeLiang_Page()
 			{
 			   TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
 			   Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-				Display_Chinese(an,4,0); //按
-				Display_Chinese(que,4,16); //确
-				Display_Chinese(ren,4,32); //认
-				Display_Chinese(bao,4,48);//保
-				Display_Chinese(cun,4,64); //存
-				Display_Chinese(ji,4,80); //记
-				Display_Chinese(lu,4,96); //录
-				Display_Chinese(dengdai,4,112); //..
+
+			   Display_Chinese(dan,4,0); //单
+			   Display_Chinese(jia,4,16); //价
+
+			   for(celiangCount=0;celiangCount<4;celiangCount++)
+			   {
+				   if(GetLenthValue[celiangCount] != 0x2e)
+					   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+(celiangCount*8));
+				   else
+					   zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);
+			   }
+			   Display_Chinese(kong,4,64); //空格
+			   Display_Chinese(yi,4,80); //已
+			   Display_Chinese(ji,4,96); //记
+			   Display_Chinese(lu,4,112); //录
+
+			   Display_Chinese(mian,2,0); //面
+			   Display_Chinese(ji2,2,16); //积
+			   //Display_Chinese(maohao,2,32); //：
+			   for(celiangCount=0;celiangCount<8;celiangCount++)
+			   {
+				   if(TEST_9[celiangCount] != 0x2e)
+					   zf_disp8x16(Num_8_16[TEST_9[celiangCount]-0x30], 2, 32+celiangCount*8);
+				   else
+					   zf_disp8x16(Num_8_16[10], 2, 32+celiangCount*8);
+			   }
+
+			   if(0 == danwei_mianji_sel)
+			   {
+				   Display_Chinese(mu,2,96); //亩
+				   Display_Chinese(kong,2,112);
+			   }
+			   else
+			   {
+				   Display_Chinese(gong,2,96); //公
+				   Display_Chinese(qing,2,112);//倾
+			   }
+
+			   ///计算金额部分:
+			   if((danjiasel >= 0)&&(danjiasel <= 4))//面积
+			   {
+				   TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(TEST_9);
+			   }
+			   else  //长度
+			   {
+				   TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(GetLenthValue);
+			   }
+
+			   if((TEST_8 >= 0)&&(TEST_8 <= 99999999))
+			   {
+				   sprintf(TEST_0, "%08.0f", TEST_8);
+				   //					DataSend("\r\n TEST_0:");
+				   //					DataSend(TEST_0);
+
+				   Display_Chinese(jin,0,0); //金
+				   Display_Chinese(er,0,16); //额
+				   Display_Chinese(maohao,0,32); //：
+
+				   for(celiangCount=0;celiangCount<8;celiangCount++)
+				   {
+					   zf_disp8x16(Num_8_16[TEST_0[celiangCount]-0x30], 0, 40+celiangCount*8);
+				   }
+
+				   Display_Chinese(yuan,0,104); //元
+				   Display_Chinese(kong,0,120);
+			   }
+			   else
+			   {
+			   				   Display_Chinese(jin,0,0); //金
+			   				   Display_Chinese(er,0,16); //额
+			   				   Display_Chinese(maohao,0,32); //：
+			   				   Display_Chinese(chao,0,48);//..
+			   				   Display_Chinese(fan,0,64); //..
+			   				   Display_Chinese(wei3,0,80); //..
+			   				   Display_Chinese(kong,0,96); //..
+			   				   Display_Chinese(yuan,0,112); //元
 			}
 			else if(1 == FLAG1)
 			{
@@ -992,19 +1082,25 @@ void display_CeLiang_Page()
 				{
 					TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
 					Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-					Display_Chinese(zou,4,0); //走
-					Display_Chinese(chang,4,16); //长
+
+					Display_Chinese(dan,4,0); //单
+					Display_Chinese(jia,4,16); //价
 				//	Display_Chinese(maohao,4,32); //：
 			
 				//	zf_disp8x16(Num_8_16[TEST_1[0]-0x30], 6, 88);
-					for(celiangCount=0;celiangCount<8;celiangCount++)
+					for(celiangCount=0;celiangCount<4;celiangCount++)
 					{
 						if(GetLenthValue[celiangCount] != 0x2e)
-						zf_disp8x16(Num_8_16[GetLenthValue[celiangCount]-0x30], 4, 32+(celiangCount*8));	
+						zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+(celiangCount*8));
 						else
-						zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);	
+						zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);
 					}
+					Display_Chinese(kong,4,64); //空格
+					Display_Chinese(ce,4,80); //测
+					Display_Chinese(liang,4,96); //量
+					Display_Chinese(zhong,4,112); //中
 				//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);	
+					/*
 					if(0 == danwei_zouchang_sel) //米
 					{
 					Display_Chinese(mi,4,96); //米
@@ -1015,6 +1111,7 @@ void display_CeLiang_Page()
 					 Display_Chinese(qian,4,96); //千
 					Display_Chinese(mi,4,112);	//米
 					}
+					*/
 
 			
 					Display_Chinese(mian,2,0); //面

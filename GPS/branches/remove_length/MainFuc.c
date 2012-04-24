@@ -55,7 +55,7 @@ extern bit GPS_Point_Updata_SatNum;
 extern bit danwei_zouchang_sel;	
 extern bit danwei_mianji_sel;
 extern bit Cacul_GoOn_F;
-unsigned key_press_count = 0;
+unsigned int key_press_count = 0;
 
 void PowerUpSeque()
 {
