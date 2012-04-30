@@ -56,6 +56,8 @@ extern bit danwei_zouchang_sel;
 extern bit danwei_mianji_sel;
 extern bit Cacul_GoOn_F;
 unsigned int key_press_count = 0;
+unsigned char clear_rec_code[7] = {0, 2, 2, 4, 4, 5, 5};
+unsigned char clear_rec_step;
 
 void PowerUpSeque()
 {

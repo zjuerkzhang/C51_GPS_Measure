@@ -42,6 +42,8 @@ extern unsigned char debugF ;
 extern unsigned char TEST3[];
 extern unsigned char TEST2[] ;
 extern bit GPS_Point_Updata_JD;
+extern unsigned char clear_rec_code[7];
+extern unsigned char clear_rec_step;
 
 unsigned char keyscan()
 {
@@ -603,7 +605,22 @@ void KeyOperate()
 					else
 					{
 					}
-					
+
+				if(clear_rec_code[clear_rec_step+1]==KeyPressValue)
+				{
+					clear_rec_step++;
+					if(clear_rec_step>=7)
+					{
+						Clear_Data();
+						clear_rec_step = 0;
+						TEST1 = 0;
+						FLAG3 = 1;
+					}
+				}
+				else
+				{
+					clear_rec_step = 0;
+				}
 				break;
 			}
 
