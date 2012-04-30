@@ -81,6 +81,26 @@ void PowerUpSeque()
 	
 }
 
+void initiate_var()
+{
+	unsigned char i;
+	for(i=0;i<20;i++)
+	{
+		TEST_9[i] = '0';
+		GetLenthValue[i] = '0';
+	}
+
+	for(i=0;i<10;i++)
+	{
+		JD[i] = '0';
+	}
+	for(i=0;i<9;i++)
+	{
+		WD[i] = '0';
+	}
+	clear_rec_step = 0;
+}
+
 void main()
 {
   
@@ -103,6 +123,7 @@ void main()
 
 	PowerUpSeque();
 //	display_bat();
+	initiate_var();
 
 	init_history_data();
 #if 0

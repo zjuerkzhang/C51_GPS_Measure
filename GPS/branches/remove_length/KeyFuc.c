@@ -304,7 +304,7 @@ void KeyOperate()
 							}
 							case 2:	 
 							{
-								Cacul_GoOn_F = ~Cacul_GoOn_F;
+								//Cacul_GoOn_F = ~Cacul_GoOn_F;
 								break;
 							}
 							case 3:	 
@@ -327,6 +327,7 @@ void KeyOperate()
 							}
 							else if(FLAG1 == 0)
 							{
+							initiate_var();
 							FLAG1++;
 							gps_first_point = 1;
 							GeodeticAreaReset();
