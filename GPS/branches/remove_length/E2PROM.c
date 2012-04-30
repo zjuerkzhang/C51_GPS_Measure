@@ -1,5 +1,5 @@
 #include <intrins.h>
-#include <reg52.h>      //5…80†90ˆ40…80„60‡40…10†3¨²0ˆ1¡¤0ˆ20‡20†40‹6
+#include <reg52.h>      //5???????????????ú??·????????
 #include "own_reg.h"
 //#include "lcd1602.h"
 #include "e2prom.h"
@@ -11,14 +11,14 @@
 #define uchar unsigned char
 #define uint unsigned int 
 
-#define RdCommand 0x01 //0…9¡§00‡20…50‰2¡Á¡Â0‡1¨¹0†90Š6
+#define RdCommand 0x01 //??¨???????×÷??ü????
 #define PrgCommand 0x02
 #define EraseCommand 0x03 
 
 #define Error 1
 
 #define Ok 0
-#define WaitTime 0x01 //0…90…80‡60…70‹50‡8¡À0†40Š1
+#define WaitTime 0x01 //????????????±????
 
 
 typedef struct Saved_Data
@@ -29,8 +29,8 @@ typedef struct Saved_Data
 	unsigned char jiner[6];
 }Save_Data;
 
-sbit dula=P2^6;  //0‡7¨º00‡4¡Â0…80‡20‡90‹30…70Š30…90‡9
-sbit wela=P2^7;  //0‡7¨º0‡1¡ÂU20‡90‹30…70Š30‡4¡Â0…80‡20‡90‹30…70Š30…90‡9
+sbit dula=P2^6;  //??ê???÷????????????????
+sbit wela=P2^7;  //??ê??÷U2??????????÷????????????????
 
 
 sbit lcdrs=P3^5;
@@ -47,6 +47,8 @@ uchar code table[]={
 
 unsigned char history_cnt;
 unsigned char history_index;
+
+extern unsigned char TEST2[];
 
 void delay(unsigned int z)
 {
@@ -145,8 +147,8 @@ void eeprom_erase_20(uchar AddrL)
 	delay(1);
 }
 
- //0ˆ40…70‡60Š5eeprom0‰00ˆ40„30„5
- //0…80‰10‰0¡¤0…70ˆ70x000
+ //????????eeprom????????
+ //??????·????0x00?
  
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_Addr)
 {
@@ -180,8 +182,8 @@ void eeprom_erase(unsigned char AddrH)
 	IAP_TRIG=0x00;
 }
 
-  //0ˆ40…70‡60r
- //0…80‰10‰0¡¤0f 0x200~0x3ff
+  //???????r
+ //??????·?f 0x200~0x3ff
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_AddrH,unsigned char EEPROM_AddrL)
 {
 	unsigned char i;
@@ -276,6 +278,7 @@ typedef struct _HistoryData{
 	double mianji;
 	double jiner;
 	unsigned char add_data;
+	unsigned int danjia;
 } HistoryData;
 
 void write_one_char(unsigned char data1, unsigned int addr)
@@ -479,6 +482,7 @@ void Stor_Data(unsigned char Stor_Time[],unsigned char zouchang[],
 	data1.mianji = atof(mianji);
 	data1.jiner = atof(jiner);
 	data1.add_data = add_data;
+	data1.danjia = TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3];
 
 	if (history_cnt >= HISTORY_DATA_MAX_CNT)
 		history_cnt = HISTORY_DATA_MAX_CNT;
@@ -494,7 +498,7 @@ void Stor_Data(unsigned char Stor_Time[],unsigned char zouchang[],
 //
 
 char Get_Data(unsigned char index, unsigned char Stor_Time[],unsigned char zouchang[],
-	unsigned char mianji[],unsigned char jiner[], unsigned char* add_data)
+	unsigned char mianji[],unsigned char jiner[], unsigned char* add_data, unsigned int *danjia)
 {
 	HistoryData data1;
 	unsigned data_addr;
@@ -515,6 +519,7 @@ char Get_Data(unsigned char index, unsigned char Stor_Time[],unsigned char zouch
 	sprintf(mianji, "%08.1f", data1.mianji);
 	sprintf(jiner, "%08.0f", data1.jiner);
 	*add_data = data1.add_data;
+	*danjia = data1.danjia;
 
 	return 0;
 }

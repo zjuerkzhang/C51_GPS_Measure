@@ -76,7 +76,7 @@ unsigned int  TEST_7=1;
 
  bit FLAG3 = 0;
  
- unsigned char TEST2[] = {0,0,0,0,0};
+ unsigned char TEST2[] = {0,0,8,0,0};
  unsigned char TEST3[] = {0,0,0,0,0};
  extern unsigned char danjiasel;
  
@@ -962,6 +962,7 @@ void display_CeLiang_Page()
 	unsigned int StartCol= 40;
 	unsigned char celiangCount;
 	unsigned char CharBuffer[6];
+	unsigned char offset = 0;
 	
 		if(!celiangPage_detail)
 		{
@@ -989,12 +990,40 @@ void display_CeLiang_Page()
 
 			   for(celiangCount=0;celiangCount<4;celiangCount++)
 			   {
-				   if(GetLenthValue[celiangCount] != 0x2e)
+				   if( offset>0 )
+				   {
+					   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+					   offset += 8;
+				   }
+				   else
+				   {
+					   if(TEST2[celiangCount] != 0)
+					   {
+						   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+						   offset += 8;
+					   }
+					   else
+					   {
+						   if(celiangCount == 3)
+						   {
+							   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+							   offset += 8;
+						   }
+					   }
+				   }
+				   /*
+				   if(TEST2[celiangCount] != 0x2e)
 					   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+(celiangCount*8));
 				   else
 					   zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);
+				   */
 			   }
-			   Display_Chinese(kong,4,64); //空格
+			   Display_Chinese(yuan,4,32+offset); //元
+			   offset += 16;
+			   for( ; offset<80; offset+=8)
+			   {
+				   zf_disp8x16(kong, 4, 32+offset);
+			   }
 			   Display_Chinese(yi,4,80); //已
 			   Display_Chinese(ji,4,96); //记
 			   Display_Chinese(lu,4,112); //录
@@ -1091,16 +1120,61 @@ void display_CeLiang_Page()
 				//	zf_disp8x16(Num_8_16[TEST_1[0]-0x30], 6, 88);
 					for(celiangCount=0;celiangCount<4;celiangCount++)
 					{
-						if(GetLenthValue[celiangCount] != 0x2e)
+						if( offset>0 )
+						{
+							zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+							offset += 8;
+						}
+						else
+						{
+							if(TEST2[celiangCount] != 0)
+							{
+								zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+								offset += 8;
+							}
+							else
+							{
+								if(celiangCount == 3)
+								{
+									zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+									offset += 8;
+								}
+							}
+						}
+						/*
+						if(TEST2[celiangCount] != 0x2e)
 						zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+(celiangCount*8));
 						else
 						zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);
+						*/
 					}
-					Display_Chinese(kong,4,64); //空格
-					Display_Chinese(ce,4,80); //测
-					Display_Chinese(liang,4,96); //量
-					Display_Chinese(zhong,4,112); //中
-				//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);	
+
+					Display_Chinese(yuan,4,32+offset); //元
+					offset += 16;
+					for( ; offset<80; offset+=8)
+					{
+						zf_disp8x16(kong, 4, 32+offset);
+					}
+					if((lock == 0x30) && (((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))==0))	//定位不成功.
+					{
+					   Display_Chinese(xin,4,80); //信
+					   Display_Chinese(hao,4,96); //号
+					   Display_Chinese(wu,4,112); //无
+					}
+					else if(((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))<=2)
+					{
+						Display_Chinese(xin,4,80); //信
+						Display_Chinese(hao,4,96); //号
+						Display_Chinese(cha,4,112); //差
+					}
+					else
+					{
+						Display_Chinese(ce,4,80); //测
+						Display_Chinese(liang,4,96); //量
+						Display_Chinese(zhong,4,112); //中
+
+					}
+					//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);
 					/*
 					if(0 == danwei_zouchang_sel) //米
 					{
@@ -1234,7 +1308,7 @@ void display_CeLiang_Page()
 			  	LcmClear();
 				
 
-				if((lock == 0x30)||((use_sat[0]-0x30)*10+ (use_sat[1]-0x30)==0))	//定位不成功.
+				if((lock == 0x30)||(((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))==0))	//定位不成功.
 				{
 				Display_Chinese(ding,6,0); //定
 				Display_Chinese(wei,6,16); //位
@@ -1345,7 +1419,9 @@ void Update_jilu_page()
   	unsigned char time[5],zouchang[20],mianji[20],TEST_8[20],ItoaBuffer[6];
 	unsigned char count,DanweiF;
 	unsigned int IndexNewNumBuffer;
-	Get_Data(TEST_2,time,zouchang,mianji,TEST_8,&DanweiF);
+	unsigned int danjia;
+	unsigned char offset = 0;
+	Get_Data(TEST_2,time,zouchang,mianji,TEST_8,&DanweiF, &danjia);
 	IndexNewNumBuffer =  TEST_2+1;
 	sprintf(ItoaBuffer, "%02d", IndexNewNumBuffer);
 	LcmClear();
@@ -1375,7 +1451,36 @@ void Update_jilu_page()
 	zf_disp8x16(Num_8_16[time[2]-0x30], 6, 112); 
 	zf_disp8x16(Num_8_16[time[3]-0x30], 6, 120); 
 
-	
+	Display_Chinese(dan,4,0);
+	Display_Chinese(jia,4,16);
+	if( (unsigned char)(danjia/1000)>0 )
+	{
+		zf_disp8x16(Num_8_16[(unsigned char)(danjia/1000)], 4, 32+offset);
+		offset += 8;
+	}
+	danjia = danjia%1000;
+	if( offset>0 || (unsigned char)(danjia/100)>0 )
+	{
+		zf_disp8x16(Num_8_16[(unsigned char)(danjia/100)], 4, 32+offset);
+		offset += 8;
+	}
+	danjia = danjia%100;
+	if( offset>0 || (unsigned char)(danjia/10)>0 )
+	{
+		zf_disp8x16(Num_8_16[(unsigned char)(danjia/10)], 4, 32+offset);
+		offset += 8;
+	}
+	danjia = danjia%10;
+	zf_disp8x16(Num_8_16[danjia], 4, 32+offset);
+	offset += 8;
+	Display_Chinese(yuan,4,32+offset);
+	offset += 16;
+	for( ; 32+offset<128; offset+=8)
+	{
+		zf_disp8x16(kong, 4, 32+offset);
+	}
+
+#if 0
 	Display_Chinese(zou,4,0);
 	Display_Chinese(chang,4,16);
 	
@@ -1398,7 +1503,7 @@ void Update_jilu_page()
 	  Display_Chinese(qian,4,96); //:
 	  Display_Chinese(mi,4,112); //:
 	 }
-	
+#endif
 
 	Display_Chinese(mian,2,0); //走
 	Display_Chinese(ji2,2,16); //长
