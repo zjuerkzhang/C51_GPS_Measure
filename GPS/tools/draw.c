@@ -2,13 +2,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define LCD_TO_BMP 0
-#define TST_PRINT  0
+#define LCD_TO_BMP 2
+#define TST_PRINT  1
 /*
 0: convert BMP to LCD byte stream
 1: convert original LCD byte stream to BMP
 2: convert modified LCD byte stream to BMP
 */
+
+#define SUCCESS_EC 0
+#define UNSUCCESS_EC -1
 
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
@@ -298,7 +301,54 @@ void array2bmp_mapping__r(int col, int row, int bmp_height, int bmp_width, int *
 	
 }
 
-#if LCD_TO_BMP > 0
+void print_guide()
+{
+  printf("print_guide\n");
+}
+
+int convert_bmp_to_lcd( const char *p_file_name )
+{
+
+#if TST_PRINT
+  printf("==> converst bmp to lcd from %s\n", p_file_name);
+#endif
+  
+  return SUCCESS_EC;
+
+}
+
+main(int argc, char *argv[])
+{
+  char *ptr = NULL;
+  int  argv_len, tmp_len;
+  int  ret_val = SUCCESS_EC;
+  
+  if(2==argc && strcmp(argv[1],"b2l")==0 )
+  {
+    ret_val = convert_bmp_to_lcd("input.bmp");
+  }
+  else if(3==argc && strcmp(argv[1],"b2l")==0 )
+  {
+    argv_len = strlen(argv[2]);
+    tmp_len = strlen(".bmp");
+    if( (argv_len > tmp_len) && (strcmp(argv[2]+argv_len-tmp_len, ".bmp")==0) )
+    {
+      ret_val = convert_bmp_to_lcd(argv[2]);
+    }
+    else
+    {
+      printf("/*** Illegal file name: %s ***/\n", argv[2]);
+      print_guide();
+      return;
+    }    
+  }
+  else
+  {
+    print_guide();    
+  }    
+}
+
+#if 0
 main()
 {
 	int i,j;
@@ -451,7 +501,6 @@ main()
 	*/
 }
 
-#else
 
 main()
 {
