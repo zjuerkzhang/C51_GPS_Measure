@@ -2,13 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define LCD_TO_BMP 2
-#define TST_PRINT  1
-/*
-0: convert BMP to LCD byte stream
-1: convert original LCD byte stream to BMP
-2: convert modified LCD byte stream to BMP
-*/
+#define TST_PRINT  0
 
 #define SUCCESS_EC 0
 #define UNSUCCESS_EC -1
@@ -546,9 +540,38 @@ int convert_bmp_to_lcd__r( const char *p_file_name )
   return SUCCESS_EC;
 }
 
+unsigned int hex_str_to_int( char *p_str )
+{
+    unsigned int ret = 0;
+    
+    if( !((*p_str=='0') && (*(p_str+1)=='x' || *(p_str+1)=='X')) )
+        return ret;
+    
+    p_str += 2;
+    while((*p_str<='9' && *p_str>='0') || (*p_str<='F' && *p_str>='A') || 
+          (*p_str<='f' && *p_str>='a'))
+    {
+        if(*p_str>='0' && *p_str<='9')
+        {
+            ret = ret*16 + *p_str - '0';
+        }
+        else if(*p_str<='F' && *p_str>='A')
+        {
+            ret = ret*16 + 10 + *p_str - 'A';
+        }
+        else if(*p_str<='f' && *p_str>='a')
+        {
+            ret = ret*16 + 10 + *p_str - 'a';
+        }
+        
+        p_str++;
+    }
+    
+    return ret;
+}
+
 int read_lcd_stream_to_buffer__r( const char *p_file_name,
-                                  uint32_t p_height,
-                                  uint32_t p_width,
+                                  uint32_t p_lcd_str_len,
                                   unsigned char **p_lcd_buff )
 {
   int  ret_val = SUCCESS_EC;
@@ -557,7 +580,6 @@ int read_lcd_stream_to_buffer__r( const char *p_file_name,
   char *file_buff = NULL;
   char *ptr_read_hdr = NULL;
   char *ptr_read_tear = NULL;
-  unsigned char *ptr_write = NULL; 
   int  lcd_buff_idx; 
   
 #if TST_PRINT
@@ -586,7 +608,7 @@ int read_lcd_stream_to_buffer__r( const char *p_file_name,
   fread(file_buff, 1, file_size, ptr_file);
   fclose(ptr_file);
   
-  *p_lcd_buff = (char *)malloc(p_height*p_width/8);
+  *p_lcd_buff = (char *)malloc(p_lcd_str_len);
   if( *p_lcd_buff == NULL )
   {
     printf("/*** Fail to allocate memery for LCD stream buffer! ***/\n");
@@ -595,10 +617,16 @@ int read_lcd_stream_to_buffer__r( const char *p_file_name,
   }
   
   ptr_read_hdr = file_buff;
-  ptr_write = *p_lcd_buff;
   
-  for( lcd_buff_idx=0; lcd_buff_idx<p_height*p_width/8; lcd_buff_idx++ )
+  for( lcd_buff_idx=0; lcd_buff_idx<p_lcd_str_len; lcd_buff_idx++ )
   {
+    while( (ptr_read_hdr < file_buff+file_size) &&
+           !((*ptr_read_hdr<='9' && *ptr_read_hdr>='0') || (*ptr_read_hdr<='F' && *ptr_read_hdr>='A') || 
+           (*ptr_read_hdr<='f' && *ptr_read_hdr>='a') || (*ptr_read_hdr=='x') || (*ptr_read_hdr=='X')) )
+    {
+        ptr_read_hdr++;
+    }
+    
     if(ptr_read_hdr - file_buff >= file_size )
     {
       printf("/*** Not enough LCD stream for BMP file! ***/\n");
@@ -609,18 +637,176 @@ int read_lcd_stream_to_buffer__r( const char *p_file_name,
     
     for( ptr_read_tear=ptr_read_hdr; ptr_read_tear<(file_buff+file_size); ptr_read_tear++ )
     {
-      
+        if(!((*ptr_read_tear<='9' && *ptr_read_tear>='0') || (*ptr_read_tear<='F' && *ptr_read_tear>='A') || 
+           (*ptr_read_tear<='f' && *ptr_read_tear>='a') || (*ptr_read_tear=='x') || (*ptr_read_tear=='X')) )
+        {
+            break;
+        }              
     }
     
+    if(ptr_read_tear - file_buff >= file_size )
+    {
+      printf("/*** Not enough LCD stream for BMP file! ***/\n");
+      free(file_buff);
+      free(*p_lcd_buff);
+      return UNSUCCESS_EC;
+    }
+    
+    *ptr_read_tear = '\0';   
+    *(*p_lcd_buff+lcd_buff_idx) = (unsigned char)hex_str_to_int(ptr_read_hdr);
+    ptr_read_hdr = ptr_read_tear + 1;    
   }
   
+  free(ptr_file);
+  
+  return SUCCESS_EC;
 }
+
+void map_lcd_stream_to_bit_array__r( unsigned char *p_lcd_stream,
+                                     uint32_t p_lcd_str_len,
+                                     uint32_t p_width,
+                                     uint32_t p_height,
+                                     char *p_bit_array )
+{
+    int  i, j, row, col;
+    
+#if TST_PRINT
+    printf("==> map_lcd_stream_to_bit_array__r\n");
+#endif
+    
+    for( i=0; i<p_lcd_str_len; i++ )
+	{
+		for(j=0;j<8;j++)
+		{
+			lcd2array_mapping__r(i, j, p_width, &col, &row);
+			if(get_bit__r(*(p_lcd_stream+i), j)>0)
+				*(p_bit_array + row*p_width + col) = 1;
+		}
+	}
+
+#if TST_PRINT
+    for(row=0; row<p_height; row++)
+    {
+        for(col=0; col<p_width; col++)
+        {
+            if(*(p_bit_array + row*p_width + col) > 0)
+            {
+                printf("*");
+            }
+            else
+            {
+                printf(" ");
+            }
+        }
+        printf("\n");
+    }
+#endif    
+    
+}
+
+void map_bit_array_to_bmp__r( char *p_bit_array,
+                              uint32_t p_bmp_data_len,
+                              uint32_t p_width,
+                              uint32_t p_height,
+                              unsigned char *p_bmp_data )
+{
+    int  i, j, row, col;
+    
+#if TST_PRINT
+    printf("==> map_bit_array_to_bmp__r\n");
+#endif
+    
+    for(row=0; row<p_height; row++)
+	{
+		for(col=0;col<p_width;col++)
+		{			
+			array2bmp_mapping__r(col, row, p_height, p_width, &i, &j);
+			if(*(p_bit_array + row*p_width + col) > 0)
+			{
+				set_bit__r(p_bmp_data+i, j);
+			}						
+		}
+	}
+    
+}
+
+int write_bmp_file__r( unsigned char *p_bmp_data,
+                       char *p_file_name,
+                       uint32_t p_bmp_data_len,
+                       uint32_t p_width,
+                       uint32_t p_height )
+{
+    int ret_val = SUCCESS_EC;
+    FILE *ptr_file = NULL;
+    unsigned char *bmp_file_buff = NULL;
+    int  bmp_hdr_len;
+    bmpfile_header__t *ptr_bmp_file_hdr = NULL;
+    bitmap_info_header__t *ptr_bmp_info_hdr = NULL;
+    uint32_t *color_value = NULL;
+    
+#if TST_PRINT
+    printf("==> write_bmp_file__r\n");
+#endif
+
+    bmp_hdr_len = sizeof(bmpfile_magic__t) + sizeof(bmpfile_header__t) +
+                  sizeof(bitmap_info_header__t) + 2*sizeof(uint32_t);
+    bmp_file_buff = (unsigned char *)malloc( bmp_hdr_len );
+    if(bmp_file_buff == NULL)
+    {
+        printf("/*** Fail to allocate memery for BMP file header! ***/\n");
+        return UNSUCCESS_EC;
+    }
+    memset(bmp_file_buff, 0, bmp_hdr_len);
+    
+    /* Magic Number */
+    *bmp_file_buff = 'B';
+    *(bmp_file_buff+1) = 'M';
+    
+    /* BMP file header */
+    ptr_bmp_file_hdr = (bmpfile_header__t *)(bmp_file_buff+sizeof(bmpfile_magic__t));
+	ptr_bmp_info_hdr = (bitmap_info_header__t *)(ptr_bmp_file_hdr+1);
+	color_value = (uint32_t *)(ptr_bmp_info_hdr + 1);
+	
+	ptr_bmp_file_hdr->filesz = p_bmp_data_len + bmp_hdr_len;
+    ptr_bmp_file_hdr->bmp_offset = bmp_hdr_len;
+    
+	ptr_bmp_info_hdr->header_sz = 40;
+    ptr_bmp_info_hdr->width = p_width;
+    ptr_bmp_info_hdr->height = p_height;
+    ptr_bmp_info_hdr->nplanes = 1;
+    ptr_bmp_info_hdr->bitspp = 1;
+    ptr_bmp_info_hdr->compress_type = 0;
+    ptr_bmp_info_hdr->bmp_bytesz = p_bmp_data_len;
+	
+	*color_value = 0;
+	*(color_value+1) = 0xFFFFFF;
+	
+	ptr_file = fopen(p_file_name, "wb");
+	if(NULL==ptr_file)
+	{
+		printf("/*** Fail to create BMP file %s! ***/!\n", p_file_name);
+		free(bmp_file_buff);
+		return UNSUCCESS_EC;
+	}
+	
+	fwrite(bmp_file_buff, 1, bmp_hdr_len, ptr_file);
+	fwrite(p_bmp_data, 1, p_bmp_data_len, ptr_file);
+	
+	free(bmp_file_buff);
+	fclose(ptr_file);
+	
+    return SUCCESS_EC;
+}
+
 
 int convert_lcd_to_bmp__r( const char *p_file_name, 
                            uint32_t p_height,
                            uint32_t p_width )
 {
   int  ret_val = SUCCESS_EC;
+  unsigned char *lcd_buff = NULL;
+  char *bit_array = NULL;
+  unsigned char *bmp_data_buff = NULL;
   
 #if TST_PRINT
   printf("==> convert_lcd_to_bmp__r\n");
@@ -629,10 +815,57 @@ int convert_lcd_to_bmp__r( const char *p_file_name,
   printf("    p_width:     %d\n", p_width);
 #endif
   
+  ret_val = read_lcd_stream_to_buffer__r( p_file_name,
+                                          p_height*p_width/8,
+                                          &lcd_buff );
+  if( ret_val != SUCCESS_EC )
+  {
+    return ret_val;
+  }
   
+  bit_array = (char *)malloc(p_height*p_width);
+  if( bit_array == NULL )
+  {
+    free(lcd_buff);
+    printf("/*** Fail to allocate memery for bit array! ***/\n");
+    return UNSUCCESS_EC;
+  }
+  memset( bit_array, 0, p_height*p_width );
   
-  return SUCCESS_EC;
+  map_lcd_stream_to_bit_array__r( lcd_buff, 
+                                  p_height*p_width/8,
+                                  p_width,
+                                  p_height,
+                                  bit_array );
+  free(lcd_buff);
+  
+  bmp_data_buff = (unsigned char *)malloc(p_height*p_width/8);
+  if( bmp_data_buff == NULL )
+  {
+    free(bit_array);
+    printf("/*** Fail to allocate memery for BMP data buffer! ***/\n");
+    return UNSUCCESS_EC;
+  }
+  memset(bmp_data_buff, 0, p_height*p_width/8);
+  
+  map_bit_array_to_bmp__r( bit_array,
+                           p_height*p_width/8,
+                           p_width,
+                           p_height,
+                           bmp_data_buff ); 
+  free(bit_array);
+  
+  ret_val = write_bmp_file__r( bmp_data_buff,
+                               "output.bmp",
+                               p_height*p_width/8,
+                               p_width,
+                               p_height );
+  free(bmp_data_buff); 
+    
+  return ret_val;
 }
+
+
 
 main(int argc, char *argv[])
 {
@@ -722,252 +955,3 @@ main(int argc, char *argv[])
   }    
 }
 
-#if 0
-main()
-{
-	int i,j;
-	int row, col;
-	//int page,bit_idx,byte_idx;
-#if LCD_TO_BMP >1
-    unsigned char *p = modified_logo;
-#else	
-	unsigned char *p = logo;
-#endif
-	unsigned char bit_array[64][128];
-	unsigned char bmp_content_buff[1024];	
-	FILE *p_file = NULL;
-	unsigned char magic_num[2] = {'B', 'M'};
-	char *bmp_buff = NULL;
-	int bmp_buff_size = 0;
-	bmpfile_header__t *p_bmpfile_hd = NULL;
-	bitmap_info_header__t *p_bf_info_hd = NULL;
-	uint32_t *p_padding = NULL;
-	
-	
-	memset(bit_array, 0, sizeof(bit_array));
-	memset(bmp_content_buff, 0, sizeof(bmp_content_buff));
-	
-	for( i=0; i<sizeof(logo); i++ )
-	{
-		for(j=0;j<8;j++)
-		{
-			lcd2array_mapping__r(i, j, 128, &col, &row);
-			if(get_bit__r(*(p+i), j)>0)
-				bit_array[row][col] = 1;
-		}
-	}
-	
-	for(row=0; row<64; row++)
-	{
-		for(col=0;col<128;col++)
-		{			
-			array2bmp_mapping__r(col, row, 64, 128, &i, &j);
-			if(bit_array[row][col]>0)
-			{
-				set_bit__r(&bmp_content_buff[i], j);
-#if TST_PRINT
-				printf("*");
-#endif
-			}
-			else
-			{
-#if TST_PRINT
-				printf(" ");
-#endif
-			}			
-		}
-#if TST_PRINT
-		printf("\n");
-#endif
-	}
-	
-	bmp_buff = (char *)malloc(sizeof(bmpfile_magic__t));
-	if(NULL==bmp_buff)
-	{
-		printf("allocate buffer failed: bmpfile_magic__t\n");
-		return;
-	}
-	bmp_buff_size += sizeof(bmpfile_magic__t);
-	*bmp_buff = 'B';
-	*(bmp_buff+1) = 'M';
-	
-	bmp_buff = (char *)realloc(bmp_buff, bmp_buff_size+sizeof(bmpfile_header__t));
-	if(NULL==bmp_buff)
-	{
-		printf("allocate buffer failed: bmpfile_header__t\n");
-		return;
-	}
-	p_bmpfile_hd = (bmpfile_header__t *)(bmp_buff+bmp_buff_size);
-	bmp_buff_size += sizeof(bmpfile_header__t);
-	memset(p_bmpfile_hd, 0, sizeof(bmpfile_header__t));
-	/*
-    uint32_t filesz;
-    uint16_t creator1;
-    uint16_t creator2;
-    uint32_t bmp_offset;	
-    */
-	
-	bmp_buff = (char *)realloc(bmp_buff, bmp_buff_size+sizeof(bitmap_info_header__t));
-	if(NULL==bmp_buff)
-	{
-		printf("allocate buffer failed: bitmap_info_header__t\n");
-		return;
-	}
-	p_bf_info_hd = (bitmap_info_header__t *)(bmp_buff+bmp_buff_size);
-	bmp_buff_size += sizeof(bitmap_info_header__t);
-	memset(p_bf_info_hd, 0, sizeof(bitmap_info_header__t));
-    p_bf_info_hd->header_sz = 40;
-    p_bf_info_hd->width = 128;
-    p_bf_info_hd->height = 64;
-    p_bf_info_hd->nplanes = 1;
-    p_bf_info_hd->bitspp = 1;
-    p_bf_info_hd->compress_type = 0;
-    p_bf_info_hd->bmp_bytesz = (p_bf_info_hd->width)*(p_bf_info_hd->height)/8;
-    /*
-    int32_t hres;
-    int32_t vres;
-    uint32_t ncolors;
-    uint32_t nimpcolors;	
-    */
-    
-    bmp_buff = (char *)realloc(bmp_buff, bmp_buff_size+2*sizeof(uint32_t));
-	if(NULL==bmp_buff)
-	{
-		printf("allocate buffer failed: uint32_t\n");
-		return;
-	}
-	p_padding = (uint32_t *)(bmp_buff+bmp_buff_size);
-	bmp_buff_size += 2*sizeof(uint32_t);
-	*p_padding = 0;
-	*(p_padding+1) = 0xFFFFFF;
-    
-    p_bmpfile_hd->filesz = p_bf_info_hd->bmp_bytesz + bmp_buff_size;
-    p_bmpfile_hd->bmp_offset = bmp_buff_size;
-	
-	p_file = fopen("output.bmp", "wb");
-	if(NULL==p_file)
-	{
-		printf("open file failed!\n");
-		return;
-	}
-	
-	fwrite(bmp_buff, 1, bmp_buff_size, p_file);
-	fwrite(bmp_content_buff, 1, sizeof(bmp_content_buff), p_file);
-	
-	fclose(p_file);
-	
-	free(bmp_buff);
-	/*
-	for(i=0;i<64;i++)
-	{
-		page = (int)(i/8);
-		bit_idx = i%8;
-		for(j=0;j<128;j++)
-		{
-			byte_idx = page*128 + j;
-			if( get_bit__r(*(logo+byte_idx), 7-bit_idx)>0)
-				printf("*");
-			else
-				printf(" ");
-		}
-		printf("\n");
-	}
-	*/
-}
-
-
-main()
-{
-	FILE *p_file = NULL;
-	long file_size;
-	unsigned char *bmp_file_buff = NULL;
-	unsigned char *bmp_buff = NULL;
-	bmpfile_header__t *p_bmpfile_hd = NULL;
-	int i, j;
-	int col, row;
-	unsigned char bit_array[64][128];
-	unsigned char lcd_buff[1024];
-	
-	memset(lcd_buff, 0, sizeof(lcd_buff));
-	memset(bit_array, 0, sizeof(bit_array));
-	p_file = fopen("input.bmp", "rb");
-	if(NULL==p_file)
-	{
-		printf("open file failed!\n");
-		return;
-	}
-	
-	fseek (p_file , 0 , SEEK_END);
-	file_size = ftell (p_file);
-	rewind (p_file);
-	
-	bmp_file_buff = (char *)malloc(file_size);
-	if(bmp_file_buff == NULL)
-	{
-		printf("allocate buffer failed\n");
-		return;
-	}
-	
-	fread(bmp_file_buff, 1, file_size, p_file);
-	fclose(p_file);
-	
-	p_bmpfile_hd = (bmpfile_header__t *)(bmp_file_buff + sizeof(bmpfile_magic__t));
-	bmp_buff = bmp_file_buff + p_bmpfile_hd->bmp_offset;
-	
-	for(i=0; i<(p_bmpfile_hd->filesz - p_bmpfile_hd->bmp_offset); i++)
-	{
-		for(j=0;j<8;j++)
-		{
-			bmp2array_mapping__r(i, j, 64, 128, &col, &row);
-			if(get_bit__r(*(bmp_buff+i), j)>0)
-			{
-				bit_array[row][col]=1;
-			}			
-		}
-	}
-	
-	free(bmp_file_buff);
-	
-	for(row=0; row<64; row++)
-	{
-		for(col=0;col<128;col++)
-		{			
-			array2lcd_mapping__r(row, col, 128, &i, &j);
-			if(bit_array[row][col]>0)
-			{
-				set_bit__r(&lcd_buff[i], j);
-#if TST_PRINT
-				printf("*");
-#endif
-			}
-			else
-			{
-#if TST_PRINT
-				printf(" ");
-#endif
-			}			
-		}
-#if TST_PRINT
-		printf("\n");
-#endif
-	}
-	
-	p_file = fopen("output.txt", "wt");
-	if( p_file == NULL )
-	{
-		printf("open file output.txt failed\n");
-		return;
-	}
-	
-	for(i=0; i<sizeof(lcd_buff);i++)
-	{
-		if(i%16 == 0)
-			fprintf(p_file, "\n");
-		fprintf(p_file, "0x%02X,", lcd_buff[i]);
-	}
-	
-	fclose(p_file);
-}
-
-
-#endif
