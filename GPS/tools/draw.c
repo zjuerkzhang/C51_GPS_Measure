@@ -301,31 +301,349 @@ void array2bmp_mapping__r(int col, int row, int bmp_height, int bmp_width, int *
 	
 }
 
-void print_guide()
+void print_guide__r()
 {
-  printf("print_guide\n");
+  printf("\n");
+  printf("/***************************************************************/\n");
+  printf("/* B2LConverter:                                               */\n");
+  printf("/* --used to convert BMP picture to LCD display byte stream;   */\n");
+  printf("/* --used to convert LCD display byte stream to BMP picture;   */\n");
+  printf("/*-------------------------------------------------------------*/\n");
+  printf("/* Usage:                                                      */\n");
+  printf("/*  BMP => LCD: B2LConverter b2l [BMP file name]               */\n");
+  printf("/*          eg: B2LConverter b2l test.bmp                      */\n");
+  printf("/*  LCD => BMP: B2LConverter l2b <height> <width> [TXT file]   */\n");
+  printf("/*          eg: B2LConverter l2b 64 128 test.txt               */\n");
+  printf("/***************************************************************/\n");
+  printf("\n");
 }
 
-int convert_bmp_to_lcd( const char *p_file_name )
+int read_bmp_file_to_buffer__r( const char *p_file_name, 
+                                char **p_data_buff, 
+                                uint32_t *p_data_size,
+                                uint32_t *p_width,
+                                uint32_t *p_height )
 {
+  int ret_val = SUCCESS_EC;
+  long file_size;
+  FILE *ptr_file = NULL;
+  char *bmp_file_buff = NULL;
+  char *bmp_data_buff = NULL;
+  bmpfile_header__t *ptr_bmpfile_hd = NULL;
+  bitmap_info_header__t *ptr_bmp_info_hd = NULL;
+  
+#if TST_PRINT
+  printf("==> read_bmp_file_to_buffer__r %s\n", p_file_name);
+#endif
+  
+  ptr_file = fopen(p_file_name, "rb");
+  if(NULL==ptr_file)
+  {
+    printf("/*** Fail to open file %s! ***/\n", p_file_name);
+    return UNSUCCESS_EC;
+  }
+  
+  fseek (ptr_file , 0 , SEEK_END);
+  file_size = ftell (ptr_file);
+  rewind (ptr_file);
+  
+  bmp_file_buff = (char *)malloc(file_size);
+  if(bmp_file_buff == NULL)
+  {
+    printf("/*** Fail to allocate memery buffer for BMP file! ***/\n");
+    fclose(ptr_file);
+    return UNSUCCESS_EC;
+  }
 
+  fread(bmp_file_buff, 1, file_size, ptr_file);
+  fclose(ptr_file);
+	
+  ptr_bmpfile_hd = (bmpfile_header__t *)(bmp_file_buff + sizeof(bmpfile_magic__t));
+  ptr_bmp_info_hd = (bitmap_info_header__t *)( bmp_file_buff + 
+                                               sizeof(bmpfile_magic__t) +
+                                               sizeof(bmpfile_header__t) );
+  *p_data_size = ptr_bmp_info_hd->bmp_bytesz;
+  *p_width = ptr_bmp_info_hd->width;
+  *p_height = ptr_bmp_info_hd->height;
+
+#if TST_PRINT
+  printf("p_data_size: %d\n", *p_data_size);
+  printf("p_width:     %d\n", *p_width);
+  printf("p_height:    %d\n", *p_height);
+#endif
+  
+  if( (*p_width%8 != 0) || (*p_height%8 != 0) )
+  {
+    printf("/*** The size of BMP file is not (8M)X(8N)! ***/\n");
+    free(bmp_file_buff);
+    return UNSUCCESS_EC;
+  }
+  
+  *p_data_buff = (char *)malloc(*p_data_size);
+  if( *p_data_buff == NULL )
+  {
+    printf("/*** Fail to allocate memery buffer for BMP data! ***/\n");
+    free(bmp_file_buff);
+    return UNSUCCESS_EC;
+  }
+  
+  memcpy( *p_data_buff, 
+          (bmp_file_buff+ptr_bmpfile_hd->bmp_offset ),
+          *p_data_size );
+  free(bmp_file_buff);
+    
+  return SUCCESS_EC;
+}
+
+void map_bmp_to_bit_array__r( char *p_bmp_data_buff,
+                              char *p_bit_array,
+                              uint32_t p_bmp_data_size,
+                              uint32_t p_bmp_width,
+                              uint32_t p_bmp_height )
+{
+  int i, j, col, row;
+  
+#if TST_PRINT
+  printf("==> map_bmp_to_bit_array__r\n");
+#endif  
+  
+  for(i=0; i<p_bmp_data_size; i++)
+  {
+    for(j=0;j<8;j++)
+    {
+      bmp2array_mapping__r(i, j, p_bmp_height, p_bmp_width, &col, &row);
+      if(get_bit__r(*(p_bmp_data_buff+i), j)>0)
+      {
+        *(p_bit_array + row*p_bmp_width + col)=1;
+      }
+    }
+  }
+}
+
+void map_bit_array_to_lcd_stream__r( char *p_bit_array,
+                                     unsigned char *p_lcd_stream,
+                                     uint32_t p_bmp_width,
+                                     uint32_t p_bmp_height )
+{
+  int i, j, col, row;
+  
+#if TST_PRINT
+  printf("==> map_bit_array_to_lcd_stream__r\n");
+#endif    
+  
+  for(row=0; row<p_bmp_height; row++)
+  {
+    for(col=0;col<p_bmp_width;col++)
+    {
+      array2lcd_mapping__r(row, col, p_bmp_width, &i, &j);
+      if(*(p_bit_array + row*p_bmp_width + col) > 0)
+      {
+        set_bit__r((p_lcd_stream+i), j);
+#if TST_PRINT
+        printf("*");
+#endif
+      }
+      else
+      {
+#if TST_PRINT
+        printf(" ");
+#endif
+      }			
+    }
+#if TST_PRINT
+    printf("\n");
+#endif
+  }  
+}
+
+int write_lcd_stream_to_file__r( unsigned char *p_lcd_stream,
+                                 uint32_t p_lcd_stream_len,
+                                 const char *p_file_name )
+{
+  FILE *ptr_file = NULL;
+  int i;
+
+#if TST_PRINT
+  printf("==> write_lcd_stream_to_file__r\n");
+#endif    
+  
+  ptr_file = fopen(p_file_name, "wt");
+  if( ptr_file == NULL )
+  {
+    printf("/*** Fail to create LCD stream file %s! ***/\n", p_file_name);
+    return UNSUCCESS_EC;
+  }
+  
+  for(i=0; i<p_lcd_stream_len;i++)
+  {
+    fprintf(ptr_file, "0x%02X,", *(p_lcd_stream+i));
+    
+    if(i%16 == 15)
+      fprintf(ptr_file, "\n");   
+  }
+  
+  fclose(ptr_file);
+  
+  return SUCCESS_EC;
+}
+
+int convert_bmp_to_lcd__r( const char *p_file_name )
+{
+  int ret_val = SUCCESS_EC;
+  char *ptr_bmp_data_buff = NULL;
+  char *ptr_bit_array = NULL;
+  unsigned char *ptr_lcd_stream = NULL;
+  uint32_t bmp_data_size, bmp_width, bmp_height;
+  
 #if TST_PRINT
   printf("==> converst bmp to lcd from %s\n", p_file_name);
 #endif
   
+  ret_val = read_bmp_file_to_buffer__r( p_file_name,
+                                        &ptr_bmp_data_buff,
+                                        &bmp_data_size,
+                                        &bmp_width,
+                                        &bmp_height );
+  if( ret_val != SUCCESS_EC )
+  {
+    return ret_val;
+  }
+  
+  ptr_bit_array = (char *)malloc(bmp_width*bmp_height);
+  if( ptr_bit_array == NULL )
+  {
+    printf("/*** Fail to allocate memery for bit array! ***/\n");
+    free(ptr_bmp_data_buff);
+    return UNSUCCESS_EC;
+  }
+  memset(ptr_bit_array, 0, bmp_width*bmp_height);
+  
+  map_bmp_to_bit_array__r( ptr_bmp_data_buff, 
+                           ptr_bit_array,
+                           bmp_data_size,
+                           bmp_width,
+                           bmp_height );  
+  free(ptr_bmp_data_buff);
+  
+  ptr_lcd_stream = (unsigned char *)malloc(bmp_width*bmp_height/8);
+  if( ptr_lcd_stream == NULL )
+  {
+    printf("/*** Fail to allocate memery for LCD steam! ***/\n");
+    free(ptr_bit_array);
+    return UNSUCCESS_EC;
+  }
+  memset( ptr_lcd_stream, 0, bmp_width*bmp_height/8 );
+  
+  map_bit_array_to_lcd_stream__r( ptr_bit_array,
+                                  ptr_lcd_stream,
+                                  bmp_width,
+                                  bmp_height );                                                                   
+  free(ptr_bit_array);  
+  
+  write_lcd_stream_to_file__r( ptr_lcd_stream, bmp_width*bmp_height/8, "output.txt" );
+  free(ptr_lcd_stream);
+  
   return SUCCESS_EC;
+}
 
+int read_lcd_stream_to_buffer__r( const char *p_file_name,
+                                  uint32_t p_height,
+                                  uint32_t p_width,
+                                  unsigned char **p_lcd_buff )
+{
+  int  ret_val = SUCCESS_EC;
+  FILE *ptr_file = NULL;
+  long file_size;
+  char *file_buff = NULL;
+  char *ptr_read_hdr = NULL;
+  char *ptr_read_tear = NULL;
+  unsigned char *ptr_write = NULL; 
+  int  lcd_buff_idx; 
+  
+#if TST_PRINT
+  printf("==> read_lcd_stream_to_buffer__r\n");
+#endif
+  
+  ptr_file = fopen(p_file_name, "rt");
+  if(NULL==ptr_file)
+  {
+    printf("/*** Fail to open file %s! ***/\n", p_file_name);
+    return UNSUCCESS_EC;
+  }
+  
+  fseek (ptr_file , 0 , SEEK_END);
+  file_size = ftell (ptr_file);
+  rewind (ptr_file);
+  
+  file_buff = (char *)malloc(file_size);
+  if( file_buff == NULL )
+  {
+    printf("/*** Fail to allocate memery for LCD stream file! ***/\n");
+    fclose(ptr_file);
+    return UNSUCCESS_EC;
+  }
+  
+  fread(file_buff, 1, file_size, ptr_file);
+  fclose(ptr_file);
+  
+  *p_lcd_buff = (char *)malloc(p_height*p_width/8);
+  if( *p_lcd_buff == NULL )
+  {
+    printf("/*** Fail to allocate memery for LCD stream buffer! ***/\n");
+    free(file_buff);
+    return UNSUCCESS_EC;
+  }
+  
+  ptr_read_hdr = file_buff;
+  ptr_write = *p_lcd_buff;
+  
+  for( lcd_buff_idx=0; lcd_buff_idx<p_height*p_width/8; lcd_buff_idx++ )
+  {
+    if(ptr_read_hdr - file_buff >= file_size )
+    {
+      printf("/*** Not enough LCD stream for BMP file! ***/\n");
+      free(file_buff);
+      free(*p_lcd_buff);
+      return UNSUCCESS_EC;
+    }
+    
+    for( ptr_read_tear=ptr_read_hdr; ptr_read_tear<(file_buff+file_size); ptr_read_tear++ )
+    {
+      
+    }
+    
+  }
+  
+}
+
+int convert_lcd_to_bmp__r( const char *p_file_name, 
+                           uint32_t p_height,
+                           uint32_t p_width )
+{
+  int  ret_val = SUCCESS_EC;
+  
+#if TST_PRINT
+  printf("==> convert_lcd_to_bmp__r\n");
+  printf("    p_file_name: %s\n", p_file_name);
+  printf("    p_height:    %d\n", p_height);
+  printf("    p_width:     %d\n", p_width);
+#endif
+  
+  
+  
+  return SUCCESS_EC;
 }
 
 main(int argc, char *argv[])
 {
   char *ptr = NULL;
   int  argv_len, tmp_len;
+  uint32_t height, width;
   int  ret_val = SUCCESS_EC;
   
   if(2==argc && strcmp(argv[1],"b2l")==0 )
   {
-    ret_val = convert_bmp_to_lcd("input.bmp");
+    ret_val = convert_bmp_to_lcd__r("input.bmp");
   }
   else if(3==argc && strcmp(argv[1],"b2l")==0 )
   {
@@ -333,18 +651,74 @@ main(int argc, char *argv[])
     tmp_len = strlen(".bmp");
     if( (argv_len > tmp_len) && (strcmp(argv[2]+argv_len-tmp_len, ".bmp")==0) )
     {
-      ret_val = convert_bmp_to_lcd(argv[2]);
+      ret_val = convert_bmp_to_lcd__r(argv[2]);
     }
     else
     {
       printf("/*** Illegal file name: %s ***/\n", argv[2]);
-      print_guide();
+      print_guide__r();
       return;
+    }    
+  }
+  else if( (argc>=4 && argc<=5) && strcmp(argv[1], "l2b")==0 )
+  {
+    for( ptr=argv[2]; *ptr!='\0'; ptr++ )
+    {
+      if( *ptr<'0' || *ptr>'9' )
+      {
+        printf("/*** Illegal height value! ***/\n");
+        print_guide__r();
+        return;
+      }
+    }
+    height = atoi(argv[2]);
+    if( height%8 != 0 )
+    {
+      printf("/*** The height given is not 8N: %d! ***/\n", height);
+      print_guide__r();
+      return;
+    }
+    
+    for( ptr=argv[3]; *ptr!='\0'; ptr++ )
+    {
+      if( *ptr<'0' || *ptr>'9' )
+      {
+        printf("/*** Illegal width value! ***/\n");
+        print_guide__r();
+        return;
+      }
+    }
+    width = atoi(argv[3]);
+    if( width%8 != 0 )
+    {
+      printf("/*** The width given is not 8N: %d! ***/\n", width);
+      print_guide__r();
+      return;
+    }
+    
+    if( argc == 4 )
+    {
+      ret_val = convert_lcd_to_bmp__r("input.txt", height, width);
+    }
+    else
+    {
+      argv_len = strlen(argv[4]);
+      tmp_len = strlen(".txt");
+      if( (argv_len > tmp_len) && (strcmp(argv[4]+argv_len-tmp_len, ".txt")==0) )
+      {
+        ret_val = convert_lcd_to_bmp__r(argv[4], height, width);
+      }
+      else
+      {
+        printf("/*** Illegal file name: %s ***/\n", argv[4]);
+        print_guide__r();
+        return;
+      }
     }    
   }
   else
   {
-    print_guide();    
+    print_guide__r();    
   }    
 }
 
