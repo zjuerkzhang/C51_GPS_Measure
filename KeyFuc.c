@@ -337,11 +337,14 @@ void KeyOperate()
 							}
 							else
 							{
-								DanweiState = 0x00 | danwei_mianji_sel;
-								DanweiState<<=1;
-								DanweiState =  DanweiState|danwei_zouchang_sel;
-								Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
-								FLAG1++;
+								if(gps_first_point != 1)
+								{
+									DanweiState = 0x00 | danwei_mianji_sel;
+									DanweiState<<=1;
+									DanweiState =  DanweiState|danwei_zouchang_sel;
+									Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
+									FLAG1++;
+								}
 							}
 							break;	
 							}
