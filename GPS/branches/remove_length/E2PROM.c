@@ -47,6 +47,9 @@ uchar code table[]={
 
 unsigned char history_cnt;
 unsigned char history_index;
+unsigned char sn_string[SN_NUM_LEN];
+unsigned char sn_focus_idx = 0;
+unsigned char data_tmp[6];
 
 extern unsigned char TEST2[];
 
@@ -277,8 +280,11 @@ typedef struct _HistoryData{
 	double zouchang;
 	double mianji;
 	double jiner;
-	unsigned char add_data;
-	unsigned int danjia;
+	unsigned int add_data;
+	/* Used to store danjia and Danwei selection
+	 * bit 15-14: Danwei selection
+	 * bit 13-0 : Danjia
+	 */
 } HistoryData;
 
 void write_one_char(unsigned char data1, unsigned int addr)
@@ -435,6 +441,66 @@ void store_system_data(unsigned char sys_data[])
 	}
 }
 
+void store_sn_data()
+{
+	unsigned char i;
+	unsigned char tmp = 0;
+	/*
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		write_one_char(sn_string[i],SN_DATA_START_ADDR+i);
+	}
+	*/
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		if((i%2) == 0)
+		{
+			tmp = sn_string[i]<<4;
+		}
+		else
+		{
+			tmp = tmp + sn_string[i];
+			data_tmp[(i-1)/2] = tmp;
+			//write_one_char(tmp,SN_DATA_START_ADDR+(i-1)/2);
+			tmp = 0;
+		}
+	}
+
+
+}
+
+void get_sn_data()
+{
+	unsigned char i;
+	unsigned char read_char;
+	bit flag = 0;
+
+	for(i=0; i<SN_NUM_LEN/2; i++)
+	{
+		read_char = data_tmp[i];
+		//read_char = read_one_char(SN_DATA_START_ADDR+i);
+		sn_string[i*2] = (read_char>>4) & 0x0F;
+		sn_string[i*2+1] = read_char & 0x0F;
+	}
+	/*
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		sn_string[i] = read_one_char(SN_DATA_START_ADDR+i);
+	}
+	*/
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		if(sn_string[i]>9)
+		{
+			flag = 1;
+			sn_string[i] = 0;
+		}
+	}
+	if(flag)
+		store_sn_data();
+
+}
+
 void get_system_data(unsigned char sys_data[])
 {
 	read_data_array(sys_data, SYSTEM_DATA_SIZE, SYSTEM_DATA_START_ADDR);
@@ -481,8 +547,8 @@ void Stor_Data(unsigned char Stor_Time[],unsigned char zouchang[],
 	data1.zouchang = atof(zouchang);
 	data1.mianji = atof(mianji);
 	data1.jiner = atof(jiner);
-	data1.add_data = add_data;
-	data1.danjia = TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3];
+	data1.add_data = (add_data&0x3)<<14;
+	data1.add_data |= TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3];
 
 	if (history_cnt >= HISTORY_DATA_MAX_CNT)
 		history_cnt = HISTORY_DATA_MAX_CNT;
@@ -518,8 +584,8 @@ char Get_Data(unsigned char index, unsigned char Stor_Time[],unsigned char zouch
 	sprintf(zouchang, "%08.1f", data1.zouchang);
 	sprintf(mianji, "%08.1f", data1.mianji);
 	sprintf(jiner, "%08.0f", data1.jiner);
-	*add_data = data1.add_data;
-	*danjia = data1.danjia;
+	*add_data = (unsigned char)((data1.add_data>>14)&0x3);
+	*danjia = data1.add_data&0x3FFF;
 
 	return 0;
 }

@@ -8,6 +8,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "e2prom.h"
+#include "keyfuc.h"
 
 #define  uchar  unsigned char
 #define  uint   unsigned int
@@ -78,6 +79,8 @@ unsigned int  TEST_7=1;
  
  unsigned char TEST2[] = {0,0,8,0,0};
  unsigned char TEST3[] = {0,0,0,0,0};
+ unsigned char celiang_run_light = 0;
+
  extern unsigned char danjiasel;
  
 extern bit danwei_zouchang_sel;
@@ -93,6 +96,7 @@ extern unsigned char JD[10];
 extern unsigned char WD[9]; 
 extern unsigned char curr_time[7]; 
 extern bit celiangPage_detail; 
+extern unsigned char celiangPage_idx;
 extern unsigned int StarNum; 
 extern unsigned char total_sat[3];
 
@@ -108,6 +112,8 @@ extern bit GPS_Point_Updata_WD_LCD_Fresh;
 extern bit GPS_Point_Updata_JD_LCD_Fresh;
 extern bit GPS_Point_Updata_SatNum_LCD_Fresh;
 extern bit Cacul_GoOn_F;
+extern unsigned char sn_string[SYSTEM_DATA_SIZE];
+extern unsigned char sn_focus_idx;
 
 void delay_ms(unsigned int ms)  
 {  
@@ -400,6 +406,27 @@ void zf_disp8x16(unsigned char ft[],uchar page,uchar column)
 		
 }
 
+void zf_disp7x16(unsigned char ft[],uchar page,uchar column)
+{
+	unsigned char k,num=0;
+ 		Set_Page_Address(page);
+    Set_Column_Address(column);
+		num=7;
+        for(k=0;k<7;k++)
+		{
+      		Write_Data(ft[num+k]);
+		}
+
+		Set_Page_Address(page+1);
+    Set_Column_Address(column);
+		num=0;
+        for(k=0;k<7;k++)
+		{
+      		Write_Data(ft[num+k]);
+		}
+
+}
+
 
 void reverse_zf_disp8x16(unsigned char ft[],uchar page,uchar column)
 {
@@ -422,6 +449,17 @@ void reverse_zf_disp8x16(unsigned char ft[],uchar page,uchar column)
 		
 }
 
+
+void zf_clear_page_to_end(uchar page, uchar column)
+{
+	unsigned char k;
+	Set_Page_Address(page);
+	Set_Column_Address(column);
+	for(k=column;k<128;k++)
+	{
+		Write_Data(0x00);
+	}
+}
 
 void zf_disp8x8(unsigned char ft[],uchar page,uchar column)
 {
@@ -957,14 +995,14 @@ void display_Idle()
 	 Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
 	 Update_Idle_page4_5_1_2(TEST_6);	
 }
-void display_CeLiang_Page()
+void display_CeLiang_Page( bit timer_fresh)
 {
 	unsigned int StartCol= 40;
 	unsigned char celiangCount;
 	unsigned char CharBuffer[6];
 	unsigned char offset = 0;
 	
-		if(!celiangPage_detail)
+		if(celiangPage_idx==CELIANG_WORKING_PAGE)
 		{
 			LcmClear();
 			if(0 == FLAG1)
@@ -1169,9 +1207,28 @@ void display_CeLiang_Page()
 					}
 					else
 					{
-						Display_Chinese(ce,4,80); //测
-						Display_Chinese(liang,4,96); //量
-						Display_Chinese(zhong,4,112); //中
+						offset = 80;
+						if(celiang_run_light>=1)
+						{
+							Display_Chinese(ce,4,80); //测
+							offset += 16;
+						}
+						if(celiang_run_light>=2)
+						{
+							Display_Chinese(liang,4,96); //量
+							offset += 16;
+						}
+						if(celiang_run_light>=3)
+						{
+							Display_Chinese(zhong,4,112); //中
+							offset += 16;
+						}
+						zf_clear_page_to_end(4,offset);
+						zf_clear_page_to_end(5,offset);
+						if(timer_fresh)
+							celiang_run_light++;
+						if(celiang_run_light >= 4)
+							celiang_run_light = 0;
 
 					}
 					//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);
@@ -1283,7 +1340,7 @@ void display_CeLiang_Page()
 				}
 			}
 		}
-		else
+		else if(celiangPage_idx==CELIANG_DETAIL_PAGE)
 		{
 		/*
 			Display_Chinese(ding,4,0); //1.
@@ -1399,8 +1456,30 @@ void display_CeLiang_Page()
 		  	   }
 			//}
 		}
-	
-  
+		else if(celiangPage_idx==CELIANG_SN_PAGE)
+		{
+			get_sn_data();
+			LcmClear();
+			Display_PD(sn_num_pic);
+
+			zf_disp7x16(Num_7_16[sn_string[0]], 1, 33);
+			zf_disp7x16(Num_7_16[sn_string[1]], 1, 33+7*1);
+			zf_disp7x16(Num_7_16[sn_string[2]], 1, 33+7*2);
+
+			zf_disp7x16(Num_7_16[10], 1, 33+7*3);
+
+			zf_disp7x16(Num_7_16[sn_string[3]], 1, 33+7*4);
+			zf_disp7x16(Num_7_16[sn_string[4]], 1, 33+7*5);
+			zf_disp7x16(Num_7_16[sn_string[5]], 1, 33+7*6);
+			zf_disp7x16(Num_7_16[sn_string[6]], 1, 33+7*7);
+			zf_disp7x16(Num_7_16[sn_string[7]], 1, 33+7*8);
+			zf_disp7x16(Num_7_16[sn_string[8]], 1, 33+7*9);
+			zf_disp7x16(Num_7_16[sn_string[9]], 1, 33+7*10);
+			zf_disp7x16(Num_7_16[sn_string[10]], 1, 33+7*11);
+
+			zf_clear_page_to_end(1,117);
+			zf_clear_page_to_end(2,117);
+		}
 }
 void display_danjia_Page()
 {
@@ -1548,4 +1627,25 @@ void display_jilu_page()
 {
 	Update_jilu_page();
     
+}
+
+void dispay_sn_edit_page()
+{
+	unsigned char i=0;
+
+	LcmClear();
+	Display_Chinese(hao, 4, 0);
+	Display_Chinese(maohao,4,16);
+
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		if(i==sn_focus_idx)
+		{
+			reverse_zf_disp8x16(Num_8_16[sn_string[i]], 4, 32+8*i);
+		}
+		else
+		{
+			zf_disp8x16(Num_8_16[sn_string[i]], 4, 32+8*i);
+		}
+	}
 }
