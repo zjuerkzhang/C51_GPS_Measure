@@ -38,6 +38,8 @@ extern unsigned char TEST_1[5];
 extern unsigned int PowerDownCount;
 extern unsigned int BatQuan; 
 extern unsigned char FLAG1;
+extern unsigned char sn_string[SYSTEM_DATA_SIZE];
+
 unsigned char debugF =0;
 sbit Power_key   = P3^2;
 sbit LCD_BL = P3^4;
@@ -126,6 +128,7 @@ void main()
 	initiate_var();
 
 	init_history_data();
+	get_sn_data();
 #if 0
  	 TestNumber= 0;
 	 for(EppromAddrH = 0x20;EppromAddrH <=0x23;EppromAddrH++)
@@ -206,6 +209,7 @@ void main()
 
 
 			CRDGEODETIC point, out_point;
+			bit timer_fresh = 0;
 		//	char buf[20];
 
  			
@@ -328,10 +332,17 @@ void main()
 		}
 
 	   //
-	   if(TimerNumber >= TimerTerminal)
+	   if((TimerNumber >= TimerTerminal) || (FLAG3 == 1))
 	   {
+		   if(TimerNumber >= TimerTerminal)
+		   {
+			   TimerNumber = 0;
+			   timer_fresh = 1;
+		   }
+		   else
+			   timer_fresh = 0;
+		   FLAG3 = 0;
 
-	   	  TimerNumber = 0;
 		switch(TEST1)
 		{ 
 				
@@ -339,7 +350,7 @@ void main()
 			display_Idle();			
 			break;
 			case 1:
-			display_CeLiang_Page();
+			display_CeLiang_Page(timer_fresh);
 			break;
 			case 2:
 			display_danjia_Page(); 
@@ -349,6 +360,9 @@ void main()
 			break;
 			case 4:
 			display_jilu_page();
+			break;
+			case 5:
+			dispay_sn_edit_page();
 			break;
 			default:
 			break;

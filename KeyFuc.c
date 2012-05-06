@@ -31,12 +31,14 @@ bit gps_first_point = 1;
 bit danwei_zouchang_sel = 0;
 bit danwei_mianji_sel = 0;
 bit celiangPage_detail = 0; 
+unsigned char celiangPage_idx = CELIANG_WORKING_PAGE;
 bit FLAG4 = 0;	
 bit Cacul_GoOn_F = 0;
 
 unsigned int PowerDownCount = 0;
 unsigned char FLAG1 = 0;
-
+unsigned char clear_rec_count = 0;
+unsigned char show_sn_count = 0;
 
 extern unsigned char debugF ; 
 extern unsigned char TEST3[];
@@ -44,6 +46,8 @@ extern unsigned char TEST2[] ;
 extern bit GPS_Point_Updata_JD;
 extern unsigned char clear_rec_code[7];
 extern unsigned char clear_rec_step;
+extern unsigned char sn_string[SYSTEM_DATA_SIZE];
+extern unsigned char sn_focus_idx;
 
 unsigned char keyscan()
 {
@@ -187,7 +191,7 @@ void KeyOperate()
 {
 	unsigned char i,DanweiState;
 	
-	if((TEST1 == 0)||(TEST1 == 1)||(TEST1 == 2)||(TEST1 == 3)||(TEST1 == 4))
+	if((TEST1 == 0)||(TEST1 == 1)||(TEST1 == 2)||(TEST1 == 3)||(TEST1 == 4) || (TEST1 == 5))
 	{
 
 		switch(TEST1)
@@ -279,6 +283,8 @@ void KeyOperate()
 							{
 							  TEST_2 = 0;
 							}
+							show_sn_count = 0;
+							clear_rec_count = 0;
 							break;
 							default:
 							break;
@@ -298,8 +304,8 @@ void KeyOperate()
 						{
 							case 1:	
 							{
-								celiangPage_detail = ~celiangPage_detail;
-								
+								if(celiangPage_idx > CELIANG_DETAIL_PAGE)
+									celiangPage_idx--;
 								break;
 							}
 							case 2:	 
@@ -309,8 +315,8 @@ void KeyOperate()
 							}
 							case 3:	 
 							{
-								celiangPage_detail = ~celiangPage_detail;
-								
+								if(celiangPage_idx < CELIANG_SN_PAGE)
+									celiangPage_idx++;
 								break;
 							}
 							case 4:	  
@@ -575,12 +581,21 @@ void KeyOperate()
 								}
 								else
 								TEST_2--;
-									
+								clear_rec_count = 0;
+								show_sn_count = 0;
 								break;
 							}
 							case 2:	
 							{
-
+								show_sn_count = 0;
+								clear_rec_count++;
+								if(clear_rec_count>=10)
+								{
+									clear_rec_count = 0;
+									Clear_Data();
+									TEST1 = 0;
+									FLAG3 = 1;
+								}
 								break;
 							}
 							case 3:	
@@ -590,12 +605,23 @@ void KeyOperate()
 									TEST_2 = 0;
 								}
 								else
-								 TEST_2++;	
+								TEST_2++;
+								clear_rec_count = 0;
+								show_sn_count = 0;
 								break;
 							}
 							case 4:	
 							{
-							
+								clear_rec_count = 0;
+								show_sn_count++;
+								if(show_sn_count>=10)
+								{
+									show_sn_count = 0;
+									get_sn_data();
+									sn_focus_idx= 0;
+									TEST1 = 5;
+									FLAG3 = 1;
+								}
 								break; 
 							}
 						}
@@ -609,23 +635,56 @@ void KeyOperate()
 					else
 					{
 					}
-
-				if(clear_rec_code[clear_rec_step+1]==KeyPressValue)
-				{
-					clear_rec_step++;
-					if(clear_rec_step>=7)
-					{
-						Clear_Data();
-						clear_rec_step = 0;
-						TEST1 = 0;
-						FLAG3 = 1;
-					}
-				}
-				else
-				{
-					clear_rec_step = 0;
-				}
 				break;
+			}
+
+			case 5:
+			{
+				switch(KeyPressValue)
+				{
+					case 1:
+					{
+						if(sn_focus_idx>0 && sn_focus_idx<=11)
+							sn_focus_idx--;
+						break;
+					}
+
+					case 2:
+					{
+						if(sn_string[sn_focus_idx]==9)
+							sn_string[sn_focus_idx] = 0;
+						else
+							sn_string[sn_focus_idx]++;
+						break;
+					}
+
+					case 3:
+					{
+						if(sn_focus_idx<11 && sn_focus_idx>=0)
+							sn_focus_idx++;
+						break;
+					}
+
+					case 4:
+					{
+						if(sn_string[sn_focus_idx]==0)
+							sn_string[sn_focus_idx] = 9;
+						else
+							sn_string[sn_focus_idx]--;
+						break;
+					}
+
+					case 5:
+					{
+						store_sn_data();
+						TEST1 = 0;
+						break;
+					}
+
+				}
+
+				if(KeyPressValue!=0)
+					FLAG3 = 1;
 			}
 
 		}
