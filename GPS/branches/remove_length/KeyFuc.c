@@ -46,7 +46,7 @@ extern unsigned char TEST2[] ;
 extern bit GPS_Point_Updata_JD;
 extern unsigned char clear_rec_code[7];
 extern unsigned char clear_rec_step;
-extern unsigned char sn_string[SYSTEM_DATA_SIZE];
+extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 
 unsigned char keyscan()
@@ -150,11 +150,12 @@ unsigned char keyscan()
 			KeyPressValue = 0;		// none key
 			
 		}
+		/*
 		while(!KEY_OK)
 	   	{
 			;
 		}
-		
+		*/
 	   	
 	}
 
@@ -376,6 +377,10 @@ void KeyOperate()
 								{
 			
 								}
+								else if(danjiasel == 2 || danjiasel == 7)
+								{
+									danjiasel -= 2;
+								}
 								else
 								{
 								danjiasel--;
@@ -386,7 +391,7 @@ void KeyOperate()
 							case 2:	 
 							{
 
-								if((danjiasel >= 1)&&(danjiasel < 5))
+								if((danjiasel >= 2)&&(danjiasel < 5))
 								{
 									if(TEST2[danjiasel-1] == 9)
 									TEST2[danjiasel-1] = 0;
@@ -395,7 +400,7 @@ void KeyOperate()
 									
 								}
 								
-								else if((danjiasel >= 6)&&(danjiasel < 10))
+								else if((danjiasel >= 7)&&(danjiasel < 10))
 								{
 									if(TEST3[danjiasel-6] == 9)
 									TEST3[danjiasel-6] = 0;
@@ -417,6 +422,10 @@ void KeyOperate()
 								{
 					
 								}
+								else if((danjiasel == 0)||(danjiasel == 5))
+								{
+									danjiasel += 2;
+								}
 								else
 								{
 								
@@ -430,7 +439,7 @@ void KeyOperate()
 
 
 
-								if((danjiasel >= 1)&&(danjiasel < 5))	
+								if((danjiasel >= 2)&&(danjiasel < 5))
 								{
 									if(TEST2[danjiasel-1] == 0)
 									TEST2[danjiasel-1] = 9;
@@ -439,7 +448,7 @@ void KeyOperate()
 									
 								}
 								
-								else if((danjiasel >= 6)&&(danjiasel < 10))
+								else if((danjiasel >= 7)&&(danjiasel < 10))
 								{
 									if(TEST3[danjiasel-6] == 0)
 									TEST3[danjiasel-6] = 9;
@@ -644,33 +653,33 @@ void KeyOperate()
 				{
 					case 1:
 					{
-						if(sn_focus_idx>0 && sn_focus_idx<=11)
+						if(sn_focus_idx>0 && sn_focus_idx<=SN_NUM_LEN)
 							sn_focus_idx--;
 						break;
 					}
 
 					case 2:
 					{
-						if(sn_string[sn_focus_idx]==9)
-							sn_string[sn_focus_idx] = 0;
+						if(system_data[sn_focus_idx]==9)
+							system_data[sn_focus_idx] = 0;
 						else
-							sn_string[sn_focus_idx]++;
+							system_data[sn_focus_idx]++;
 						break;
 					}
 
 					case 3:
 					{
-						if(sn_focus_idx<11 && sn_focus_idx>=0)
+						if(sn_focus_idx<SN_NUM_LEN && sn_focus_idx>=0)
 							sn_focus_idx++;
 						break;
 					}
 
 					case 4:
 					{
-						if(sn_string[sn_focus_idx]==0)
-							sn_string[sn_focus_idx] = 9;
+						if(system_data[sn_focus_idx]==0)
+							system_data[sn_focus_idx] = 9;
 						else
-							sn_string[sn_focus_idx]--;
+							system_data[sn_focus_idx]--;
 						break;
 					}
 
@@ -708,3 +717,16 @@ void KeyOperate()
 	KeyPressValue = 0;
 }
 
+
+void wait_key_ok_release()
+{
+	unsigned int i = 2000;
+	unsigned char j;
+
+	while((!KEY_OK) && (i>0))
+	{
+		j=86;
+		while(j--);
+		i--;
+	}
+}

@@ -7,4 +7,5 @@
 
 unsigned char keyscan();
 void KeyOperate();
+void wait_key_ok_release();
 #endif

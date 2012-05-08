@@ -1,5 +1,5 @@
 #include <intrins.h>
-#include <reg52.h>      //5???????????????ú??·????????
+#include <reg52.h> 
 #include "own_reg.h"
 //#include "lcd1602.h"
 #include "e2prom.h"
@@ -11,14 +11,14 @@
 #define uchar unsigned char
 #define uint unsigned int 
 
-#define RdCommand 0x01 //??¨???????×÷??ü????
+#define RdCommand 0x01
 #define PrgCommand 0x02
 #define EraseCommand 0x03 
 
 #define Error 1
 
 #define Ok 0
-#define WaitTime 0x01 //????????????±????
+#define WaitTime 0x01 
 
 
 typedef struct Saved_Data
@@ -29,8 +29,8 @@ typedef struct Saved_Data
 	unsigned char jiner[6];
 }Save_Data;
 
-sbit dula=P2^6;  //??ê???÷????????????????
-sbit wela=P2^7;  //??ê??÷U2??????????÷????????????????
+sbit dula=P2^6;  
+sbit wela=P2^7;  
 
 
 sbit lcdrs=P3^5;
@@ -47,7 +47,7 @@ uchar code table[]={
 
 unsigned char history_cnt;
 unsigned char history_index;
-unsigned char sn_string[SN_NUM_LEN];
+unsigned char system_data[SYSTEM_DATA_SIZE];
 unsigned char sn_focus_idx = 0;
 unsigned char data_tmp[6];
 
@@ -150,8 +150,6 @@ void eeprom_erase_20(uchar AddrL)
 	delay(1);
 }
 
- //????????eeprom????????
- //??????·????0x00?
  
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_Addr)
 {
@@ -185,8 +183,7 @@ void eeprom_erase(unsigned char AddrH)
 	IAP_TRIG=0x00;
 }
 
-  //???????r
- //??????·?f 0x200~0x3ff
+
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_AddrH,unsigned char EEPROM_AddrL)
 {
 	unsigned char i;
@@ -423,7 +420,7 @@ void write_all_data(unsigned char cnt, unsigned char index, HistoryData* his_dat
 	}
 }
 
-void store_system_data(unsigned char sys_data[])
+void store_system_data(unsigned char *sys_data)
 {
 	unsigned char read_char;
 	unsigned int end, i;
@@ -443,57 +440,22 @@ void store_system_data(unsigned char sys_data[])
 
 void store_sn_data()
 {
-	unsigned char i;
-	unsigned char tmp = 0;
-	/*
-	for(i=0; i<SN_NUM_LEN; i++)
-	{
-		write_one_char(sn_string[i],SN_DATA_START_ADDR+i);
-	}
-	*/
-	for(i=0; i<SN_NUM_LEN; i++)
-	{
-		if((i%2) == 0)
-		{
-			tmp = sn_string[i]<<4;
-		}
-		else
-		{
-			tmp = tmp + sn_string[i];
-			data_tmp[(i-1)/2] = tmp;
-			//write_one_char(tmp,SN_DATA_START_ADDR+(i-1)/2);
-			tmp = 0;
-		}
-	}
-
-
+	store_system_data(system_data);
 }
 
 void get_sn_data()
 {
 	unsigned char i;
-	unsigned char read_char;
 	bit flag = 0;
 
-	for(i=0; i<SN_NUM_LEN/2; i++)
-	{
-		read_char = data_tmp[i];
-		//read_char = read_one_char(SN_DATA_START_ADDR+i);
-		sn_string[i*2] = (read_char>>4) & 0x0F;
-		sn_string[i*2+1] = read_char & 0x0F;
-	}
-	/*
+	get_system_data(system_data);
+
 	for(i=0; i<SN_NUM_LEN; i++)
 	{
-		sn_string[i] = read_one_char(SN_DATA_START_ADDR+i);
-	}
-	*/
-	for(i=0; i<SN_NUM_LEN; i++)
-	{
-		if(sn_string[i]>9)
+		if(system_data[i]>9)
 		{
 			flag = 1;
-			sn_string[i] = 0;
+			system_data[i] = 0;
 		}
 	}
 	if(flag)
@@ -501,7 +463,7 @@ void get_sn_data()
 
 }
 
-void get_system_data(unsigned char sys_data[])
+void get_system_data(unsigned char *sys_data)
 {
 	read_data_array(sys_data, SYSTEM_DATA_SIZE, SYSTEM_DATA_START_ADDR);
 }

@@ -10,7 +10,7 @@
 #define HISTORY_DATA_INDEX_ADDR HISTORY_DATA_CNT_ADDR+1
 #define HISTORY_DATA_START_ADDR HISTORY_DATA_CNT_ADDR+2
 
-#define SN_NUM_LEN 12
+#define SN_NUM_LEN 11
 #define SN_DATA_START_ADDR HISTORY_DATA_START_ADDR
 
 void init_history_data(void);
@@ -23,9 +23,9 @@ void Clear_Data(void);
 
 void eeprom_erase(unsigned char AddrH);
 
-void store_system_data(unsigned char sys_data[]);
+void store_system_data(unsigned char *sys_data);
 
-void get_system_data(unsigned char sys_data[]);
+void get_system_data(unsigned char *sys_data);
 
 void get_sn_data();
 
