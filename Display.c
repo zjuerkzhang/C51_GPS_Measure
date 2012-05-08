@@ -112,7 +112,7 @@ extern bit GPS_Point_Updata_WD_LCD_Fresh;
 extern bit GPS_Point_Updata_JD_LCD_Fresh;
 extern bit GPS_Point_Updata_SatNum_LCD_Fresh;
 extern bit Cacul_GoOn_F;
-extern unsigned char sn_string[SYSTEM_DATA_SIZE];
+extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 
 void delay_ms(unsigned int ms)  
@@ -712,11 +712,13 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 				
 			}
 			Display_Chinese(maohao,4,32); 
+			zf_disp8x16(kong,4,48);
+			/*
 			if(Sel_flag == 1)
 			reverse_zf_disp8x16(Num_8_16[TEST2[0]], 4, 48);
 			else
 			zf_disp8x16(Num_8_16[TEST2[0]], 4, 48);	
-
+			*/
 			if(Sel_flag == 2)
 			reverse_zf_disp8x16(Num_8_16[TEST2[1]], 4, 56);
 			else
@@ -731,8 +733,9 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 			reverse_zf_disp8x16(Num_8_16[TEST2[3]], 4, 72);
 			else
 			zf_disp8x16(Num_8_16[TEST2[3]], 4, 72);	
-				Display_Chinese(kong,4,80);
-				Display_Chinese(yuan,4,96);
+
+			Display_Chinese(kong,4,80);
+			Display_Chinese(yuan,4,96);
 			Display_Chinese(kong,4,112);
 /*
 			if(Sel_flag == 5)
@@ -1462,20 +1465,20 @@ void display_CeLiang_Page( bit timer_fresh)
 			LcmClear();
 			Display_PD(sn_num_pic);
 
-			zf_disp7x16(Num_7_16[sn_string[0]], 1, 33);
-			zf_disp7x16(Num_7_16[sn_string[1]], 1, 33+7*1);
-			zf_disp7x16(Num_7_16[sn_string[2]], 1, 33+7*2);
+			zf_disp7x16(Num_7_16[system_data[0]], 1, 33);
+			zf_disp7x16(Num_7_16[system_data[1]], 1, 33+7*1);
+			zf_disp7x16(Num_7_16[system_data[2]], 1, 33+7*2);
 
 			zf_disp7x16(Num_7_16[10], 1, 33+7*3);
 
-			zf_disp7x16(Num_7_16[sn_string[3]], 1, 33+7*4);
-			zf_disp7x16(Num_7_16[sn_string[4]], 1, 33+7*5);
-			zf_disp7x16(Num_7_16[sn_string[5]], 1, 33+7*6);
-			zf_disp7x16(Num_7_16[sn_string[6]], 1, 33+7*7);
-			zf_disp7x16(Num_7_16[sn_string[7]], 1, 33+7*8);
-			zf_disp7x16(Num_7_16[sn_string[8]], 1, 33+7*9);
-			zf_disp7x16(Num_7_16[sn_string[9]], 1, 33+7*10);
-			zf_disp7x16(Num_7_16[sn_string[10]], 1, 33+7*11);
+			zf_disp7x16(Num_7_16[system_data[3]], 1, 33+7*4);
+			zf_disp7x16(Num_7_16[system_data[4]], 1, 33+7*5);
+			zf_disp7x16(Num_7_16[system_data[5]], 1, 33+7*6);
+			zf_disp7x16(Num_7_16[system_data[6]], 1, 33+7*7);
+			zf_disp7x16(Num_7_16[system_data[7]], 1, 33+7*8);
+			zf_disp7x16(Num_7_16[system_data[8]], 1, 33+7*9);
+			zf_disp7x16(Num_7_16[system_data[9]], 1, 33+7*10);
+			zf_disp7x16(Num_7_16[system_data[10]], 1, 33+7*11);
 
 			zf_clear_page_to_end(1,117);
 			zf_clear_page_to_end(2,117);
@@ -1641,11 +1644,13 @@ void dispay_sn_edit_page()
 	{
 		if(i==sn_focus_idx)
 		{
-			reverse_zf_disp8x16(Num_8_16[sn_string[i]], 4, 32+8*i);
+			reverse_zf_disp8x16(Num_8_16[system_data[i]], 4, 32+8*i);
 		}
 		else
 		{
-			zf_disp8x16(Num_8_16[sn_string[i]], 4, 32+8*i);
+			zf_disp8x16(Num_8_16[system_data[i]], 4, 32+8*i);
 		}
 	}
+	zf_clear_page_to_end(4,32+8*SN_NUM_LEN);
+	zf_clear_page_to_end(5,32+8*SN_NUM_LEN);
 }

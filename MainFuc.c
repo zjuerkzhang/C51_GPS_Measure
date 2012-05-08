@@ -369,6 +369,7 @@ void main()
 		}
 
 		}
+	   wait_key_ok_release();
 	  	 TimerNumber ++;
 	  	TH0 = 0x4C;
 	  	TL0 = 0x00;
