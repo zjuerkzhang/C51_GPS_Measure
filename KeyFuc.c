@@ -259,6 +259,7 @@ void KeyOperate()
 						switch(TEST_6)
 						{
 							case 0:
+							celiangPage_idx = CELIANG_WORKING_PAGE;
 							gps_first_point = 1;
 							GeodeticAreaReset();
 							GPS_Point_Updata_JD = 0;
@@ -627,7 +628,7 @@ void KeyOperate()
 								{
 									show_sn_count = 0;
 									get_sn_data();
-									sn_focus_idx= 0;
+									sn_focus_idx= 20;
 									TEST1 = 5;
 									FLAG3 = 1;
 								}
@@ -655,15 +656,28 @@ void KeyOperate()
 					{
 						if(sn_focus_idx>0 && sn_focus_idx<=SN_NUM_LEN)
 							sn_focus_idx--;
+						else if(0 == sn_focus_idx)
+							sn_focus_idx = 20;
+						else
+						{}
 						break;
 					}
 
 					case 2:
 					{
-						if(system_data[sn_focus_idx]==9)
-							system_data[sn_focus_idx] = 0;
+						if(30 == sn_focus_idx)
+						{
+							sn_focus_idx = 20;
+						}
+						else if(20 == sn_focus_idx)
+						{}
 						else
-							system_data[sn_focus_idx]++;
+						{
+							if(system_data[sn_focus_idx]==9)
+								system_data[sn_focus_idx] = 0;
+							else
+								system_data[sn_focus_idx]++;
+						}
 						break;
 					}
 
@@ -671,22 +685,54 @@ void KeyOperate()
 					{
 						if(sn_focus_idx<SN_NUM_LEN && sn_focus_idx>=0)
 							sn_focus_idx++;
+						else if(sn_focus_idx == 20)
+							sn_focus_idx = 0;
+						else
+						{}
 						break;
 					}
 
 					case 4:
 					{
-						if(system_data[sn_focus_idx]==0)
-							system_data[sn_focus_idx] = 9;
+						if( 20 == sn_focus_idx )
+						{
+							sn_focus_idx = 30;
+						}
+						else if( 30 == sn_focus_idx )
+						{}
 						else
-							system_data[sn_focus_idx]--;
+						{
+							if(system_data[sn_focus_idx]==0)
+								system_data[sn_focus_idx] = 9;
+							else
+								system_data[sn_focus_idx]--;
+						}
 						break;
 					}
 
 					case 5:
 					{
-						store_sn_data();
-						TEST1 = 0;
+						if(30 == sn_focus_idx)
+						{
+							system_data[0] = 1;
+							system_data[1] = 0;
+							system_data[2] = 0;
+							system_data[3] = 1;
+							system_data[4] = 5;
+							system_data[5] = 0;
+							system_data[6] = 5;
+							system_data[7] = 0;
+							system_data[8] = 0;
+							system_data[9] = 0;
+							system_data[10] = 0;
+							system_data[11] = 0;
+							store_sn_data();
+						}
+						else
+						{
+							store_sn_data();
+							TEST1 = 0;
+						}
 						break;
 					}
 

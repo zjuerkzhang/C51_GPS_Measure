@@ -1468,17 +1468,15 @@ void display_CeLiang_Page( bit timer_fresh)
 			zf_disp7x16(Num_7_16[system_data[0]], 1, 33);
 			zf_disp7x16(Num_7_16[system_data[1]], 1, 33+7*1);
 			zf_disp7x16(Num_7_16[system_data[2]], 1, 33+7*2);
-
-			zf_disp7x16(Num_7_16[10], 1, 33+7*3);
-
-			zf_disp7x16(Num_7_16[system_data[3]], 1, 33+7*4);
-			zf_disp7x16(Num_7_16[system_data[4]], 1, 33+7*5);
-			zf_disp7x16(Num_7_16[system_data[5]], 1, 33+7*6);
-			zf_disp7x16(Num_7_16[system_data[6]], 1, 33+7*7);
-			zf_disp7x16(Num_7_16[system_data[7]], 1, 33+7*8);
-			zf_disp7x16(Num_7_16[system_data[8]], 1, 33+7*9);
-			zf_disp7x16(Num_7_16[system_data[9]], 1, 33+7*10);
-			zf_disp7x16(Num_7_16[system_data[10]], 1, 33+7*11);
+			zf_disp7x16(Num_7_16[system_data[3]], 1, 33+7*3);
+			zf_disp7x16(Num_7_16[system_data[4]], 1, 33+7*4);
+			zf_disp7x16(Num_7_16[system_data[5]], 1, 33+7*5);
+			zf_disp7x16(Num_7_16[system_data[6]], 1, 33+7*6);
+			zf_disp7x16(Num_7_16[system_data[7]], 1, 33+7*7);
+			zf_disp7x16(Num_7_16[system_data[8]], 1, 33+7*8);
+			zf_disp7x16(Num_7_16[system_data[9]], 1, 33+7*9);
+			zf_disp7x16(Num_7_16[system_data[10]], 1, 33+7*10);
+			zf_disp7x16(Num_7_16[system_data[11]], 1, 33+7*11);
 
 			zf_clear_page_to_end(1,117);
 			zf_clear_page_to_end(2,117);
@@ -1637,7 +1635,11 @@ void dispay_sn_edit_page()
 	unsigned char i=0;
 
 	LcmClear();
-	Display_Chinese(hao, 4, 0);
+	if(sn_focus_idx == 20)
+		Revers_Data(hao,4,0);
+	else
+		Display_Chinese(hao, 4, 0);
+
 	Display_Chinese(maohao,4,16);
 
 	for(i=0; i<SN_NUM_LEN; i++)
@@ -1653,4 +1655,12 @@ void dispay_sn_edit_page()
 	}
 	zf_clear_page_to_end(4,32+8*SN_NUM_LEN);
 	zf_clear_page_to_end(5,32+8*SN_NUM_LEN);
+
+	if(sn_focus_idx == 30)
+		Revers_Data(shi3,1,0);
+	else
+		Display_Chinese(shi3, 1, 0);
+
+	zf_clear_page_to_end(1,16);
+	zf_clear_page_to_end(2,16);
 }
