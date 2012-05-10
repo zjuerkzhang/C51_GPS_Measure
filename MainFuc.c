@@ -319,18 +319,16 @@ void main()
 
 		if(!Power_key) 
 		{
+			if(0==PowerDownCount)
+			{
+				LCD_BL = ~LCD_BL;
+			}
 			PowerDownCount++;
-		}
-		else if(PowerDownCount >= 1)
-		{
-			PowerDownCount = 0;
-		   LCD_BL = ~LCD_BL;
 		}
 		else
 		{
 			PowerDownCount = 0;
 		}
-
 	   //
 	   if((TimerNumber >= TimerTerminal) || (FLAG3 == 1))
 	   {
