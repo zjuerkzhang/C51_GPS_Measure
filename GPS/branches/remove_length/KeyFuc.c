@@ -760,7 +760,7 @@ void KeyOperate()
 	}
 
 
-	KeyPressValue = 0;
+	//KeyPressValue = 0;
 }
 
 
@@ -774,5 +774,10 @@ void wait_key_ok_release()
 		j=86;
 		while(j--);
 		i--;
+		if((5==KeyPressValue) && (0==i))
+		{
+			i = 2000;
+		}
 	}
+	KeyPressValue = 0;
 }
