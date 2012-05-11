@@ -1,10 +1,10 @@
 #include "reg52.h"
 //#include "st7565.h"
+#include "keyfuc.h"
 #include "display.h"
 //#include "font.h"
 #include "own_reg.h"
 #include "IntFUC.h"
-#include "keyfuc.h"
 #include "string.h"
 #include "gps.h"
 #include "sleep.h"
@@ -57,9 +57,11 @@ extern bit GPS_Point_Updata_SatNum;
 extern bit danwei_zouchang_sel;	
 extern bit danwei_mianji_sel;
 extern bit Cacul_GoOn_F;
+extern unsigned char celiangPage_idx;
 unsigned int key_press_count = 0;
 unsigned char clear_rec_code[7] = {0, 2, 2, 4, 4, 5, 5};
 unsigned char clear_rec_step;
+unsigned char exit_sn_page_time_count = 0;
 
 void PowerUpSeque()
 {
@@ -317,19 +319,33 @@ void main()
 			 }
 		 }
 
-		if(!Power_key) 
-		{
-			if(0==PowerDownCount)
-			{
-				LCD_BL = ~LCD_BL;
-			}
-			PowerDownCount++;
-		}
-		else
-		{
-			PowerDownCount = 0;
-		}
+		 if(!Power_key)
+		 {
+			 PowerDownCount++;
+		 }
+		 else
+		 {
+			 if(PowerDownCount >= 1)
+			 {
+				 PowerDownCount = 0;
+				 LCD_BL = ~LCD_BL;
+			 }
+			 else
+			 {
+				 PowerDownCount = 0;
+			 }
+		 }
 	   //
+	   if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
+	   {
+		   exit_sn_page_time_count++;
+		   if(exit_sn_page_time_count>=40)
+		   {
+			   exit_sn_page_time_count = 0;
+			   celiangPage_idx = CELIANG_WORKING_PAGE;
+			   FLAG3 = 1;
+		   }
+	   }
 	   if((TimerNumber >= TimerTerminal) || (FLAG3 == 1))
 	   {
 		   if(TimerNumber >= TimerTerminal)
