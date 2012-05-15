@@ -114,6 +114,7 @@ extern bit GPS_Point_Updata_SatNum_LCD_Fresh;
 extern bit Cacul_GoOn_F;
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
+extern bit searching_sat;
 
 void delay_ms(unsigned int ms)  
 {  
@@ -1010,16 +1011,33 @@ void display_CeLiang_Page( bit timer_fresh)
 			LcmClear();
 			if(0 == FLAG1)
 			{
-			   TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-			   Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-				Display_Chinese(dai,4,0); //待
-				Display_Chinese(ce,4,16); //测
-				Display_Chinese(kong,4,32); //
-				Display_Chinese(an,4,48);//按
-				Display_Chinese(que,4,64); //确
-				Display_Chinese(ren,4,80); //认
-				Display_Chinese(kai,4,96); //开
-				Display_Chinese(shi3,4,112); //始
+				TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+				Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+
+				if((lock == 0x30) && (((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))==0))	//定位不成功.
+				{
+					searching_sat = 1;
+					Display_Chinese(dai,4,0); //待
+					Display_Chinese(ce,4,16); //测
+					Display_Chinese(kong,4,32); //
+					Display_Chinese(zheng,4,48);//正
+					Display_Chinese(zai,4,64); //在
+					Display_Chinese(sou,4,80); //搜
+					Display_Chinese(xing,4,96); //星
+					Display_Chinese(points,4,112); //
+				}
+				else
+				{
+					searching_sat = 0;
+					Display_Chinese(dai,4,0); //待
+					Display_Chinese(ce,4,16); //测
+					Display_Chinese(kong,4,32); //
+					Display_Chinese(an,4,48);//按
+					Display_Chinese(que,4,64); //确
+					Display_Chinese(ren,4,80); //认
+					Display_Chinese(kai,4,96); //开
+					Display_Chinese(shi3,4,112); //始
+				}
 			}
 			else if(2 == FLAG1)
 			{

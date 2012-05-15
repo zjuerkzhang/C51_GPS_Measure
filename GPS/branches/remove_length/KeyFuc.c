@@ -39,6 +39,7 @@ unsigned int PowerDownCount = 0;
 unsigned char FLAG1 = 0;
 unsigned char clear_rec_count = 0;
 unsigned char show_sn_count = 0;
+bit searching_sat = 1;
 
 extern unsigned char debugF ; 
 extern unsigned char TEST3[];
@@ -327,34 +328,39 @@ void KeyOperate()
 							}
 							case 5:
 							{
-							if(2 == FLAG1)	
-							{
-
-							FLAG1 = 0;
-							
-							}
-							else if(FLAG1 == 0)
-							{
-							initiate_var();
-							FLAG1++;
-							gps_first_point = 1;
-							GeodeticAreaReset();
-							GPS_Point_Updata_JD = 0;
-
-							Cacul_GoOn_F = 0;
-							}
-							else
-							{
-								if(gps_first_point != 1)
+								if(celiangPage_idx == CELIANG_WORKING_PAGE)
 								{
-									DanweiState = 0x00 | danwei_mianji_sel;
-									DanweiState<<=1;
-									DanweiState =  DanweiState|danwei_zouchang_sel;
-									Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
-									FLAG1++;
+									if(2 == FLAG1)
+									{
+										FLAG1 = 0;
+									}
+									else if(FLAG1 == 0)
+									{
+										if(searching_sat)
+										{}
+										else
+										{
+											initiate_var();
+											FLAG1++;
+											gps_first_point = 1;
+											GeodeticAreaReset();
+											GPS_Point_Updata_JD = 0;
+											Cacul_GoOn_F = 0;
+										}
+									}
+									else
+									{
+										if(gps_first_point != 1)
+										{
+											DanweiState = 0x00 | danwei_mianji_sel;
+											DanweiState<<=1;
+											DanweiState =  DanweiState|danwei_zouchang_sel;
+											Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
+											FLAG1++;
+										}
+									}
 								}
-							}
-							break;	
+								break;
 							}
 						}
 						FLAG3 = 1;

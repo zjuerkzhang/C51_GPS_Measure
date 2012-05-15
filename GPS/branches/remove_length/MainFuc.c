@@ -61,7 +61,6 @@ extern unsigned char celiangPage_idx;
 unsigned int key_press_count = 0;
 unsigned char clear_rec_code[7] = {0, 2, 2, 4, 4, 5, 5};
 unsigned char clear_rec_step;
-unsigned char exit_sn_page_time_count = 0;
 
 void PowerUpSeque()
 {
@@ -190,10 +189,10 @@ void main()
 	 FLAG3 = 1;
 	}  
 	if(PowerDownCount>40)
-		{
+	{
 		//	LCD_BL = 0;
-			display_PowerD_LOGO();	
-		}
+		display_PowerD_LOGO();
+	}
 
 	} 	 
 
@@ -317,6 +316,12 @@ void main()
 				 key_press_count = 0;
 				 LCD_BL = 0;
 			 }
+
+			 if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
+			 {
+				 celiangPage_idx = CELIANG_WORKING_PAGE;
+				 FLAG3 = 1;
+			 }
 		 }
 
 		 if(!Power_key)
@@ -336,16 +341,6 @@ void main()
 			 }
 		 }
 	   //
-	   if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
-	   {
-		   exit_sn_page_time_count++;
-		   if(exit_sn_page_time_count>=40)
-		   {
-			   exit_sn_page_time_count = 0;
-			   celiangPage_idx = CELIANG_WORKING_PAGE;
-			   FLAG3 = 1;
-		   }
-	   }
 	   if((TimerNumber >= TimerTerminal) || (FLAG3 == 1))
 	   {
 		   if(TimerNumber >= TimerTerminal)
