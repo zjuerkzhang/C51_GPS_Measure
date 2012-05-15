@@ -36,6 +36,11 @@ typedef struct {
   uint32_t nimpcolors;
 } bitmap_info_header__t;
 
+typedef struct {
+    uint32_t font_color;
+    uint32_t back_color;
+} bmp_color_type_t;
+
 typedef enum {
   BI_RGB = 0,
   BI_RLE8,
@@ -144,7 +149,7 @@ int read_bmp_file_to_buffer__r( const char *p_file_name,
   ptr_bmpfile_hd = (bmpfile_header__t *)(bmp_file_buff + sizeof(bmpfile_magic__t));
   ptr_bmp_info_hd = (bitmap_info_header__t *)( bmp_file_buff + 
                                                sizeof(bmpfile_magic__t) +
-                                               sizeof(bmpfile_header__t) );
+                                               sizeof(bmpfile_header__t) );  
   *p_data_size = ptr_bmp_info_hd->bmp_bytesz;
   *p_width = ptr_bmp_info_hd->width;
   *p_height = ptr_bmp_info_hd->height;
@@ -241,10 +246,15 @@ void map_bit_array_to_lcd_stream__r( char *p_bit_array,
 
 int write_lcd_stream_to_file__r( unsigned char *p_lcd_stream,
                                  uint32_t p_lcd_stream_len,
-                                 const char *p_file_name )
+                                 const char *p_file_name,
+                                 unsigned char p_reverse_color )
 {
   FILE *ptr_file = NULL;
   int i;
+  unsigned char bit_mask = 0x00;
+  
+  if(p_reverse_color>0)
+    bit_mask = 0xFF;
 
 #if TST_PRINT
   printf("==> write_lcd_stream_to_file__r\n");
@@ -259,7 +269,7 @@ int write_lcd_stream_to_file__r( unsigned char *p_lcd_stream,
   
   for(i=0; i<p_lcd_stream_len;i++)
   {
-    fprintf(ptr_file, "0x%02X,", *(p_lcd_stream+i));
+    fprintf(ptr_file, "0x%02X,", (*(p_lcd_stream+i))^bit_mask);
     
     if(i%16 == 15)
       fprintf(ptr_file, "\n");   
@@ -270,7 +280,7 @@ int write_lcd_stream_to_file__r( unsigned char *p_lcd_stream,
   return SUCCESS_EC;
 }
 
-int convert_bmp_to_lcd__r( const char *p_file_name )
+int convert_bmp_to_lcd__r( const char *p_file_name, unsigned char p_reverse_color )
 {
   int ret_val = SUCCESS_EC;
   char *ptr_bmp_data_buff = NULL;
@@ -323,7 +333,7 @@ int convert_bmp_to_lcd__r( const char *p_file_name )
                                   bmp_height );                                                                   
   free(ptr_bit_array);  
   
-  write_lcd_stream_to_file__r( ptr_lcd_stream, bmp_width*bmp_height/8, "output.txt" );
+  write_lcd_stream_to_file__r( ptr_lcd_stream, bmp_width*bmp_height/8, "output.txt", p_reverse_color );
   free(ptr_lcd_stream);
   
   return SUCCESS_EC;
@@ -665,7 +675,7 @@ main(int argc, char *argv[])
   
   if(2==argc && strcmp(argv[1],"b2l")==0 )
   {
-    ret_val = convert_bmp_to_lcd__r("input.bmp");
+    ret_val = convert_bmp_to_lcd__r("input.bmp", 0);
   }
   else if(3==argc && strcmp(argv[1],"b2l")==0 )
   {
@@ -673,7 +683,11 @@ main(int argc, char *argv[])
     tmp_len = strlen(".bmp");
     if( (argv_len > tmp_len) && (strcmp(argv[2]+argv_len-tmp_len, ".bmp")==0) )
     {
-      ret_val = convert_bmp_to_lcd__r(argv[2]);
+      ret_val = convert_bmp_to_lcd__r(argv[2], 0);
+    }
+    else if( (argv_len = 0) && (strcmp(argv[2], "r")==0) )
+    {
+        ret_val = convert_bmp_to_lcd__r("input.bmp", 1);
     }
     else
     {
@@ -681,6 +695,21 @@ main(int argc, char *argv[])
       print_guide__r();
       return;
     }    
+  }
+  else if( (argc==4) && strcmp(argv[1], "b2l")==0 && strcmp(argv[2], "r")==0 )
+  {
+    argv_len = strlen(argv[3]);
+    tmp_len = strlen(".bmp");
+    if( (argv_len > tmp_len) && (strcmp(argv[3]+argv_len-tmp_len, ".bmp")==0) )
+    {
+        ret_val = convert_bmp_to_lcd__r(argv[3], 1);
+    }
+    else
+    {
+      printf("/*** Illegal file name: %s ***/\n", argv[2]);
+      print_guide__r();
+      return;
+    } 
   }
   else if( (argc>=4 && argc<=5) && strcmp(argv[1], "l2b")==0 )
   {
