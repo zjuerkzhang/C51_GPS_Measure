@@ -1,10 +1,10 @@
 #include "reg52.h"
 //#include "st7565.h"
+#include "keyfuc.h"
 #include "display.h"
 //#include "font.h"
 #include "own_reg.h"
 #include "IntFUC.h"
-#include "keyfuc.h"
 #include "string.h"
 #include "gps.h"
 #include "sleep.h"
@@ -38,6 +38,8 @@ extern unsigned char TEST_1[5];
 extern unsigned int PowerDownCount;
 extern unsigned int BatQuan; 
 extern unsigned char FLAG1;
+extern unsigned char sn_string[SYSTEM_DATA_SIZE];
+
 unsigned char debugF =0;
 sbit Power_key   = P3^2;
 sbit LCD_BL = P3^4;
@@ -55,7 +57,10 @@ extern bit GPS_Point_Updata_SatNum;
 extern bit danwei_zouchang_sel;	
 extern bit danwei_mianji_sel;
 extern bit Cacul_GoOn_F;
+extern unsigned char celiangPage_idx;
 unsigned int key_press_count = 0;
+unsigned char clear_rec_code[7] = {0, 2, 2, 4, 4, 5, 5};
+unsigned char clear_rec_step;
 
 void PowerUpSeque()
 {
@@ -77,6 +82,26 @@ void PowerUpSeque()
 	InitADC();
 	ADCQuaValue = GetADCResult(0);
 	
+}
+
+void initiate_var()
+{
+	unsigned char i;
+	for(i=0;i<20;i++)
+	{
+		TEST_9[i] = '0';
+		GetLenthValue[i] = '0';
+	}
+
+	for(i=0;i<10;i++)
+	{
+		JD[i] = '0';
+	}
+	for(i=0;i<9;i++)
+	{
+		WD[i] = '0';
+	}
+	clear_rec_step = 0;
 }
 
 void main()
@@ -101,8 +126,10 @@ void main()
 
 	PowerUpSeque();
 //	display_bat();
+	initiate_var();
 
 	init_history_data();
+	get_sn_data();
 #if 0
  	 TestNumber= 0;
 	 for(EppromAddrH = 0x20;EppromAddrH <=0x23;EppromAddrH++)
@@ -162,10 +189,10 @@ void main()
 	 FLAG3 = 1;
 	}  
 	if(PowerDownCount>40)
-		{
+	{
 		//	LCD_BL = 0;
-			display_PowerD_LOGO();	
-		}
+		display_PowerD_LOGO();
+	}
 
 	} 	 
 
@@ -183,6 +210,7 @@ void main()
 
 
 			CRDGEODETIC point, out_point;
+			bit timer_fresh = 0;
 		//	char buf[20];
 
  			
@@ -288,27 +316,42 @@ void main()
 				 key_press_count = 0;
 				 LCD_BL = 0;
 			 }
+
+			 if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
+			 {
+				 celiangPage_idx = CELIANG_WORKING_PAGE;
+				 FLAG3 = 1;
+			 }
 		 }
 
-		if(!Power_key) 
-		{
-			PowerDownCount++;
-		}
-		else if(PowerDownCount >= 1)
-		{
-			PowerDownCount = 0;
-		   LCD_BL = ~LCD_BL;
-		}
-		else
-		{
-			PowerDownCount = 0;
-		}
-
+		 if(!Power_key)
+		 {
+			 PowerDownCount++;
+		 }
+		 else
+		 {
+			 if(PowerDownCount >= 1)
+			 {
+				 PowerDownCount = 0;
+				 LCD_BL = ~LCD_BL;
+			 }
+			 else
+			 {
+				 PowerDownCount = 0;
+			 }
+		 }
 	   //
-	   if(TimerNumber >= TimerTerminal)
+	   if((TimerNumber >= TimerTerminal) || (FLAG3 == 1))
 	   {
+		   if(TimerNumber >= TimerTerminal)
+		   {
+			   TimerNumber = 0;
+			   timer_fresh = 1;
+		   }
+		   else
+			   timer_fresh = 0;
+		   FLAG3 = 0;
 
-	   	  TimerNumber = 0;
 		switch(TEST1)
 		{ 
 				
@@ -316,7 +359,7 @@ void main()
 			display_Idle();			
 			break;
 			case 1:
-			display_CeLiang_Page();
+			display_CeLiang_Page(timer_fresh);
 			break;
 			case 2:
 			display_danjia_Page(); 
@@ -327,11 +370,15 @@ void main()
 			case 4:
 			display_jilu_page();
 			break;
+			case 5:
+			dispay_sn_edit_page();
+			break;
 			default:
 			break;
 		}
 
 		}
+	   wait_key_ok_release();
 	  	 TimerNumber ++;
 	  	TH0 = 0x4C;
 	  	TL0 = 0x00;
