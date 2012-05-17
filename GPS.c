@@ -17,6 +17,8 @@ extern bit signal;
 
 
 bit GPS_UPDATA = 0;	
+bit GPS_TIME_UPDATE = 0;
+bit TOTAL_SAT_UPDATE = 0;
 
 bit GPS_Point_Updata_WD = 0;
 bit GPS_Point_Updata_JD = 0;
@@ -131,7 +133,7 @@ void gps_init()
 //	TMOD = 0x21; 
 	TMOD &= 0x0F;
 	TMOD |= 0x21;
-	TH1 = 0xfa;		
+	TH1 = 0xFA;
 	TR1 = 1;
 //	IE=0x90; 
 	IE |= 0x90;
@@ -232,21 +234,40 @@ void uart(void) interrupt 4
 								seg_count=0;
 								byte_count=0;
 							}
-							if(cmd[3]=='S' && cmd[4]=='V')
+							else if(cmd[3]=='S' && cmd[4]=='V')
 							{
 								cmd_number=2;
 								mode=2;
 								seg_count=0;
 								byte_count=0;
 							}
+							else
+							{
+								mode = 0;
+							}
 						}
-						if(cmd[2]=='R' && cmd[3]=='M' && cmd[4]=='C')
+/*
+						else if(cmd[2]=='R')
 						{
-							cmd_number=3;
-							mode=2;
-							seg_count=0;
-							byte_count=0;
+							if(cmd[3]=='M' && cmd[4]=='C')
+							{
+								cmd_number=3;
+								mode=2;
+								seg_count=0;
+								byte_count=0;
+							}
+							else
+								mode = 0;
 						}
+*/
+						else
+						{
+							mode = 0;
+						}
+					}
+					else
+					{
+						mode = 0;
 					}
 				}
 			}
@@ -255,11 +276,28 @@ void uart(void) interrupt 4
 				switch (cmd_number)
 				{
 				case 1: 	// GPGGA
-					switch(seg_count)
+					if(GPS_UPDATA==0)
 					{
-					case 2:
-						if(GPS_Point_Updata_WD == 0)
+						switch(seg_count)
 						{
+						case 1:
+							if(byte_count<6)
+							{
+								curr_time[byte_count]=tmp;
+							}
+							if(byte_count==5)
+							{
+								curr_time[byte_count+1]='\0';
+								GPS_TIME_UPDATE = 1;
+								mode = 0;
+							}
+							if(curr_time_LST[byte_count] != curr_time[byte_count])
+							{
+								curr_time_LST[byte_count] = curr_time[byte_count];
+							}
+							break;
+
+						case 2:
 							if(byte_count<9)
 							{
 								if(((tmp>='0')&&(tmp<='9'))||(tmp == '.'))
@@ -274,14 +312,10 @@ void uart(void) interrupt 4
 							if(WD_LST[byte_count] != WD[byte_count])
 							{
 								WD_LST[byte_count] = WD[byte_count];
-								//GPS_UPDATA = 1;
 							}
-						}
-						break;
-						
-					case 4:
-						if(GPS_Point_Updata_JD == 0)
-						{
+							break;
+
+						case 4:
 							if(byte_count<10)
 							{
 								if(((tmp>='0')&&(tmp<='9'))||(tmp == '.'))
@@ -296,54 +330,52 @@ void uart(void) interrupt 4
 							if(JD_LST[byte_count] != JD[byte_count])
 							{
 								JD_LST[byte_count] = JD[byte_count];
-								//GPS_UPDATA = 1;
 							}
-						}
-						break;
+							break;
 
-					case 6:
-						if(byte_count<1)
-						{
-							lock=tmp;
+						case 6:
+							if(byte_count<1)
+							{
+								lock=tmp;
+							}
+							if(lock != lock_LST)
+							{
+								lock_LST = 	lock;
+							}
+							if(lock == '1')
+								TEST4 =1;
+							else
+								TEST4 =0;
+							break;
+
+						case 7:
+							if(byte_count<2)
+							{
+								if((tmp>='0')&&(tmp<='9'))
+									use_sat[byte_count]=tmp;
+							}
+							if(byte_count == 1)
+							{
+								use_sat[byte_count+1]='\0';
+								GPS_Point_Updata_SatNum = 1;
+								GPS_Point_Updata_SatNum_LCD_Fresh = 1;
+								GPS_UPDATA = 1;
+								mode = 0;
+							}
+							if(use_sat_LST[byte_count] != use_sat[byte_count])
+							{
+								use_sat_LST[byte_count] = use_sat[byte_count];
+							}
+							if((lock == '1')&&((use_sat[0])||(use_sat[1])))
+							{
+								signal = 1;
+							}
+							else
+							{
+								signal = 0;
+							}
+							break;
 						}
-						if(lock != lock_LST)
-						{
-							lock_LST = 	lock;
-							//GPS_UPDATA = 1;
-						}
-						if(lock == '1')
-							TEST4 =1;
-						else
-							TEST4 =0;
-						break;
-						
-					case 7:
-						if(byte_count<2)
-						{
-							if((tmp>='0')&&(tmp<='9'))
-								use_sat[byte_count]=tmp;
-						}
-						if(byte_count == 1)
-						{
-							use_sat[byte_count+1]='\0';
-							GPS_Point_Updata_SatNum = 1;
-							GPS_Point_Updata_SatNum_LCD_Fresh = 1;
-							GPS_UPDATA = 1;
-						}
-						if(use_sat_LST[byte_count] != use_sat[byte_count])
-						{
-							use_sat_LST[byte_count] = use_sat[byte_count];
-							//GPS_UPDATA = 1;
-						}
-						if((lock == '1')&&((use_sat[0])||(use_sat[1])))
-						{
-							signal = 1;
-						}
-						else
-						{
-							signal = 0;
-						}
-						break;
 					}
 					break;
 
@@ -359,12 +391,12 @@ void uart(void) interrupt 4
 						if(byte_count == 1)
 						{
 							total_sat[byte_count+1]='\0';
-							GPS_UPDATA = 1;
+							mode = 0;
+							TOTAL_SAT_UPDATE = 1;
 						}
 						if(total_sat_LST[byte_count] != total_sat[byte_count])
 						{
 							total_sat_LST[byte_count] = total_sat[byte_count];
-							//GPS_UPDATA = 1;
 						}
 						break;
 					}
@@ -382,11 +414,11 @@ void uart(void) interrupt 4
 						{
 							curr_time[byte_count+1]='\0';
 							GPS_UPDATA = 1;
+							mode = 0;
 						}
 						if(curr_time_LST[byte_count] != curr_time[byte_count])
 						{
 							curr_time_LST[byte_count] = curr_time[byte_count];
-							//GPS_UPDATA = 1;
 						}
 						break;
 
@@ -420,7 +452,7 @@ void UTC2BeiJingTime()
 {
 	unsigned char count,Hour_Beijing;
 	Hour_Beijing = 	(curr_time[0]-0x30)*10+(curr_time[1]-0x30)+8;
-	if(Hour_Beijing >24 )
+	if(Hour_Beijing >=24 )
 		Hour_Beijing = Hour_Beijing -24;
 	TEST_1[1] = 	(Hour_Beijing%10)+0x30;
 	Hour_Beijing = Hour_Beijing/10;
