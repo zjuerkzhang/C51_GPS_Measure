@@ -52,57 +52,6 @@ extern unsigned char sn_focus_idx;
 
 unsigned char keyscan()
 {
-
- /*
-	if((!KEY_OK)&&(!KEY_LEFT_UP)&&(!KEY_LEFT_DOWN))	//left
-	{
-	delay_ms(10);
-	if((!KEY_OK)&&(!KEY_LEFT_UP)&&(!KEY_LEFT_DOWN))	//left
-		{
-			  KeyPressValue = 1;
-		}
-
-	}
-	if((!KEY_OK)&&(!KEY_LEFT_UP)&&(!KEY_RIGHT_UP))
-	{
-	delay_ms(10);
-	if((!KEY_OK)&&(!KEY_LEFT_UP)&&(!KEY_RIGHT_UP))
-	{
-	KeyPressValue = 2;
-	}
-	}
-	if((!KEY_OK)&&(!KEY_RIGHT_DOWN)&&(!KEY_RIGHT_UP))
-	{
-	delay_ms(10);
-	if((!KEY_OK)&&(!KEY_RIGHT_DOWN)&&(!KEY_RIGHT_UP))
-	{
-	KeyPressValue = 3;
-	}
-	}
-	if((!KEY_OK)&&(!KEY_RIGHT_DOWN)&&(!KEY_LEFT_DOWN))
-	{
-	delay_ms(10);
-	if((!KEY_OK)&&(!KEY_RIGHT_DOWN)&&(!KEY_LEFT_DOWN))
-	{
-	KeyPressValue = 4;
-	}
-		
-	}
-	if((!KEY_OK)&&(KEY_RIGHT_DOWN)&&(KEY_LEFT_UP))
-	{
-	delay_ms(10);
-	if((!KEY_OK)&&(KEY_RIGHT_DOWN)&&(KEY_LEFT_UP))
-	{
-	KeyPressValue = 5;
-	}
-	}
-	while(!KEY_OK)
-   	{
-		;
-	}
-	return 	KeyPressValue;
-	*/
-
 	if(!KEY_OK)
 	{	
 		delay_ms(10);
@@ -119,14 +68,15 @@ unsigned char keyscan()
 					}
 					else if(!KEY_RIGHT_UP)
 					{
-					 KeyPressValue = 2;		// up
+						KeyPressValue = 2;		// up
 					}	
 				}
 				
 				
 			}
 			else if(!KEY_RIGHT_DOWN)
-			{	delay_ms(10);
+			{
+				delay_ms(10);
 				if(!KEY_RIGHT_DOWN)
 				{	
 					if(!KEY_RIGHT_UP)
@@ -135,7 +85,6 @@ unsigned char keyscan()
 					}
 					else if(!KEY_LEFT_DOWN)	
 					{
-
 						KeyPressValue = 4;		// down
 					}
 				}
@@ -144,47 +93,16 @@ unsigned char keyscan()
 			{
 				 KeyPressValue = 5;				// ok
 			}
-
 		}
 		else
 		{
 			KeyPressValue = 0;		// none key
-			
 		}
-		/*
-		while(!KEY_OK)
-	   	{
-			;
-		}
-		*/
-	   	
 	}
-
 	else if(!key_BL)
 	{
-
 		KeyPressValue = 6;	// menu
-		/*
-		delay_ms(20);
-		if(!key_BL)
-		{
-			
-			//LCD_BL_Ctl_fuc();
-		//	SW_DL_Reset();
-		}*/
-	}/*
-	else if(Power_key)
-	{
-		PowerDownCount++;//开始计时.
-		if(PowerDownCount>5000)
-		{
-			display_PowerD_LOGO();
-			LcmClear();
-				
-		}
-		
-		
-	}	*/
+	}
 	return 	KeyPressValue;
 
 }

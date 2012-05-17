@@ -16,7 +16,7 @@
 
 //LED FLASH
 # define uint unsigned int
-#define TimerTerminal 10
+#define TimerTerminal 20
 #define GpsGetCount 1000
  uint TimerNumber = 0;
  sbit Led_Flash =  P3^5;	 //
@@ -34,6 +34,8 @@ extern unsigned char lock;
 extern unsigned char use_sat[3]; 
 extern unsigned char total_sat[3];
 extern bit GPS_UPDATA;
+extern bit GPS_TIME_UPDATE;
+extern bit TOTAL_SAT_UPDATE;
 extern unsigned char TEST_1[5];
 extern unsigned int PowerDownCount;
 extern unsigned int BatQuan; 
@@ -49,7 +51,6 @@ unsigned int StarNum = 0;
 unsigned char TEST_9[20];
 unsigned char GetLenthValue[20] ;
 extern bit gps_first_point;	
-unsigned int GpsAreaGet = 0;
 extern double testNum;
 extern bit GPS_Point_Updata_WD;
 extern bit GPS_Point_Updata_JD;
@@ -107,179 +108,60 @@ void initiate_var()
 void main()
 {
   
- /*  	P3M0 |= 0x10;
-	P3M1 &= 0xef;
-//	LCD_BL_Ctl_fuc();
-
-//	OpenGpsPower();
-	Initial_lcd();
-	INTInit();
-	LcmClear();	
-//	display_chinesestring();
-	Timer_Init_0_2ms();
-//	Timer1_Init_0_2ms();
-   
-*/
 	unsigned char test;	
 	unsigned char EppromAddrH,EppromAddrL;
 	unsigned int TestNumber = 0;
+	CRDGEODETIC point, out_point;
+	bit timer_fresh = 0;
 
 	PowerUpSeque();
-//	display_bat();
 	initiate_var();
 
 	init_history_data();
 	get_sn_data();
-#if 0
- 	 TestNumber= 0;
-	 for(EppromAddrH = 0x20;EppromAddrH <=0x23;EppromAddrH++)
-	 {
-	 	for(EppromAddrL = 0x00;EppromAddrL<0xff;EppromAddrL++)
-		{
-			EEPROM_write(TestNumber,EppromAddrH,EppromAddrL);
-		//	
-			delay_ms(100);
-		//	Led_Flash = 0;	
-		}
-		TestNumber++;
-	 }
-//	 Led_Flash = 0;
-	 for(EppromAddrH = 0x20;EppromAddrH <=0x23;EppromAddrH++)
-	 {
-	 	for(EppromAddrL = 0x00;EppromAddrL<0xff;EppromAddrL++)
-		{
 
+	FLAG3 = 1;
 
-			delay_ms(100);
-				
-		}
-
-	 }
-
-#endif
-
-
-#if 0
-	DataSend_char(EEPROM_Read(0x00));
-	DataSend("\r\n") ;
-	eeprom_eares(0x0000);
-	EEPROM_write(0x0000,'8');
-
-//	uchar EEPROM_Read(uchar EEPROM_Addr)
-	test = EEPROM_Read(0x0000);
-	DataSend_char(test);
-
-	DataSend("\r\n") ;
- #endif
 	while(1) 
 	{
-
-
-
-	if(GPS_UPDATA == 1)
-	{
-	delay_ms(200);
-	//ADCQuaValue = GetADCResult(0);
-
-	//ADC2BATVALUE();
-
-
-	 UTC2BeiJingTime();
-	 GPS_UPDATA = 0;
-	 FLAG3 = 1;
-	}  
-	if(PowerDownCount>40)
-	{
-		//	LCD_BL = 0;
-		display_PowerD_LOGO();
-	}
-
-	} 	 
-
- /*//TEST
-{
-	gps_init();
-	DataSend("TEST");
-	
-}
-*/		
-}
-
- void timer0() interrupt 1
- {
-
-
-			CRDGEODETIC point, out_point;
-			bit timer_fresh = 0;
-		//	char buf[20];
-
- 			
-			ET0 = 0;
-			TR0 = 0; 
-
-
-		if(((use_sat[0]>='0')&&(use_sat[0]<='9'))&&((use_sat[1]>='0')&&(use_sat[1]<='9')))
-		StarNum = (use_sat[0]-0x30)*10+(use_sat[1]-0x30);
-		else
-		StarNum = 0;
-
-
-	//	if ((1 == TEST1)&&(((use_sat[0]-0x30)*10+ (use_sat[1]-0x30)>3)))
-		if ((1 == TEST1)&&(('1' == lock))&&(Cacul_GoOn_F == 0)&&(1 == FLAG1))
+		if(GPS_TIME_UPDATE == 1)
 		{
-		  GpsAreaGet++;
-		   //Led_Flash = 0;
-		  //if(GpsAreaGet>=GpsGetCount)
-		  //if((GpsAreaGet>=GpsGetCount)&&(GPS_Point_Updata_WD == 1)&&((GPS_Point_Updata_JD == 1))&&(GPS_Point_Updata_SatNum == 1)&&(((use_sat[0]-0x30)*10+ (use_sat[1]-0x30)>3)))
-		  //if((GpsAreaGet>=GpsGetCount)&&(GPS_Point_Updata_JD == 1))
-		  if(GPS_Point_Updata_JD == 1)
-		  {
-		  		 
-		  	//	EA = 0; 
-		  	//	 Led_Flash = ~Led_Flash;
-				//sprintf(buf, "%d", GPS_Point_Updata);
-				//DataSend("\r\n") ;
-				//if (GPS_Point_Updata==1)DataSend("1");
-				//else if(GPS_Point_Updata==0)DataSend("0");
-				//else DataSend("xx");
-			//	DataSend_char(GPS_Point_Updata);
-			//	DataSend("\r\n") ;
+			UTC2BeiJingTime();
+			GPS_TIME_UPDATE = 0;
+			FLAG3 = 1;
+		}
 
-				GPS_Point_Updata_WD = 0;
-				GPS_Point_Updata_JD = 0;
-				GPS_Point_Updata_SatNum = 0;
+		if(GPS_UPDATA == 1)
+		{
+			if(((use_sat[0]>='0')&&(use_sat[0]<='9'))&&((use_sat[1]>='0')&&(use_sat[1]<='9')))
+				StarNum = (use_sat[0]-0x30)*10+(use_sat[1]-0x30);
+			else
+				StarNum = 0;
 
-//				DataSend("\r\n--JD:");
-//				DataSend(JD);
-//				DataSend("\r\n--WD:");
-//				DataSend(WD);
-
+			if ((1 == TEST1)&&(1 == FLAG1)&&('1' == lock))
+			{
 				MakeGeodeticByString(&point, JD, WD);
-			#if 1	
+
 				if (gps_first_point) //如果是第一个点的话。
 				{
-					
-					if (GeodeticPutSamplingPoint(&point, &out_point)) {
-					//	Led_Flash = 0;
+					if (GeodeticPutSamplingPoint(&point, &out_point))
+					{
+						//	Led_Flash = 0;
 						GeodeticFirstPoint(&out_point);
 						GeodeticResetSamplingPoint();
 						gps_first_point = 0;
 					}
-					
 				}
 				else
-			#endif
 				{
 					GeodeticNextPoint(&point);
 				}
+
 				if(0 == danwei_mianji_sel)	//亩
-				  sprintf(TEST_9, "%08.1f", GeodeticGetArea()/666.666667);
+					sprintf(TEST_9, "%08.1f", GeodeticGetArea()/666.666667);
 				else
-				   sprintf(TEST_9, "%08.1f", GeodeticGetArea()/10000);
-					
-//					 DataSend("\r\n") ;
-//					 DataSend(TEST_9);
-//					 DataSend("\r\n") ;
+					sprintf(TEST_9, "%08.1f", GeodeticGetArea()/10000);
+
 				if(0 == danwei_zouchang_sel) //米
 				{
 					sprintf(GetLenthValue, "%08.0f", GeodeticGetDistance());
@@ -288,103 +170,120 @@ void main()
 				{
 					sprintf(GetLenthValue, "%08.1f", GeodeticGetDistance()/1000);
 				}
-//					 DataSend("\r\n") ;
-//					 DataSend(GetLenthValue);
-//					 DataSend("\r\n") ;
+			}
 
-		  	   GpsAreaGet=0;
-  ///////////////////////////////////////////
-  /*
-			   Doubletest();
-			   sprintf(buf, "%f", testNum);
-				DataSend("\r\n") ;
-				DataSend(buf);
-				DataSend("\r\n") ;	*/
+			GPS_UPDATA = 0;
+			FLAG3 = 1;
+		}
 
-		  }
-		 }	  
-		 if(keyscan()) 
+		if(TOTAL_SAT_UPDATE == 1)
+		{
+
+		}
+
+		if(PowerDownCount>40)
+		{
+			display_PowerD_LOGO();
+		}
+
+		if(keyscan())
 		{
 			KeyOperate();
 			key_press_count = 0;
 		}
-		 else
-		 {
-			 key_press_count++;
-			 if(key_press_count >= 400)	// 20s
-			 {
-				 key_press_count = 0;
-				 LCD_BL = 0;
-			 }
+		else
+		{
+			if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
+			{
+				celiangPage_idx = CELIANG_WORKING_PAGE;
+				FLAG3 = 1;
+			}
+		}
+		if((FLAG3 == 1))
+		{
+			if(TimerNumber >= TimerTerminal)
+			{
+				TimerNumber = 0;
+				timer_fresh = 1;
+			}
+			else
+				timer_fresh = 0;
 
-			 if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
-			 {
-				 celiangPage_idx = CELIANG_WORKING_PAGE;
-				 FLAG3 = 1;
-			 }
-		 }
+			FLAG3 = 0;
 
-		 if(!Power_key)
-		 {
-			 PowerDownCount++;
-		 }
-		 else
-		 {
-			 if(PowerDownCount >= 1)
-			 {
-				 PowerDownCount = 0;
-				 LCD_BL = ~LCD_BL;
-			 }
-			 else
-			 {
-				 PowerDownCount = 0;
-			 }
-		 }
-	   //
-	   if((TimerNumber >= TimerTerminal) || (FLAG3 == 1))
-	   {
-		   if(TimerNumber >= TimerTerminal)
-		   {
-			   TimerNumber = 0;
-			   timer_fresh = 1;
-		   }
-		   else
-			   timer_fresh = 0;
-		   FLAG3 = 0;
-
-		switch(TEST1)
-		{ 
-				
+			switch(TEST1)
+			{
 			case 0:
-			display_Idle();			
-			break;
+				display_Idle();
+				break;
+
 			case 1:
-			display_CeLiang_Page(timer_fresh);
-			break;
+				display_CeLiang_Page(timer_fresh);
+				break;
+
 			case 2:
-			display_danjia_Page(); 
-			break;
+				display_danjia_Page();
+				break;
+
 			case 3:
-			display_danwei_Page();
-			break;
+				display_danwei_Page();
+				break;
+
 			case 4:
-			display_jilu_page();
-			break;
+				display_jilu_page();
+				break;
+
 			case 5:
-			dispay_sn_edit_page();
-			break;
+				dispay_sn_edit_page();
+				break;
+
 			default:
-			break;
+				break;
+			}
 		}
 
-		}
-	   wait_key_ok_release();
-	  	 TimerNumber ++;
-	  	TH0 = 0x4C;
-	  	TL0 = 0x00;
-	   	EA = 1;
-		ET0 = 1;
-		TR0 = 1;
+		wait_key_ok_release();
+
+		delay_ms(200);
+	} 	 
+	
+}
+
+ void timer0() interrupt 1
+ {
+	 ET0 = 0;
+	 TR0 = 0;
+
+	 key_press_count++;
+	 if(key_press_count >= 400)	// 20s
+	 {
+		 key_press_count = 0;
+		 LCD_BL = 0;
+	 }
+
+	 if(!Power_key)
+	 {
+		 PowerDownCount++;
+	 }
+	 else
+	 {
+		 if(PowerDownCount >= 1)
+		 {
+			 PowerDownCount = 0;
+			 LCD_BL = ~LCD_BL;
+		 }
+		 else
+		 {
+			 PowerDownCount = 0;
+		 }
+	 }
+
+	 TimerNumber++;
+	 TH0 = 0x4C;
+	 TL0 = 0x00;
+	 EA = 1;
+	 ET0 = 1;
+	 TR0 = 1;
  }
 
  void timer1() interrupt 3
