@@ -28,8 +28,7 @@ sbit RES    =  P1^4;
 sbit A0     =  P1^3;
 sbit LCD_WR =  P3^6;  
 sbit LCD_RD =  P3^7;
-sbit CHG_F1_STDBY = P1^7;
-sbit CHG_F2_CHRG = P3^3;
+
 
 
 sbit DB0 =	P0^0 ;
