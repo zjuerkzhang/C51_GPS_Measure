@@ -64,12 +64,12 @@ bit TEST4 = 0;
 unsigned int TEST_5;
 unsigned char TEST_6 = 0;
 unsigned int  TEST_7=1;
- unsigned int idata ZouChangValue = 0;
- bit idata  ZouChangValueFlag = 0;
- unsigned int idata mianjiValue = 0;
- bit idata  mianjiValueFlag = 0;
- unsigned int idata JinerValue = 0;
- bit  idata JinerValueFlag = 0;
+unsigned int idata ZouChangValue = 0;
+bit idata  ZouChangValueFlag = 0;
+unsigned int idata mianjiValue = 0;
+bit idata  mianjiValueFlag = 0;
+unsigned int idata JinerValue = 0;
+bit  idata JinerValueFlag = 0;
  unsigned char TEST1 = 0;
 
  double TEST_8 = 0;
@@ -869,135 +869,66 @@ void Update_danwei_page4_5_1_2(bit Sel_zouchang_flag,bit Sel_mianji_flag,bit sel
 #endif
 }
 
-void Update_Idle_Page7(unsigned int Timer_L,unsigned int BatQuan_L,unsigned int StarNum_L,bit signal_L)
+
+Update_Page_Header()
 {
-unsigned int minu0,minu1,hour0,hour1,StarNum0,StarNum1,startcol;
-unsigned char test[6];
-if((FLAG2)||(BatQuanF)||(StarNumF)||(signal))
-{
+	unsigned char startcol = 0;
+	unsigned char StarNum1, StarNum0;
 
-minu0 = Timer_L%10;		
-Timer_L = Timer_L/10;	
-minu1 = Timer_L%10;		
-Timer_L = Timer_L/10;	
-hour0 = Timer_L%10;		
-Timer_L = Timer_L/10;	
-hour1 = Timer_L%10;		
+	StarNum0 = (unsigned char)StarNum%10;
+	StarNum1 = (unsigned char)StarNum/10;
 
-
-StarNum0 = StarNum_L%10;
-StarNum_L = StarNum_L/10;
-StarNum1 = StarNum_L%10;
-
-startcol = 0;
-		if((CHG_F1_STDBY == 0))
-		{
-			if(BatQuan >= 4 )
-			{
-			
-			ADCQuaValue = GetADCResult(0);
-			ADC2BATVALUE();
-			if((BatQuan >= 4)&&(TEST_7))
-				{
-					BatQuan = 3;
-					TEST_7++;
-					if(TEST_7>=1000)
-					{
-						TEST_7 =0;
-						BatQuan=4;
-					}
-	
-				}
-
-			}
-			else
-			BatQuan++;
-		}
-		else
-		{
-			ADCQuaValue = GetADCResult(0);
-			ADC2BATVALUE();
-			TEST_7 =1;
-		}
-
-
-if((lock != 0x30)||((use_sat[0]-0x30)*10+ (use_sat[1]-0x30)))
-{
-	
-  	zf_disp4x8(num[hour1],7,startcol); //小时1
-	zf_disp4x8(num[hour0],7,startcol+4); //小时2
+	zf_disp4x8(num[TEST_1[0]-0x30],7,startcol); //小时1
+	zf_disp4x8(num[TEST_1[1]-0x30],7,startcol+4); //小时2
 	zf_disp4x8(num[10],7,startcol+8); //：
-	zf_disp4x8(num[minu1],7,startcol+12); //分钟1
-	zf_disp4x8(num[minu0],7,startcol+16); //分钟2
+	zf_disp4x8(num[TEST_1[2]-0x30],7,startcol+12); //分钟1
+	zf_disp4x8(num[TEST_1[3]-0x30],7,startcol+16); //分钟2
+	zf_disp4x8(num[10],7,startcol+20); //：
+	zf_disp4x8(num[TEST_1[4]-0x30],7,startcol+24); //秒钟1
+	zf_disp4x8(num[TEST_1[5]-0x30],7,startcol+28); //秒钟2
 
-	
-	zf_disp8x8(kong8_8,7,startcol+20);
-	zf_disp16x8(kong8_16,7,startcol+28);
-	
-	zf_disp16x8(font5[BatQuan_L],7,startcol+44); //电池
+	zf_disp8x8(kong8_8,7,startcol+32);
+	zf_disp4x8(kong8_8,7,startcol+40);
+
+	zf_disp16x8(font5[BatQuan],7,startcol+44); //电池
+
 	zf_disp8x8(kong8_8,7,startcol+60);
-	
-	if((1 == Cacul_GoOn_F)&&(1==FLAG1))
+	zf_disp16x8(kong8_16,7,startcol+68);
+
+	if(signal)
 	{
-	zf_disp8x8(zanting8_8,7,startcol+68);
-	zf_disp8x8(kong8_8,7,startcol+76);
-	}
-	else	
-	zf_disp16x8(kong8_16,7,startcol+68);
-	
-	zf_disp4x8(num[StarNum1],7,startcol+84); 
-	zf_disp4x8(num[StarNum0],7,startcol+88); //星数量
-	
-	zf_disp16x8(kong8_16,7,startcol+92);
+		zf_disp4x8(num[StarNum1],7,startcol+84);
+		zf_disp4x8(num[StarNum0],7,startcol+88); //星数量
+
+		zf_disp16x8(kong8_16,7,startcol+92);
 		zf_disp4x8(kong8_4,7,startcol+108); //kong
-	zf_disp16x8(xinhao,7,startcol+112); //信号
-	//}
 
+		zf_disp16x8(xinhao,7,startcol+112); //信号
+	}
+	else
+	{
+		zf_disp4x8(None8_4,7,startcol+84); //-
+		zf_disp4x8(None8_4,7,startcol+88); //-
 
-}
-else
-{
+		zf_disp16x8(kong8_16,7,startcol+92);
+		zf_disp4x8(kong8_4,7,startcol+108); //kong
 
-	zf_disp4x8(None8_4,7,startcol); //小时1
-	zf_disp4x8(None8_4,7,startcol+4); //小时2
-	zf_disp4x8(num[10],7,startcol+8); //：
-	zf_disp4x8(None8_4,7,startcol+12); //分钟1
-	zf_disp4x8(None8_4,7,startcol+16); //横线
-
-	zf_disp8x8(kong8_8,7,startcol+20);
-	zf_disp16x8(kong8_16,7,startcol+28);
-
-	zf_disp16x8(font5[BatQuan_L],7,startcol+44); //电池
-
-	zf_disp8x8(kong8_8,7,startcol+60);
-	zf_disp16x8(kong8_16,7,startcol+68);
-
-	zf_disp4x8(None8_4,7,startcol+84); //星数量
-	zf_disp4x8(None8_4,7,startcol+88); //星数量
-
-	zf_disp16x8(kong8_16,7,startcol+92);
-
-	zf_disp4x8(kong8_4,7,startcol+108); //kong
-
-	zf_disp4x8(None8_4,7,startcol+112); //星数量
-	zf_disp4x8(None8_4,7,startcol+116); //星数量
-	zf_disp4x8(None8_4,7,startcol+120); //星数量
-	zf_disp4x8(None8_4,7,startcol+124); //星数量
-
-
-
-}
-}
+		zf_disp4x8(None8_4,7,startcol+112); //-
+		zf_disp4x8(None8_4,7,startcol+116); //-
+		zf_disp4x8(None8_4,7,startcol+120); //-
+		zf_disp4x8(None8_4,7,startcol+124); //-
+	}
 }
 
 void display_Idle()
 {
 
 	LcmClear();
-	UTC2BeiJingTime();
-	TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-	 Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-	 Update_Idle_page4_5_1_2(TEST_6);	
+	//UTC2BeiJingTime();
+	//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+	//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+	Update_Page_Header();
+	Update_Idle_page4_5_1_2(TEST_6);
 }
 void display_CeLiang_Page( bit timer_fresh)
 {
@@ -1011,10 +942,11 @@ void display_CeLiang_Page( bit timer_fresh)
 			LcmClear();
 			if(0 == FLAG1)
 			{
-				TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-				Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+				//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+				//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+				Update_Page_Header();
 
-				if((lock == 0x30) && (((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))==0))	//定位不成功.
+				if(signal==0)	//定位不成功.
 				{
 					searching_sat = 1;
 					Display_Chinese(dai,4,0); //待
@@ -1041,11 +973,12 @@ void display_CeLiang_Page( bit timer_fresh)
 			}
 			else if(2 == FLAG1)
 			{
-			   TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-			   Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+				//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+				//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+				Update_Page_Header();
 
-			   Display_Chinese(dan,4,0); //单
-			   Display_Chinese(jia,4,16); //价
+				Display_Chinese(dan,4,0); //单
+				Display_Chinese(jia,4,16); //价
 
 			   for(celiangCount=0;celiangCount<4;celiangCount++)
 			   {
@@ -1153,9 +1086,11 @@ void display_CeLiang_Page( bit timer_fresh)
 			{
 				if(gps_first_point == 1)
 				{
-						TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-						Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-						Display_Chinese(ding,4,0); //定
+						//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+						//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+					Update_Page_Header();
+
+					Display_Chinese(ding,4,0); //定
 						Display_Chinese(wei,4,16); //位
 						Display_Chinese(qi,4,32); //起
 						Display_Chinese(dian,4,48);//点
@@ -1169,8 +1104,10 @@ void display_CeLiang_Page( bit timer_fresh)
 	
 				else
 				{
-					TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-					Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+					//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+					//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+
+					Update_Page_Header();
 
 					Display_Chinese(dan,4,0); //单
 					Display_Chinese(jia,4,16); //价
@@ -1214,13 +1151,13 @@ void display_CeLiang_Page( bit timer_fresh)
 					{
 						zf_disp8x16(kong, 4, 32+offset);
 					}
-					if((lock == 0x30) && (((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))==0))	//定位不成功.
+					if(signal==0)	//定位不成功.
 					{
 					   Display_Chinese(xin,4,80); //信
 					   Display_Chinese(hao,4,96); //号
 					   Display_Chinese(wu,4,112); //无
 					}
-					else if(((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))<=2)
+					else if(StarNum<=2)
 					{
 						Display_Chinese(xin,4,80); //信
 						Display_Chinese(hao,4,96); //号
@@ -1386,7 +1323,7 @@ void display_CeLiang_Page( bit timer_fresh)
 			  	LcmClear();
 				
 
-				if((lock == 0x30)||(((use_sat[0]-0x30)*10+ (use_sat[1]-0x30))==0))	//定位不成功.
+				if(signal==0)	//定位不成功.
 				{
 				Display_Chinese(ding,6,0); //定
 				Display_Chinese(wei,6,16); //位
