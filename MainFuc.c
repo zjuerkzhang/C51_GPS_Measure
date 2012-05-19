@@ -16,11 +16,12 @@
 
 //LED FLASH
 # define uint unsigned int
-#define TimerTerminal 20
 #define GpsGetCount 1000
- uint TimerNumber = 0;
- sbit Led_Flash =  P3^5;	 //
- bit LCD_Fresh = 0 ;
+
+sbit Led_Flash =  P3^5;	 //
+bit LCD_Fresh = 0 ;
+sbit CHG_F1_STDBY = P1^7;
+
  extern bit TEST4;
 //extern unsigned char  KeyPressValue;
 extern unsigned int TEST_5;
@@ -60,8 +61,9 @@ extern bit danwei_mianji_sel;
 extern bit Cacul_GoOn_F;
 extern unsigned char celiangPage_idx;
 unsigned int key_press_count = 0;
-unsigned char clear_rec_code[7] = {0, 2, 2, 4, 4, 5, 5};
-unsigned char clear_rec_step;
+unsigned char battery_timer_count = 40;
+extern unsigned int BatQuan;
+extern bit signal;
 
 void PowerUpSeque()
 {
@@ -102,7 +104,6 @@ void initiate_var()
 	{
 		WD[i] = '0';
 	}
-	clear_rec_step = 0;
 }
 
 void main()
@@ -138,7 +139,7 @@ void main()
 			else
 				StarNum = 0;
 
-			if ((1 == TEST1)&&(1 == FLAG1)&&('1' == lock))
+			if ((1 == TEST1)&&(1 == FLAG1)&&(signal))
 			{
 				MakeGeodeticByString(&point, JD, WD);
 
@@ -171,7 +172,7 @@ void main()
 					sprintf(GetLenthValue, "%08.1f", GeodeticGetDistance()/1000);
 				}
 			}
-
+			timer_fresh = 1;
 			GPS_UPDATA = 0;
 			FLAG3 = 1;
 		}
@@ -179,6 +180,34 @@ void main()
 		if(TOTAL_SAT_UPDATE == 1)
 		{
 
+		}
+
+		if(battery_timer_count >= 40)  // 2s to get new battery value
+		{
+			if((CHG_F1_STDBY == 0))
+			{
+				BatQuan++;
+				if(BatQuan > 4 )
+				{
+					ADCQuaValue = GetADCResult(0);
+					ADC2BATVALUE();
+					if((BatQuan >= 4))
+					{
+						BatQuan = 3;
+					}
+				}
+
+				ADCQuaValue = GetADCResult(0);
+				ADC2BATVALUE();
+			}
+			else
+			{
+				ADCQuaValue = GetADCResult(0);
+				ADC2BATVALUE();
+			}
+
+			battery_timer_count = 0;
+			FLAG3 = 1;
 		}
 
 		if(PowerDownCount>40)
@@ -201,14 +230,6 @@ void main()
 		}
 		if((FLAG3 == 1))
 		{
-			if(TimerNumber >= TimerTerminal)
-			{
-				TimerNumber = 0;
-				timer_fresh = 1;
-			}
-			else
-				timer_fresh = 0;
-
 			FLAG3 = 0;
 
 			switch(TEST1)
@@ -219,6 +240,7 @@ void main()
 
 			case 1:
 				display_CeLiang_Page(timer_fresh);
+				timer_fresh = 0;
 				break;
 
 			case 2:
@@ -278,7 +300,8 @@ void main()
 		 }
 	 }
 
-	 TimerNumber++;
+	 battery_timer_count++;
+
 	 TH0 = 0x4C;
 	 TL0 = 0x00;
 	 EA = 1;

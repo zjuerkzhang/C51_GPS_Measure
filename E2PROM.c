@@ -458,9 +458,18 @@ void get_sn_data()
 			system_data[i] = 0;
 		}
 	}
+
+	for(i=0;i<3;i++)
+	{
+		if(system_data[PRICE_OFFSET+i]>9)
+		{
+			flag = 1;
+			system_data[PRICE_OFFSET+i] = TEST2[i+1];
+		}
+		TEST2[i+1] = system_data[PRICE_OFFSET+i];
+	}
 	if(flag)
 		store_sn_data();
-
 }
 
 void get_system_data(unsigned char *sys_data)
