@@ -21,8 +21,9 @@
 sbit Led_Flash =  P3^5;	 //
 bit LCD_Fresh = 0 ;
 sbit CHG_F1_STDBY = P1^7;
+sbit CHG_F2_CHRG = P3^3;
 
- extern bit TEST4;
+extern bit TEST4;
 //extern unsigned char  KeyPressValue;
 extern unsigned int TEST_5;
 extern bit FLAG3;
@@ -62,7 +63,6 @@ extern bit Cacul_GoOn_F;
 extern unsigned char celiangPage_idx;
 unsigned int key_press_count = 0;
 unsigned char battery_timer_count = 40;
-extern unsigned int BatQuan;
 extern bit signal;
 
 void PowerUpSeque()
@@ -184,28 +184,20 @@ void main()
 
 		if(battery_timer_count >= 40)  // 2s to get new battery value
 		{
+
 			if((CHG_F1_STDBY == 0))
 			{
 				BatQuan++;
 				if(BatQuan > 4 )
 				{
-					ADCQuaValue = GetADCResult(0);
-					ADC2BATVALUE();
-					if((BatQuan >= 4))
-					{
-						BatQuan = 3;
-					}
+					BatQuan = 1;
 				}
-
-				ADCQuaValue = GetADCResult(0);
-				ADC2BATVALUE();
 			}
 			else
 			{
 				ADCQuaValue = GetADCResult(0);
 				ADC2BATVALUE();
 			}
-
 			battery_timer_count = 0;
 			FLAG3 = 1;
 		}
