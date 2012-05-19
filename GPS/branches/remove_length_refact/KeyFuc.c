@@ -45,8 +45,6 @@ extern unsigned char debugF ;
 extern unsigned char TEST3[];
 extern unsigned char TEST2[] ;
 extern bit GPS_Point_Updata_JD;
-extern unsigned char clear_rec_code[7];
-extern unsigned char clear_rec_step;
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 
@@ -411,6 +409,13 @@ void KeyOperate()
 								TEST3[i]= 0;	
 							}
 						}
+
+						get_system_data(system_data);
+						system_data[PRICE_OFFSET] = TEST2[1];
+						system_data[PRICE_OFFSET+1] = TEST2[2];
+						system_data[PRICE_OFFSET+2] = TEST2[3];
+						store_sn_data();
+
 						TEST1 = 0;
 						FLAG3 = 1;
 						
@@ -578,7 +583,7 @@ void KeyOperate()
 				{
 					case 1:
 					{
-						if(sn_focus_idx>0 && sn_focus_idx<=SN_NUM_LEN)
+						if(sn_focus_idx>0 && sn_focus_idx<SN_NUM_LEN)
 							sn_focus_idx--;
 						else if(0 == sn_focus_idx)
 							sn_focus_idx = 20;
@@ -607,7 +612,7 @@ void KeyOperate()
 
 					case 3:
 					{
-						if(sn_focus_idx<SN_NUM_LEN && sn_focus_idx>=0)
+						if(sn_focus_idx<(SN_NUM_LEN-1) && sn_focus_idx>=0)
 							sn_focus_idx++;
 						else if(sn_focus_idx == 20)
 							sn_focus_idx = 0;

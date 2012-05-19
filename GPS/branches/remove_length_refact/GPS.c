@@ -38,7 +38,7 @@ unsigned char WD_LST[WD_BUFF_LEN];
 unsigned char WD_a; 
 unsigned char curr_time[TIME_BUFF_LEN];
 unsigned char curr_time_LST[TIME_BUFF_LEN];
-unsigned char TEST_1[5];
+unsigned char TEST_1[7];
 unsigned char speed[SPEED_BUFF_LEN];
 unsigned char high[6]; 
 unsigned char angle[5]; 
@@ -289,7 +289,6 @@ void uart(void) interrupt 4
 							{
 								curr_time[byte_count+1]='\0';
 								GPS_TIME_UPDATE = 1;
-								mode = 0;
 							}
 							if(curr_time_LST[byte_count] != curr_time[byte_count])
 							{
@@ -353,26 +352,33 @@ void uart(void) interrupt 4
 							{
 								if((tmp>='0')&&(tmp<='9'))
 									use_sat[byte_count]=tmp;
+								else
+									use_sat[byte_count]='0';
 							}
 							if(byte_count == 1)
 							{
 								use_sat[byte_count+1]='\0';
 								GPS_Point_Updata_SatNum = 1;
 								GPS_Point_Updata_SatNum_LCD_Fresh = 1;
+								if(lock == '1')
+								{
+									if( (use_sat[0]-'0')*10+(use_sat[1]-'0') > 0 )
+										signal = 1;
+									else
+										signal = 0;
+								}
+								else
+								{
+									use_sat[0] = '0';
+									use_sat[1] = '0';
+									signal = 0;
+								}
 								GPS_UPDATA = 1;
 								mode = 0;
 							}
 							if(use_sat_LST[byte_count] != use_sat[byte_count])
 							{
 								use_sat_LST[byte_count] = use_sat[byte_count];
-							}
-							if((lock == '1')&&((use_sat[0])||(use_sat[1])))
-							{
-								signal = 1;
-							}
-							else
-							{
-								signal = 0;
 							}
 							break;
 						}
@@ -457,11 +463,11 @@ void UTC2BeiJingTime()
 	TEST_1[1] = 	(Hour_Beijing%10)+0x30;
 	Hour_Beijing = Hour_Beijing/10;
 	TEST_1[0] =	(Hour_Beijing%10)+0x30;
-	for(count = 2;count < 4; count++)
+	for(count = 2;count < 6; count++)
 	{
 		TEST_1[count] = 	curr_time[count];
 	}
-	TEST_1[4]='\0';			
+	TEST_1[6]='\0';
 }
 
 
