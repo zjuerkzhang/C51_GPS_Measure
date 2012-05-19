@@ -129,6 +129,7 @@ void main()
 		{
 			UTC2BeiJingTime();
 			GPS_TIME_UPDATE = 0;
+			timer_fresh = 1;
 			FLAG3 = 1;
 		}
 
@@ -172,7 +173,6 @@ void main()
 					sprintf(GetLenthValue, "%08.1f", GeodeticGetDistance()/1000);
 				}
 			}
-			timer_fresh = 1;
 			GPS_UPDATA = 0;
 			FLAG3 = 1;
 		}
