@@ -96,6 +96,12 @@ void initiate_var()
 		GetLenthValue[i] = '0';
 	}
 
+	for(i=0;i<6;i++)
+	{
+		TEST_1[i] = '0';
+	}
+	TEST_1[i] = '\0';
+
 	for(i=0;i<10;i++)
 	{
 		JD[i] = '0';
@@ -214,7 +220,7 @@ void main()
 		}
 		else
 		{
-			if( 1==TEST1 && CELIANG_SN_PAGE==celiangPage_idx)
+			if( 1==TEST1 && (CELIANG_SN_PAGE==celiangPage_idx || CELIANG_DETAIL_PAGE==celiangPage_idx)  )
 			{
 				celiangPage_idx = CELIANG_WORKING_PAGE;
 				FLAG3 = 1;
@@ -278,6 +284,7 @@ void main()
 	 if(!Power_key)
 	 {
 		 PowerDownCount++;
+		 key_press_count = 0;
 	 }
 	 else
 	 {
