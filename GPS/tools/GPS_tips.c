@@ -1,4 +1,6 @@
-﻿KeyPressValue:
+﻿Version: $Rev$
+
+KeyPressValue:
  1: Left
  2: Up
  3: Right
