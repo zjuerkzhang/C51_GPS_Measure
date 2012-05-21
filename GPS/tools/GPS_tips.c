@@ -1,4 +1,9 @@
-﻿Version: $Rev$
+﻿$Rev$
+$Author$
+$ID$
+$URL$
+$Date$
+$Header$
 
 KeyPressValue:
  1: Left
