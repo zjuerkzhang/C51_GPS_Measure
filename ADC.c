@@ -46,43 +46,43 @@ void ADC2BATVALUE()
 {
 
  	if(ADCQuaValue >= 0xCB)
-	 BatQuan = 4;
-	 else if(ADCQuaValue >= 0xC1) 
-	 {
-	 BatQuan = 3;
-	 if(TEST_7 == 0)
-	 TEST_7 =1;
-	 }
-	 else if(ADCQuaValue >= 0xBC)
-	  {
-	  BatQuan = 2;
-	  if(TEST_7 == 0)
-	  TEST_7 =1;
-	  }
-	 else if(ADCQuaValue >= 0xB2)
-	  {
-	  BatQuan = 1;
-	  if(TEST_7 == 0)
-	  TEST_7 =1;
-	  }
-	  else if(ADCQuaValue >= 0xAC)
-	  {
-	  BatQuan = 0;
-	  if(TEST_7 == 0)
-	  TEST_7 =1;
-	  }
-	  else if(ADCQuaValue < 0xAC)
-	  {
-	  BatQuan = 5;
-	  if(TEST_7 == 0)
-	  TEST_7 =1;
-	  }
+ 		BatQuan = 4;
+ 	else if(ADCQuaValue >= 0xC1)
+ 	{
+ 		BatQuan = 3;
+ 		if(TEST_7 == 0)
+ 			TEST_7 =1;
+ 	}
+ 	else if(ADCQuaValue >= 0xBC)
+ 	{
+ 		BatQuan = 2;
+ 		if(TEST_7 == 0)
+ 			TEST_7 =1;
+ 	}
+ 	else if(ADCQuaValue >= 0xB2)
+ 	{
+ 		BatQuan = 1;
+ 		if(TEST_7 == 0)
+ 			TEST_7 =1;
+ 	}
+ 	else if(ADCQuaValue >= 0xAC)
+ 	{
+ 		BatQuan = 0;
+ 		if(TEST_7 == 0)
+ 			TEST_7 =1;
+ 	}
+ 	else if(ADCQuaValue < 0xAC)
+ 	{
+ 		BatQuan = 5;
+ 		if(TEST_7 == 0)
+ 			TEST_7 =1;
+ 	}
 
-	  if(BatQuan_LST != BatQuan)
-	  {
-	  BatQuanF = 1;
-	  BatQuan_LST =  BatQuan;
-	  }
-	  else
-	  BatQuanF = 0;
+ 	if(BatQuan_LST != BatQuan)
+ 	{
+ 		BatQuanF = 1;
+ 		BatQuan_LST =  BatQuan;
+ 	}
+ 	else
+ 		BatQuanF = 0;
 }

@@ -1,5 +1,5 @@
 #include <intrins.h>
-#include <reg52.h>      //5…80†90ˆ40…80„60‡40…10†3¨²0ˆ1¡¤0ˆ20‡20†40‹6
+#include <reg52.h> 
 #include "own_reg.h"
 //#include "lcd1602.h"
 #include "e2prom.h"
@@ -11,14 +11,14 @@
 #define uchar unsigned char
 #define uint unsigned int 
 
-#define RdCommand 0x01 //0…9¡§00‡20…50‰2¡Á¡Â0‡1¨¹0†90Š6
+#define RdCommand 0x01
 #define PrgCommand 0x02
 #define EraseCommand 0x03 
 
 #define Error 1
 
 #define Ok 0
-#define WaitTime 0x01 //0…90…80‡60…70‹50‡8¡À0†40Š1
+#define WaitTime 0x01 
 
 
 typedef struct Saved_Data
@@ -29,8 +29,8 @@ typedef struct Saved_Data
 	unsigned char jiner[6];
 }Save_Data;
 
-sbit dula=P2^6;  //0‡7¨º00‡4¡Â0…80‡20‡90‹30…70Š30…90‡9
-sbit wela=P2^7;  //0‡7¨º0‡1¡ÂU20‡90‹30…70Š30‡4¡Â0…80‡20‡90‹30…70Š30…90‡9
+sbit dula=P2^6;  
+sbit wela=P2^7;  
 
 
 sbit lcdrs=P3^5;
@@ -47,6 +47,11 @@ uchar code table[]={
 
 unsigned char history_cnt;
 unsigned char history_index;
+unsigned char system_data[SYSTEM_DATA_SIZE];
+unsigned char sn_focus_idx = 0;
+unsigned char data_tmp[6];
+
+extern unsigned char TEST2[];
 
 void delay(unsigned int z)
 {
@@ -145,8 +150,6 @@ void eeprom_erase_20(uchar AddrL)
 	delay(1);
 }
 
- //0ˆ40…70‡60Š5eeprom0‰00ˆ40„30„5
- //0…80‰10‰0¡¤0…70ˆ70x000
  
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_Addr)
 {
@@ -180,8 +183,7 @@ void eeprom_erase(unsigned char AddrH)
 	IAP_TRIG=0x00;
 }
 
-  //0ˆ40…70‡60r
- //0…80‰10‰0¡¤0f 0x200~0x3ff
+
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_AddrH,unsigned char EEPROM_AddrL)
 {
 	unsigned char i;
@@ -275,7 +277,11 @@ typedef struct _HistoryData{
 	double zouchang;
 	double mianji;
 	double jiner;
-	unsigned char add_data;
+	unsigned int add_data;
+	/* Used to store danjia and Danwei selection
+	 * bit 15-14: Danwei selection
+	 * bit 13-0 : Danjia
+	 */
 } HistoryData;
 
 void write_one_char(unsigned char data1, unsigned int addr)
@@ -414,7 +420,7 @@ void write_all_data(unsigned char cnt, unsigned char index, HistoryData* his_dat
 	}
 }
 
-void store_system_data(unsigned char sys_data[])
+void store_system_data(unsigned char *sys_data)
 {
 	unsigned char read_char;
 	unsigned int end, i;
@@ -432,7 +438,41 @@ void store_system_data(unsigned char sys_data[])
 	}
 }
 
-void get_system_data(unsigned char sys_data[])
+void store_sn_data()
+{
+	store_system_data(system_data);
+}
+
+void get_sn_data()
+{
+	unsigned char i;
+	bit flag = 0;
+
+	get_system_data(system_data);
+
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		if(system_data[i]>9)
+		{
+			flag = 1;
+			system_data[i] = 0;
+		}
+	}
+
+	for(i=0;i<3;i++)
+	{
+		if(system_data[PRICE_OFFSET+i]>9)
+		{
+			flag = 1;
+			system_data[PRICE_OFFSET+i] = TEST2[i+1];
+		}
+		TEST2[i+1] = system_data[PRICE_OFFSET+i];
+	}
+	if(flag)
+		store_sn_data();
+}
+
+void get_system_data(unsigned char *sys_data)
 {
 	read_data_array(sys_data, SYSTEM_DATA_SIZE, SYSTEM_DATA_START_ADDR);
 }
@@ -478,7 +518,8 @@ void Stor_Data(unsigned char Stor_Time[],unsigned char zouchang[],
 	data1.zouchang = atof(zouchang);
 	data1.mianji = atof(mianji);
 	data1.jiner = atof(jiner);
-	data1.add_data = add_data;
+	data1.add_data = (add_data&0x3)<<14;
+	data1.add_data |= TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3];
 
 	if (history_cnt >= HISTORY_DATA_MAX_CNT)
 		history_cnt = HISTORY_DATA_MAX_CNT;
@@ -494,7 +535,7 @@ void Stor_Data(unsigned char Stor_Time[],unsigned char zouchang[],
 //
 
 char Get_Data(unsigned char index, unsigned char Stor_Time[],unsigned char zouchang[],
-	unsigned char mianji[],unsigned char jiner[], unsigned char* add_data)
+	unsigned char mianji[],unsigned char jiner[], unsigned char* add_data, unsigned int *danjia)
 {
 	HistoryData data1;
 	unsigned data_addr;
@@ -514,7 +555,8 @@ char Get_Data(unsigned char index, unsigned char Stor_Time[],unsigned char zouch
 	sprintf(zouchang, "%08.1f", data1.zouchang);
 	sprintf(mianji, "%08.1f", data1.mianji);
 	sprintf(jiner, "%08.0f", data1.jiner);
-	*add_data = data1.add_data;
+	*add_data = (unsigned char)((data1.add_data>>14)&0x3);
+	*danjia = data1.add_data&0x3FFF;
 
 	return 0;
 }

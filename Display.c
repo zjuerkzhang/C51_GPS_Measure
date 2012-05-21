@@ -8,6 +8,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "e2prom.h"
+#include "keyfuc.h"
 
 #define  uchar  unsigned char
 #define  uint   unsigned int
@@ -27,8 +28,7 @@ sbit RES    =  P1^4;
 sbit A0     =  P1^3;
 sbit LCD_WR =  P3^6;  
 sbit LCD_RD =  P3^7;
-sbit CHG_F1_STDBY = P1^7;
-sbit CHG_F2_CHRG = P3^3;
+
 
 
 sbit DB0 =	P0^0 ;
@@ -63,12 +63,12 @@ bit TEST4 = 0;
 unsigned int TEST_5;
 unsigned char TEST_6 = 0;
 unsigned int  TEST_7=1;
- unsigned int idata ZouChangValue = 0;
- bit idata  ZouChangValueFlag = 0;
- unsigned int idata mianjiValue = 0;
- bit idata  mianjiValueFlag = 0;
- unsigned int idata JinerValue = 0;
- bit  idata JinerValueFlag = 0;
+unsigned int idata ZouChangValue = 0;
+bit idata  ZouChangValueFlag = 0;
+unsigned int idata mianjiValue = 0;
+bit idata  mianjiValueFlag = 0;
+unsigned int idata JinerValue = 0;
+bit  idata JinerValueFlag = 0;
  unsigned char TEST1 = 0;
 
  double TEST_8 = 0;
@@ -76,8 +76,10 @@ unsigned int  TEST_7=1;
 
  bit FLAG3 = 0;
  
- unsigned char TEST2[] = {0,0,0,0,0};
+ unsigned char TEST2[] = {0,0,8,0,0};
  unsigned char TEST3[] = {0,0,0,0,0};
+ unsigned char celiang_run_light = 0;
+
  extern unsigned char danjiasel;
  
 extern bit danwei_zouchang_sel;
@@ -93,6 +95,7 @@ extern unsigned char JD[10];
 extern unsigned char WD[9]; 
 extern unsigned char curr_time[7]; 
 extern bit celiangPage_detail; 
+extern unsigned char celiangPage_idx;
 extern unsigned int StarNum; 
 extern unsigned char total_sat[3];
 
@@ -108,6 +111,9 @@ extern bit GPS_Point_Updata_WD_LCD_Fresh;
 extern bit GPS_Point_Updata_JD_LCD_Fresh;
 extern bit GPS_Point_Updata_SatNum_LCD_Fresh;
 extern bit Cacul_GoOn_F;
+extern unsigned char system_data[SYSTEM_DATA_SIZE];
+extern unsigned char sn_focus_idx;
+extern bit searching_sat;
 
 void delay_ms(unsigned int ms)  
 {  
@@ -400,6 +406,27 @@ void zf_disp8x16(unsigned char ft[],uchar page,uchar column)
 		
 }
 
+void zf_disp7x16(unsigned char ft[],uchar page,uchar column)
+{
+	unsigned char k,num=0;
+ 		Set_Page_Address(page);
+    Set_Column_Address(column);
+		num=7;
+        for(k=0;k<7;k++)
+		{
+      		Write_Data(ft[num+k]);
+		}
+
+		Set_Page_Address(page+1);
+    Set_Column_Address(column);
+		num=0;
+        for(k=0;k<7;k++)
+		{
+      		Write_Data(ft[num+k]);
+		}
+
+}
+
 
 void reverse_zf_disp8x16(unsigned char ft[],uchar page,uchar column)
 {
@@ -422,6 +449,17 @@ void reverse_zf_disp8x16(unsigned char ft[],uchar page,uchar column)
 		
 }
 
+
+void zf_clear_page_to_end(uchar page, uchar column)
+{
+	unsigned char k;
+	Set_Page_Address(page);
+	Set_Column_Address(column);
+	for(k=column;k<128;k++)
+	{
+		Write_Data(0x00);
+	}
+}
 
 void zf_disp8x8(unsigned char ft[],uchar page,uchar column)
 {
@@ -674,11 +712,13 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 				
 			}
 			Display_Chinese(maohao,4,32); 
+			zf_disp8x16(kong,4,48);
+			/*
 			if(Sel_flag == 1)
 			reverse_zf_disp8x16(Num_8_16[TEST2[0]], 4, 48);
 			else
 			zf_disp8x16(Num_8_16[TEST2[0]], 4, 48);	
-
+			*/
 			if(Sel_flag == 2)
 			reverse_zf_disp8x16(Num_8_16[TEST2[1]], 4, 56);
 			else
@@ -693,10 +733,11 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 			reverse_zf_disp8x16(Num_8_16[TEST2[3]], 4, 72);
 			else
 			zf_disp8x16(Num_8_16[TEST2[3]], 4, 72);	
-				Display_Chinese(kong,4,80);
-				Display_Chinese(yuan,4,96);
-			Display_Chinese(kong,4,112);
 
+			Display_Chinese(kong,4,80);
+			Display_Chinese(yuan,4,96);
+			Display_Chinese(kong,4,112);
+/*
 			if(Sel_flag == 5)
 			{
 			Revers_Data(chang,1,0); 
@@ -735,13 +776,35 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 			
 			Display_Chinese(yuan,1,96);
 			Display_Chinese(kong,1,112);
-
+*/
 
 }
 
 
 void Update_danwei_page4_5_1_2(bit Sel_zouchang_flag,bit Sel_mianji_flag,bit sel_ZCMJ_SEL)	  
 {
+	Display_Chinese(mian,4,0); //面
+	Display_Chinese(ji2,4,16); //积
+
+	Display_Chinese(maohao,4,32); //:
+	if(Sel_mianji_flag == 0)
+	{
+		Revers_Data(mu,4,48);//亩
+		Display_Chinese(kong,4,64);
+		Display_Chinese(gong,4,80); //公
+		Display_Chinese(qing,4,96); //倾
+	}
+	else
+	{
+		Display_Chinese(mu,4,48); //亩
+		Display_Chinese(kong,4,64);
+		Revers_Data(gong,4,80);//公
+		Revers_Data(qing,4,96);//倾
+	}
+
+	Display_Chinese(kong,4,112);
+
+#if 0
 			if(sel_ZCMJ_SEL == 0)
 			{
 			Revers_Data(zou,4,0);//米
@@ -802,181 +865,231 @@ void Update_danwei_page4_5_1_2(bit Sel_zouchang_flag,bit Sel_mianji_flag,bit sel
 
 			
 			Display_Chinese(kong,1,112);
-
+#endif
 }
 
-void Update_Idle_Page7(unsigned int Timer_L,unsigned int BatQuan_L,unsigned int StarNum_L,bit signal_L)
+
+Update_Page_Header()
 {
-unsigned int minu0,minu1,hour0,hour1,StarNum0,StarNum1,startcol;
-unsigned char test[6];
-if((FLAG2)||(BatQuanF)||(StarNumF)||(signal))
-{
+	unsigned char startcol = 0;
+	unsigned char StarNum1, StarNum0;
 
-minu0 = Timer_L%10;		
-Timer_L = Timer_L/10;	
-minu1 = Timer_L%10;		
-Timer_L = Timer_L/10;	
-hour0 = Timer_L%10;		
-Timer_L = Timer_L/10;	
-hour1 = Timer_L%10;		
+	StarNum0 = (unsigned char)StarNum%10;
+	StarNum1 = (unsigned char)StarNum/10;
 
-
-StarNum0 = StarNum_L%10;
-StarNum_L = StarNum_L/10;
-StarNum1 = StarNum_L%10;
-
-startcol = 0;
-		if((CHG_F1_STDBY == 0))
-		{
-			if(BatQuan >= 4 )
-			{
-			
-			ADCQuaValue = GetADCResult(0);
-			ADC2BATVALUE();
-			if((BatQuan >= 4)&&(TEST_7))
-				{
-					BatQuan = 3;
-					TEST_7++;
-					if(TEST_7>=1000)
-					{
-						TEST_7 =0;
-						BatQuan=4;
-					}
-	
-				}
-
-			}
-			else
-			BatQuan++;
-		}
-		else
-		{
-			ADCQuaValue = GetADCResult(0);
-			ADC2BATVALUE();
-			TEST_7 =1;
-		}
-
-
-if((lock != 0x30)||((use_sat[0]-0x30)*10+ (use_sat[1]-0x30)))
-{
-	
-  	zf_disp4x8(num[hour1],7,startcol); //小时1
-	zf_disp4x8(num[hour0],7,startcol+4); //小时2
+	zf_disp4x8(num[TEST_1[0]-0x30],7,startcol); //小时1
+	zf_disp4x8(num[TEST_1[1]-0x30],7,startcol+4); //小时2
 	zf_disp4x8(num[10],7,startcol+8); //：
-	zf_disp4x8(num[minu1],7,startcol+12); //分钟1
-	zf_disp4x8(num[minu0],7,startcol+16); //分钟2
+	zf_disp4x8(num[TEST_1[2]-0x30],7,startcol+12); //分钟1
+	zf_disp4x8(num[TEST_1[3]-0x30],7,startcol+16); //分钟2
+	zf_disp4x8(num[10],7,startcol+20); //：
+	zf_disp4x8(num[TEST_1[4]-0x30],7,startcol+24); //秒钟1
+	zf_disp4x8(num[TEST_1[5]-0x30],7,startcol+28); //秒钟2
 
-	
-	zf_disp8x8(kong8_8,7,startcol+20);
-	zf_disp16x8(kong8_16,7,startcol+28);
-	
-	zf_disp16x8(font5[BatQuan_L],7,startcol+44); //电池
+	zf_disp8x8(kong8_8,7,startcol+32);
+	zf_disp4x8(kong8_8,7,startcol+40);
+
+	zf_disp16x8(font5[BatQuan],7,startcol+44); //电池
+
 	zf_disp8x8(kong8_8,7,startcol+60);
-	
-	if((1 == Cacul_GoOn_F)&&(1==FLAG1))
+	zf_disp16x8(kong8_16,7,startcol+68);
+
+	if(signal)
 	{
-	zf_disp8x8(zanting8_8,7,startcol+68);
-	zf_disp8x8(kong8_8,7,startcol+76);
-	}
-	else	
-	zf_disp16x8(kong8_16,7,startcol+68);
-	
-	zf_disp4x8(num[StarNum1],7,startcol+84); 
-	zf_disp4x8(num[StarNum0],7,startcol+88); //星数量
-	
-	zf_disp16x8(kong8_16,7,startcol+92);
+		zf_disp4x8(num[StarNum1],7,startcol+84);
+		zf_disp4x8(num[StarNum0],7,startcol+88); //星数量
+
+		zf_disp16x8(kong8_16,7,startcol+92);
 		zf_disp4x8(kong8_4,7,startcol+108); //kong
-	zf_disp16x8(xinhao,7,startcol+112); //信号
-	//}
 
+		zf_disp16x8(xinhao,7,startcol+112); //信号
+	}
+	else
+	{
+		zf_disp4x8(None8_4,7,startcol+84); //-
+		zf_disp4x8(None8_4,7,startcol+88); //-
 
-}
-else
-{
+		zf_disp16x8(kong8_16,7,startcol+92);
+		zf_disp4x8(kong8_4,7,startcol+108); //kong
 
-	zf_disp4x8(None8_4,7,startcol); //小时1
-	zf_disp4x8(None8_4,7,startcol+4); //小时2
-	zf_disp4x8(num[10],7,startcol+8); //：
-	zf_disp4x8(None8_4,7,startcol+12); //分钟1
-	zf_disp4x8(None8_4,7,startcol+16); //横线
-
-	zf_disp8x8(kong8_8,7,startcol+20);
-	zf_disp16x8(kong8_16,7,startcol+28);
-
-	zf_disp16x8(font5[BatQuan_L],7,startcol+44); //电池
-
-	zf_disp8x8(kong8_8,7,startcol+60);
-	zf_disp16x8(kong8_16,7,startcol+68);
-
-	zf_disp4x8(None8_4,7,startcol+84); //星数量
-	zf_disp4x8(None8_4,7,startcol+88); //星数量
-
-	zf_disp16x8(kong8_16,7,startcol+92);
-
-	zf_disp4x8(kong8_4,7,startcol+108); //kong
-
-	zf_disp4x8(None8_4,7,startcol+112); //星数量
-	zf_disp4x8(None8_4,7,startcol+116); //星数量
-	zf_disp4x8(None8_4,7,startcol+120); //星数量
-	zf_disp4x8(None8_4,7,startcol+124); //星数量
-
-
-
-}
-}
+		zf_disp4x8(None8_4,7,startcol+112); //-
+		zf_disp4x8(None8_4,7,startcol+116); //-
+		zf_disp4x8(None8_4,7,startcol+120); //-
+		zf_disp4x8(None8_4,7,startcol+124); //-
+	}
 }
 
 void display_Idle()
 {
 
 	LcmClear();
-	UTC2BeiJingTime();
-	TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-	 Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-	 Update_Idle_page4_5_1_2(TEST_6);	
+	//UTC2BeiJingTime();
+	//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+	//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+	Update_Page_Header();
+	Update_Idle_page4_5_1_2(TEST_6);
 }
-void display_CeLiang_Page()
+void display_CeLiang_Page( bit timer_fresh)
 {
 	unsigned int StartCol= 40;
 	unsigned char celiangCount;
 	unsigned char CharBuffer[6];
+	unsigned char offset = 0;
 	
-		if(!celiangPage_detail)
+		if(celiangPage_idx==CELIANG_WORKING_PAGE)
 		{
 			LcmClear();
 			if(0 == FLAG1)
 			{
-			   TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-			   Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-				Display_Chinese(dai,4,0); //待
-				Display_Chinese(ce,4,16); //测
-				Display_Chinese(kong,4,32); //
-				Display_Chinese(an,4,48);//按
-				Display_Chinese(que,4,64); //确
-				Display_Chinese(ren,4,80); //认
-				Display_Chinese(kai,4,96); //开
-				Display_Chinese(shi3,4,112); //始
+				//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+				//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+				Update_Page_Header();
+
+				if(signal==0)	//定位不成功.
+				{
+					searching_sat = 1;
+					Display_Chinese(dai,4,0); //待
+					Display_Chinese(ce,4,16); //测
+					Display_Chinese(kong,4,32); //
+					Display_Chinese(zheng,4,48);//正
+					Display_Chinese(zai,4,64); //在
+					Display_Chinese(sou,4,80); //搜
+					Display_Chinese(xing,4,96); //星
+					Display_Chinese(points,4,112); //
+				}
+				else
+				{
+					searching_sat = 0;
+					Display_Chinese(dai,4,0); //待
+					Display_Chinese(ce,4,16); //测
+					Display_Chinese(kong,4,32); //
+					Display_Chinese(an,4,48);//按
+					Display_Chinese(que,4,64); //确
+					Display_Chinese(ren,4,80); //认
+					Display_Chinese(kai,4,96); //开
+					Display_Chinese(shi3,4,112); //始
+				}
 			}
 			else if(2 == FLAG1)
 			{
-			   TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-			   Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-				Display_Chinese(an,4,0); //按
-				Display_Chinese(que,4,16); //确
-				Display_Chinese(ren,4,32); //认
-				Display_Chinese(bao,4,48);//保
-				Display_Chinese(cun,4,64); //存
-				Display_Chinese(ji,4,80); //记
-				Display_Chinese(lu,4,96); //录
-				Display_Chinese(dengdai,4,112); //..
+				//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+				//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+				Update_Page_Header();
+
+				Display_Chinese(dan,4,0); //单
+				Display_Chinese(jia,4,16); //价
+
+			   for(celiangCount=0;celiangCount<4;celiangCount++)
+			   {
+				   if( offset>0 )
+				   {
+					   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+					   offset += 8;
+				   }
+				   else
+				   {
+					   if(TEST2[celiangCount] != 0)
+					   {
+						   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+						   offset += 8;
+					   }
+					   else
+					   {
+						   if(celiangCount == 3)
+						   {
+							   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+							   offset += 8;
+						   }
+					   }
+				   }
+				   /*
+				   if(TEST2[celiangCount] != 0x2e)
+					   zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+(celiangCount*8));
+				   else
+					   zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);
+				   */
+			   }
+			   Display_Chinese(yuan,4,32+offset); //元
+			   offset += 16;
+			   for( ; offset<80; offset+=8)
+			   {
+				   zf_disp8x16(kong, 4, 32+offset);
+			   }
+			   Display_Chinese(yi,4,80); //已
+			   Display_Chinese(ji,4,96); //记
+			   Display_Chinese(lu,4,112); //录
+
+			   Display_Chinese(mian,2,0); //面
+			   Display_Chinese(ji2,2,16); //积
+			   //Display_Chinese(maohao,2,32); //：
+			   for(celiangCount=0;celiangCount<8;celiangCount++)
+			   {
+				   if(TEST_9[celiangCount] != 0x2e)
+					   zf_disp8x16(Num_8_16[TEST_9[celiangCount]-0x30], 2, 32+celiangCount*8);
+				   else
+					   zf_disp8x16(Num_8_16[10], 2, 32+celiangCount*8);
+			   }
+
+			   if(0 == danwei_mianji_sel)
+			   {
+				   Display_Chinese(mu,2,96); //亩
+				   Display_Chinese(kong,2,112);
+			   }
+			   else
+			   {
+				   Display_Chinese(gong,2,96); //公
+				   Display_Chinese(qing,2,112);//倾
+			   }
+
+			   ///计算金额部分:
+			   if((danjiasel >= 0)&&(danjiasel <= 4))//面积
+			   {
+				   TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(TEST_9);
+			   }
+			   else  //长度
+			   {
+				   TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(GetLenthValue);
+			   }
+
+			   if((TEST_8 >= 0)&&(TEST_8 <= 99999999))
+			   {
+				   sprintf(TEST_0, "%08.0f", TEST_8);
+				   //					DataSend("\r\n TEST_0:");
+				   //					DataSend(TEST_0);
+
+				   Display_Chinese(jin,0,0); //金
+				   Display_Chinese(er,0,16); //额
+				   Display_Chinese(maohao,0,32); //：
+
+				   for(celiangCount=0;celiangCount<8;celiangCount++)
+				   {
+					   zf_disp8x16(Num_8_16[TEST_0[celiangCount]-0x30], 0, 40+celiangCount*8);
+				   }
+
+				   Display_Chinese(yuan,0,104); //元
+				   Display_Chinese(kong,0,120);
+			   }
+			   else
+			   {
+			   				   Display_Chinese(jin,0,0); //金
+			   				   Display_Chinese(er,0,16); //额
+			   				   Display_Chinese(maohao,0,32); //：
+			   				   Display_Chinese(chao,0,48);//..
+			   				   Display_Chinese(fan,0,64); //..
+			   				   Display_Chinese(wei3,0,80); //..
+			   				   Display_Chinese(kong,0,96); //..
+			   				   Display_Chinese(yuan,0,112); //元
+			   }
 			}
 			else if(1 == FLAG1)
 			{
 				if(gps_first_point == 1)
 				{
-						TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-						Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-						Display_Chinese(ding,4,0); //定
+						//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+						//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+					Update_Page_Header();
+
+					Display_Chinese(ding,4,0); //定
 						Display_Chinese(wei,4,16); //位
 						Display_Chinese(qi,4,32); //起
 						Display_Chinese(dian,4,48);//点
@@ -990,21 +1103,93 @@ void display_CeLiang_Page()
 	
 				else
 				{
-					TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-					Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-					Display_Chinese(zou,4,0); //走
-					Display_Chinese(chang,4,16); //长
+					//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
+					//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
+
+					Update_Page_Header();
+
+					Display_Chinese(dan,4,0); //单
+					Display_Chinese(jia,4,16); //价
 				//	Display_Chinese(maohao,4,32); //：
 			
 				//	zf_disp8x16(Num_8_16[TEST_1[0]-0x30], 6, 88);
-					for(celiangCount=0;celiangCount<8;celiangCount++)
+					for(celiangCount=0;celiangCount<4;celiangCount++)
 					{
-						if(GetLenthValue[celiangCount] != 0x2e)
-						zf_disp8x16(Num_8_16[GetLenthValue[celiangCount]-0x30], 4, 32+(celiangCount*8));	
+						if( offset>0 )
+						{
+							zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+							offset += 8;
+						}
 						else
-						zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);	
+						{
+							if(TEST2[celiangCount] != 0)
+							{
+								zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+								offset += 8;
+							}
+							else
+							{
+								if(celiangCount == 3)
+								{
+									zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+offset);
+									offset += 8;
+								}
+							}
+						}
+						/*
+						if(TEST2[celiangCount] != 0x2e)
+						zf_disp8x16(Num_8_16[TEST2[celiangCount]], 4, 32+(celiangCount*8));
+						else
+						zf_disp8x16(Num_8_16[10], 4, 32+celiangCount*8);
+						*/
 					}
-				//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);	
+
+					Display_Chinese(yuan,4,32+offset); //元
+					offset += 16;
+					for( ; offset<80; offset+=8)
+					{
+						zf_disp8x16(kong, 4, 32+offset);
+					}
+					if(signal==0)	//定位不成功.
+					{
+					   Display_Chinese(xin,4,80); //信
+					   Display_Chinese(hao,4,96); //号
+					   Display_Chinese(wu,4,112); //无
+					}
+					else if(StarNum<=2)
+					{
+						Display_Chinese(xin,4,80); //信
+						Display_Chinese(hao,4,96); //号
+						Display_Chinese(cha,4,112); //差
+					}
+					else
+					{
+						offset = 80;
+						if(celiang_run_light>=1)
+						{
+							Display_Chinese(ce,4,80); //测
+							offset += 16;
+						}
+						if(celiang_run_light>=2)
+						{
+							Display_Chinese(liang,4,96); //量
+							offset += 16;
+						}
+						if(celiang_run_light>=3)
+						{
+							Display_Chinese(zhong,4,112); //中
+							offset += 16;
+						}
+						zf_clear_page_to_end(4,offset);
+						zf_clear_page_to_end(5,offset);
+						if(timer_fresh)
+							celiang_run_light++;
+						if(celiang_run_light >= 4)
+							celiang_run_light = 0;
+
+					}
+					//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);
+					/*
 					if(0 == danwei_zouchang_sel) //米
 					{
 					Display_Chinese(mi,4,96); //米
@@ -1015,6 +1200,7 @@ void display_CeLiang_Page()
 					 Display_Chinese(qian,4,96); //千
 					Display_Chinese(mi,4,112);	//米
 					}
+					*/
 
 			
 					Display_Chinese(mian,2,0); //面
@@ -1111,7 +1297,7 @@ void display_CeLiang_Page()
 				}
 			}
 		}
-		else
+		else if(celiangPage_idx==CELIANG_DETAIL_PAGE)
 		{
 		/*
 			Display_Chinese(ding,4,0); //1.
@@ -1136,7 +1322,7 @@ void display_CeLiang_Page()
 			  	LcmClear();
 				
 
-				if((lock == 0x30)||((use_sat[0]-0x30)*10+ (use_sat[1]-0x30)==0))	//定位不成功.
+				if(signal==0)	//定位不成功.
 				{
 				Display_Chinese(ding,6,0); //定
 				Display_Chinese(wei,6,16); //位
@@ -1227,8 +1413,28 @@ void display_CeLiang_Page()
 		  	   }
 			//}
 		}
-	
-  
+		else if(celiangPage_idx==CELIANG_SN_PAGE)
+		{
+			get_sn_data();
+			LcmClear();
+			Display_PD(sn_num_pic);
+
+			zf_disp7x16(Num_7_16[system_data[0]], 1, 33);
+			zf_disp7x16(Num_7_16[system_data[1]], 1, 33+7*1);
+			zf_disp7x16(Num_7_16[system_data[2]], 1, 33+7*2);
+			zf_disp7x16(Num_7_16[system_data[3]], 1, 33+7*3);
+			zf_disp7x16(Num_7_16[system_data[4]], 1, 33+7*4);
+			zf_disp7x16(Num_7_16[system_data[5]], 1, 33+7*5);
+			zf_disp7x16(Num_7_16[system_data[6]], 1, 33+7*6);
+			zf_disp7x16(Num_7_16[system_data[7]], 1, 33+7*7);
+			zf_disp7x16(Num_7_16[system_data[8]], 1, 33+7*8);
+			zf_disp7x16(Num_7_16[system_data[9]], 1, 33+7*9);
+			zf_disp7x16(Num_7_16[system_data[10]], 1, 33+7*10);
+			zf_disp7x16(Num_7_16[system_data[11]], 1, 33+7*11);
+
+			zf_clear_page_to_end(1,117);
+			zf_clear_page_to_end(2,117);
+		}
 }
 void display_danjia_Page()
 {
@@ -1247,7 +1453,9 @@ void Update_jilu_page()
   	unsigned char time[5],zouchang[20],mianji[20],TEST_8[20],ItoaBuffer[6];
 	unsigned char count,DanweiF;
 	unsigned int IndexNewNumBuffer;
-	Get_Data(TEST_2,time,zouchang,mianji,TEST_8,&DanweiF);
+	unsigned int danjia;
+	unsigned char offset = 0;
+	Get_Data(TEST_2,time,zouchang,mianji,TEST_8,&DanweiF, &danjia);
 	IndexNewNumBuffer =  TEST_2+1;
 	sprintf(ItoaBuffer, "%02d", IndexNewNumBuffer);
 	LcmClear();
@@ -1277,7 +1485,36 @@ void Update_jilu_page()
 	zf_disp8x16(Num_8_16[time[2]-0x30], 6, 112); 
 	zf_disp8x16(Num_8_16[time[3]-0x30], 6, 120); 
 
-	
+	Display_Chinese(dan,4,0);
+	Display_Chinese(jia,4,16);
+	if( (unsigned char)(danjia/1000)>0 )
+	{
+		zf_disp8x16(Num_8_16[(unsigned char)(danjia/1000)], 4, 32+offset);
+		offset += 8;
+	}
+	danjia = danjia%1000;
+	if( offset>0 || (unsigned char)(danjia/100)>0 )
+	{
+		zf_disp8x16(Num_8_16[(unsigned char)(danjia/100)], 4, 32+offset);
+		offset += 8;
+	}
+	danjia = danjia%100;
+	if( offset>0 || (unsigned char)(danjia/10)>0 )
+	{
+		zf_disp8x16(Num_8_16[(unsigned char)(danjia/10)], 4, 32+offset);
+		offset += 8;
+	}
+	danjia = danjia%10;
+	zf_disp8x16(Num_8_16[danjia], 4, 32+offset);
+	offset += 8;
+	Display_Chinese(yuan,4,32+offset);
+	offset += 16;
+	for( ; 32+offset<128; offset+=8)
+	{
+		zf_disp8x16(kong, 4, 32+offset);
+	}
+
+#if 0
 	Display_Chinese(zou,4,0);
 	Display_Chinese(chang,4,16);
 	
@@ -1300,7 +1537,7 @@ void Update_jilu_page()
 	  Display_Chinese(qian,4,96); //:
 	  Display_Chinese(mi,4,112); //:
 	 }
-	
+#endif
 
 	Display_Chinese(mian,2,0); //走
 	Display_Chinese(ji2,2,16); //长
@@ -1346,3 +1583,68 @@ void display_jilu_page()
 	Update_jilu_page();
     
 }
+
+void dispay_sn_edit_page()
+{
+	unsigned char i=0;
+
+	LcmClear();
+	if(sn_focus_idx == 20)
+		Revers_Data(hao,4,0);
+	else
+		Display_Chinese(hao, 4, 0);
+
+	Display_Chinese(maohao,4,16);
+
+	for(i=0; i<SN_NUM_LEN; i++)
+	{
+		if(i==sn_focus_idx)
+		{
+			reverse_zf_disp8x16(Num_8_16[system_data[i]], 4, 32+8*i);
+		}
+		else
+		{
+			zf_disp8x16(Num_8_16[system_data[i]], 4, 32+8*i);
+		}
+	}
+	zf_clear_page_to_end(4,32+8*SN_NUM_LEN);
+	zf_clear_page_to_end(5,32+8*SN_NUM_LEN);
+
+	if(sn_focus_idx == 30)
+		Revers_Data(shi3,1,0);
+	else
+		Display_Chinese(shi3, 1, 0);
+
+	zf_clear_page_to_end(1,16);
+	zf_clear_page_to_end(2,16);
+}
+
+void initiate_var(bit p_start)
+{
+	unsigned char i;
+	for(i=0;i<20;i++)
+	{
+		TEST_9[i] = '0';
+		GetLenthValue[i] = '0';
+	}
+
+	if(p_start)
+	{
+		for(i=0;i<6;i++)
+		{
+			TEST_1[i] = '0';
+		}
+		TEST_1[i] = '\0';
+	}
+
+	for(i=0;i<10;i++)
+	{
+		JD[i] = '0';
+	}
+	for(i=0;i<9;i++)
+	{
+		WD[i] = '0';
+	}
+}
+
+
