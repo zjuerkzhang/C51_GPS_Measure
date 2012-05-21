@@ -31,5 +31,5 @@ void display_CeLiang_Page(bit timer_fresh);
 void display_PowerD_LOGO();
 void display_jilu_page();
 void Display_PD(unsigned char *p);
-
+void initiate_var(bit p_start);
 #endif

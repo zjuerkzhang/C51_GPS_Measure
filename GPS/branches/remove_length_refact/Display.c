@@ -1618,3 +1618,33 @@ void dispay_sn_edit_page()
 	zf_clear_page_to_end(1,16);
 	zf_clear_page_to_end(2,16);
 }
+
+void initiate_var(bit p_start)
+{
+	unsigned char i;
+	for(i=0;i<20;i++)
+	{
+		TEST_9[i] = '0';
+		GetLenthValue[i] = '0';
+	}
+
+	if(p_start)
+	{
+		for(i=0;i<6;i++)
+		{
+			TEST_1[i] = '0';
+		}
+		TEST_1[i] = '\0';
+	}
+
+	for(i=0;i<10;i++)
+	{
+		JD[i] = '0';
+	}
+	for(i=0;i<9;i++)
+	{
+		WD[i] = '0';
+	}
+}
+
+
