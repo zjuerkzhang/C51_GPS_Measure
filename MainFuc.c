@@ -88,30 +88,6 @@ void PowerUpSeque()
 	
 }
 
-void initiate_var()
-{
-	unsigned char i;
-	for(i=0;i<20;i++)
-	{
-		TEST_9[i] = '0';
-		GetLenthValue[i] = '0';
-	}
-
-	for(i=0;i<6;i++)
-	{
-		TEST_1[i] = '0';
-	}
-	TEST_1[i] = '\0';
-
-	for(i=0;i<10;i++)
-	{
-		JD[i] = '0';
-	}
-	for(i=0;i<9;i++)
-	{
-		WD[i] = '0';
-	}
-}
 
 void main()
 {
@@ -123,7 +99,7 @@ void main()
 	bit timer_fresh = 0;
 
 	PowerUpSeque();
-	initiate_var();
+	initiate_var(1);
 
 	init_history_data();
 	get_sn_data();

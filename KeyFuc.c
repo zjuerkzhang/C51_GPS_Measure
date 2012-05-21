@@ -256,7 +256,7 @@ void KeyOperate()
 										{}
 										else
 										{
-											initiate_var();
+											initiate_var(0);
 											FLAG1++;
 											gps_first_point = 1;
 											GeodeticAreaReset();
