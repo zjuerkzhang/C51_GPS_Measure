@@ -64,6 +64,7 @@ extern unsigned char celiangPage_idx;
 unsigned int key_press_count = 0;
 unsigned char battery_timer_count = 40;
 extern bit signal;
+bit time_valid_flag = 0;
 
 void PowerUpSeque()
 {
@@ -131,7 +132,7 @@ void main()
 
 	while(1) 
 	{
-		if(GPS_TIME_UPDATE == 1)
+		if(GPS_TIME_UPDATE == 1 && time_valid_flag==1)
 		{
 			UTC2BeiJingTime();
 			GPS_TIME_UPDATE = 0;
@@ -145,6 +146,9 @@ void main()
 				StarNum = (use_sat[0]-0x30)*10+(use_sat[1]-0x30);
 			else
 				StarNum = 0;
+
+			if(signal)
+				time_valid_flag = 1;
 
 			if ((1 == TEST1)&&(1 == FLAG1)&&(signal))
 			{
