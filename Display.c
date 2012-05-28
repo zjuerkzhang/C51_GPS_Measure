@@ -52,8 +52,6 @@ sbit d2= P1^1;
 unsigned int UTCTimer = 0;
 bit FLAG2 = 1;
 extern unsigned int BatQuan;
-unsigned int BatQuan_LST;
-bit BatQuanF = 0;
 extern unsigned char celiang_mode;
 unsigned char TEST_2;
 
@@ -61,7 +59,6 @@ bit StarNumF = 0;
 extern bit signal; 
 
 unsigned char TEST_6 = 0;
-unsigned int  TEST_7=1;
 unsigned int idata ZouChangValue = 0;
 bit idata  ZouChangValueFlag = 0;
 unsigned int idata mianjiValue = 0;
