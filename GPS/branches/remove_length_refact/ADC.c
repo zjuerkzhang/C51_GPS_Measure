@@ -12,13 +12,11 @@
 #define	 ADC_SPEEDH	 0x40
 #define	 ADC_SPEDHH  0x60
 unsigned int BatQuan = 0; 
-extern unsigned int BatQuan_LST;
+unsigned int BatQuan_LST;
 unsigned char ADCQuaValue = 0;
-extern bit BatQuanF;
-extern unsigned int  TEST_7;	
 void InitADC();
 
-void char GetADCResult(unsigned char ch);
+void GetADCResult(unsigned char ch);
 
 void GetADCResult(unsigned char ch)
 {
@@ -48,39 +46,26 @@ void ADC2BATVALUE()
  	else if(ADCQuaValue >= 0xC1)
  	{
  		BatQuan = 3;
- 		if(TEST_7 == 0)
- 			TEST_7 =1;
  	}
  	else if(ADCQuaValue >= 0xBC)
  	{
  		BatQuan = 2;
- 		if(TEST_7 == 0)
- 			TEST_7 =1;
  	}
  	else if(ADCQuaValue >= 0xB2)
  	{
  		BatQuan = 1;
- 		if(TEST_7 == 0)
- 			TEST_7 =1;
  	}
  	else if(ADCQuaValue >= 0xAC)
  	{
  		BatQuan = 0;
- 		if(TEST_7 == 0)
- 			TEST_7 =1;
  	}
  	else if(ADCQuaValue < 0xAC)
  	{
  		BatQuan = 5;
- 		if(TEST_7 == 0)
- 			TEST_7 =1;
  	}
 
  	if(BatQuan_LST != BatQuan)
  	{
- 		BatQuanF = 1;
  		BatQuan_LST =  BatQuan;
  	}
- 	else
- 		BatQuanF = 0;
 }
