@@ -13,17 +13,15 @@ sbit KEY_RIGHT_UP     = P2^3;
 sbit KEY_LEFT_DOWN     = P2^4;	 
 sbit KEY_RIGHT_DOWN   = P2^5; 
 sbit key_BL   = P2^7;  
-sbit Power_key   = P3^2; 
-extern unsigned char TEST_9[];
-extern unsigned char GetLenthValue[];
+extern unsigned char g_area_value[];
+extern unsigned char g_length_value[];
 extern unsigned char TEST_0[20];
 extern unsigned char TEST_2;
-extern unsigned char TEST1;
+extern unsigned char g_page_id;
 extern unsigned char TEST_6;
-extern unsigned char TEST_1[5];
-extern  bit FLAG3;
+extern unsigned char g_beijing_time[7];
+extern bit g_lcd_refresh;
 
- sbit Led_Flash =  P3^5;	
 unsigned char danjiasel = 0;
 
 bit gps_first_point = 1;
@@ -33,18 +31,14 @@ bit danwei_mianji_sel = 0;
 bit celiangPage_detail = 0; 
 unsigned char celiangPage_idx = CELIANG_WORKING_PAGE;
 bit FLAG4 = 0;	
-bit Cacul_GoOn_F = 0;
 
-unsigned int PowerDownCount = 0;
-unsigned char FLAG1 = 0;
+unsigned char celiang_mode = 0;
 unsigned char clear_rec_count = 0;
 unsigned char show_sn_count = 0;
 bit searching_sat = 1;
 
-extern unsigned char debugF ; 
 extern unsigned char TEST3[];
 extern unsigned char TEST2[] ;
-extern bit GPS_Point_Updata_JD;
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 
@@ -109,10 +103,10 @@ void KeyOperate()
 {
 	unsigned char i,DanweiState;
 	
-	if((TEST1 == 0)||(TEST1 == 1)||(TEST1 == 2)||(TEST1 == 3)||(TEST1 == 4) || (TEST1 == 5))
+	if((g_page_id == 0)||(g_page_id == 1)||(g_page_id == 2)||(g_page_id == 3)||(g_page_id == 4) || (g_page_id == 5))
 	{
 
-		switch(TEST1)
+		switch(g_page_id)
 		{
 			case 0:	
 			{
@@ -169,7 +163,7 @@ void KeyOperate()
 							}
 						}
 					
-						FLAG3 = 1;
+						g_lcd_refresh = 1;
 					}
 						else if(KeyPressValue == 5)	
 					{						
@@ -179,21 +173,19 @@ void KeyOperate()
 							celiangPage_idx = CELIANG_WORKING_PAGE;
 							gps_first_point = 1;
 							GeodeticAreaReset();
-							GPS_Point_Updata_JD = 0;
 
-							Cacul_GoOn_F = 0;
-							FLAG1 = 0;
-							TEST1 = 1;
+							celiang_mode = 0;
+							g_page_id = 1;
 
 							break;
 							case 1:
-							TEST1 = 2;
+							g_page_id = 2;
 							break;
 							case 2:
-							TEST1 = 3;
+							g_page_id = 3;
 							break;
 							case 3:
-							TEST1 = 4; 
+							g_page_id = 4; 
 							if(get_history_data_cnt())
 							{
 							TEST_2 = get_history_data_cnt()-1;
@@ -208,7 +200,7 @@ void KeyOperate()
 							default:
 							break;
 						}
-						FLAG3 = 1;
+						g_lcd_refresh = 1;
 						
 					}
 					else
@@ -229,7 +221,6 @@ void KeyOperate()
 							}
 							case 2:	 
 							{
-								//Cacul_GoOn_F = ~Cacul_GoOn_F;
 								break;
 							}
 							case 3:	 
@@ -246,22 +237,20 @@ void KeyOperate()
 							{
 								if(celiangPage_idx == CELIANG_WORKING_PAGE)
 								{
-									if(2 == FLAG1)
+									if(2 == celiang_mode)
 									{
-										FLAG1 = 0;
+										celiang_mode = 0;
 									}
-									else if(FLAG1 == 0)
+									else if(celiang_mode == 0)
 									{
 										if(searching_sat)
 										{}
 										else
 										{
 											initiate_var(0);
-											FLAG1++;
+											celiang_mode++;
 											gps_first_point = 1;
 											GeodeticAreaReset();
-											GPS_Point_Updata_JD = 0;
-											Cacul_GoOn_F = 0;
 										}
 									}
 									else
@@ -271,15 +260,15 @@ void KeyOperate()
 											DanweiState = 0x00 | danwei_mianji_sel;
 											DanweiState<<=1;
 											DanweiState =  DanweiState|danwei_zouchang_sel;
-											Stor_Data(TEST_1,GetLenthValue,TEST_9,TEST_0,DanweiState);
-											FLAG1++;
+											Stor_Data(g_beijing_time,g_length_value,g_area_value,TEST_0,DanweiState);
+											celiang_mode++;
 										}
 									}
 								}
 								break;
 							}
 						}
-						FLAG3 = 1;
+						g_lcd_refresh = 1;
 				break;
 			}
 
@@ -389,7 +378,7 @@ void KeyOperate()
 							}
 						}
 
-						FLAG3 = 1;
+						g_lcd_refresh = 1;
 					}
 						else if(KeyPressValue == 5)	
 					{						
@@ -416,8 +405,8 @@ void KeyOperate()
 						system_data[PRICE_OFFSET+2] = TEST2[3];
 						store_sn_data();
 
-						TEST1 = 0;
-						FLAG3 = 1;
+						g_page_id = 0;
+						g_lcd_refresh = 1;
 						
 					}
 					else
@@ -487,12 +476,12 @@ void KeyOperate()
 							*/
 						}
 
-						FLAG3 = 1;
+						g_lcd_refresh = 1;
 					}
 						else if(KeyPressValue == 5)
 					{						
-						TEST1 = 0;
-						FLAG3 = 1;
+						g_page_id = 0;
+						g_lcd_refresh = 1;
 						
 					}
 					else
@@ -532,8 +521,8 @@ void KeyOperate()
 								{
 									clear_rec_count = 0;
 									Clear_Data();
-									TEST1 = 0;
-									FLAG3 = 1;
+									g_page_id = 0;
+									g_lcd_refresh = 1;
 								}
 								break;
 							}
@@ -558,14 +547,14 @@ void KeyOperate()
 									show_sn_count = 0;
 									get_sn_data();
 									sn_focus_idx= 20;
-									TEST1 = 5;
-									FLAG3 = 1;
+									g_page_id = 5;
+									g_lcd_refresh = 1;
 								}
 								break; 
 							}
 						}
 
-						FLAG3 = 1;
+						g_lcd_refresh = 1;
 					}
 						else if(KeyPressValue == 5)	
 					{						
@@ -660,7 +649,7 @@ void KeyOperate()
 						else
 						{
 							store_sn_data();
-							TEST1 = 0;
+							g_page_id = 0;
 						}
 						break;
 					}
@@ -668,7 +657,7 @@ void KeyOperate()
 				}
 
 				if(KeyPressValue!=0)
-					FLAG3 = 1;
+					g_lcd_refresh = 1;
 			}
 
 		}
@@ -677,12 +666,12 @@ void KeyOperate()
 
 	if(!key_BL)
 	{
-		if(TEST1)
+		if(g_page_id)
 		{
 
 			{
-			TEST1 = 0;
-			FLAG3 = 1;
+			g_page_id = 0;
+			g_lcd_refresh = 1;
 			}
 		}
 

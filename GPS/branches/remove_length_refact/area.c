@@ -4,7 +4,6 @@
 
 #define GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE
 
-sbit Led_Flash =  P3^5;	
 double a = 6378137;
 double e2 = 0.0066943799013;
 const double PI = 3.1415926535897932;
@@ -186,7 +185,7 @@ unsigned char GeodeticPutSamplingPoint(PCRDGEODETIC pcg, PCRDGEODETIC pout_point
 		sampling_points[j+1] = sampling_points[j];
 		
 	}
-  // 	Led_Flash = 0;
+
 	sampling_points[i] = *pcg;
 	++sampling_point_cnt;
 

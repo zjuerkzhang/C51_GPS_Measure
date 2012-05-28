@@ -11,8 +11,8 @@
 #define TOTAL_SAT_BUFF_LEN 3
 #define CMD_BUFF_LEN 5
 
-extern bit TEST4;
-extern bit signal;
+bit TEST4 = 0;
+bit signal = 0;
 
 
 
@@ -20,9 +20,6 @@ bit GPS_UPDATA = 0;
 bit GPS_TIME_UPDATE = 0;
 bit TOTAL_SAT_UPDATE = 0;
 
-bit GPS_Point_Updata_WD = 0;
-bit GPS_Point_Updata_JD = 0;
-bit GPS_Point_Updata_SatNum = 0;
 bit GPS_Point_Updata_WD_LCD_Fresh = 0;
 bit GPS_Point_Updata_JD_LCD_Fresh = 0;
 bit GPS_Point_Updata_SatNum_LCD_Fresh = 0;
@@ -38,7 +35,7 @@ unsigned char WD_LST[WD_BUFF_LEN];
 unsigned char WD_a; 
 unsigned char curr_time[TIME_BUFF_LEN];
 unsigned char curr_time_LST[TIME_BUFF_LEN];
-unsigned char TEST_1[7];
+unsigned char g_beijing_time[7];
 unsigned char speed[SPEED_BUFF_LEN];
 unsigned char high[6]; 
 unsigned char angle[5]; 
@@ -305,7 +302,6 @@ void uart(void) interrupt 4
 							if(byte_count==8)
 							{
 								WD[byte_count+1]='\0';
-								GPS_Point_Updata_WD = 1;
 								GPS_Point_Updata_WD_LCD_Fresh = 1;
 							}
 							if(WD_LST[byte_count] != WD[byte_count])
@@ -323,7 +319,6 @@ void uart(void) interrupt 4
 							if(byte_count==9)
 							{
 								JD[byte_count+1]='\0';
-								GPS_Point_Updata_JD = 1;
 								GPS_Point_Updata_JD_LCD_Fresh = 1;
 							}
 							if(JD_LST[byte_count] != JD[byte_count])
@@ -358,7 +353,6 @@ void uart(void) interrupt 4
 							if(byte_count == 1)
 							{
 								use_sat[byte_count+1]='\0';
-								GPS_Point_Updata_SatNum = 1;
 								GPS_Point_Updata_SatNum_LCD_Fresh = 1;
 								if(lock == '1')
 								{
@@ -460,14 +454,14 @@ void UTC2BeiJingTime()
 	Hour_Beijing = 	(curr_time[0]-0x30)*10+(curr_time[1]-0x30)+8;
 	if(Hour_Beijing >=24 )
 		Hour_Beijing = Hour_Beijing -24;
-	TEST_1[1] = 	(Hour_Beijing%10)+0x30;
+	g_beijing_time[1] = 	(Hour_Beijing%10)+0x30;
 	Hour_Beijing = Hour_Beijing/10;
-	TEST_1[0] =	(Hour_Beijing%10)+0x30;
+	g_beijing_time[0] =	(Hour_Beijing%10)+0x30;
 	for(count = 2;count < 6; count++)
 	{
-		TEST_1[count] = 	curr_time[count];
+		g_beijing_time[count] = 	curr_time[count];
 	}
-	TEST_1[6]='\0';
+	g_beijing_time[6]='\0';
 }
 
 
