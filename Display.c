@@ -51,16 +51,15 @@ sbit d2= P1^1;
 
 unsigned int UTCTimer = 0;
 bit FLAG2 = 1;
-unsigned int BatQuan = 0;
+extern unsigned int BatQuan;
 unsigned int BatQuan_LST;
 bit BatQuanF = 0;
-extern unsigned char FLAG1;
+extern unsigned char celiang_mode;
 unsigned char TEST_2;
 
 bit StarNumF = 0; 
-bit signal = 0; 
-bit TEST4 = 0;
-unsigned int TEST_5;
+extern bit signal; 
+
 unsigned char TEST_6 = 0;
 unsigned int  TEST_7=1;
 unsigned int idata ZouChangValue = 0;
@@ -69,13 +68,10 @@ unsigned int idata mianjiValue = 0;
 bit idata  mianjiValueFlag = 0;
 unsigned int idata JinerValue = 0;
 bit  idata JinerValueFlag = 0;
- unsigned char TEST1 = 0;
 
  double TEST_8 = 0;
  unsigned char TEST_0[20];
 
- bit FLAG3 = 0;
- 
  unsigned char TEST2[] = {0,0,8,0,0};
  unsigned char TEST3[] = {0,0,0,0,0};
  unsigned char celiang_run_light = 0;
@@ -86,31 +82,23 @@ extern bit danwei_zouchang_sel;
 extern bit danwei_mianji_sel;
 extern bit FLAG4;
 
-extern unsigned char TEST_1[5];
-extern unsigned char lock; 
+extern unsigned char g_beijing_time[7];
 extern unsigned char use_sat_LST[3];
 extern unsigned char total_sat_LST[3];
-extern unsigned char use_sat[3];
 extern unsigned char JD[10]; 
 extern unsigned char WD[9]; 
-extern unsigned char curr_time[7]; 
 extern bit celiangPage_detail; 
 extern unsigned char celiangPage_idx;
 extern unsigned int StarNum; 
-extern unsigned char total_sat[3];
 
-extern unsigned char TEST_9[];
-extern unsigned char GetLenthValue[];
+extern unsigned char g_area_value[];
+extern unsigned char g_length_value[];
 extern bit gps_first_point;	
-extern unsigned char ADCQuaValue;
-extern bit GPS_Point_Updata_WD;
-extern bit GPS_Point_Updata_JD;
 extern bit GPS_Point_Updata_SatNum;
 
 extern bit GPS_Point_Updata_WD_LCD_Fresh;
 extern bit GPS_Point_Updata_JD_LCD_Fresh;
 extern bit GPS_Point_Updata_SatNum_LCD_Fresh;
-extern bit Cacul_GoOn_F;
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 extern bit searching_sat;
@@ -601,7 +589,6 @@ void display_LOGO()
 	LcmClear();
 	Display(logo);  
     delay_ms(6000);	
-	TEST1 = 0;
 	
 }
 void display_PowerD_LOGO()
@@ -877,14 +864,14 @@ Update_Page_Header()
 	StarNum0 = (unsigned char)StarNum%10;
 	StarNum1 = (unsigned char)StarNum/10;
 
-	zf_disp4x8(num[TEST_1[0]-0x30],7,startcol); //小时1
-	zf_disp4x8(num[TEST_1[1]-0x30],7,startcol+4); //小时2
+	zf_disp4x8(num[g_beijing_time[0]-0x30],7,startcol); //小时1
+	zf_disp4x8(num[g_beijing_time[1]-0x30],7,startcol+4); //小时2
 	zf_disp4x8(num[10],7,startcol+8); //：
-	zf_disp4x8(num[TEST_1[2]-0x30],7,startcol+12); //分钟1
-	zf_disp4x8(num[TEST_1[3]-0x30],7,startcol+16); //分钟2
+	zf_disp4x8(num[g_beijing_time[2]-0x30],7,startcol+12); //分钟1
+	zf_disp4x8(num[g_beijing_time[3]-0x30],7,startcol+16); //分钟2
 	zf_disp4x8(num[10],7,startcol+20); //：
-	zf_disp4x8(num[TEST_1[4]-0x30],7,startcol+24); //秒钟1
-	zf_disp4x8(num[TEST_1[5]-0x30],7,startcol+28); //秒钟2
+	zf_disp4x8(num[g_beijing_time[4]-0x30],7,startcol+24); //秒钟1
+	zf_disp4x8(num[g_beijing_time[5]-0x30],7,startcol+28); //秒钟2
 
 	zf_disp8x8(kong8_8,7,startcol+32);
 	zf_disp4x8(kong8_8,7,startcol+40);
@@ -923,9 +910,6 @@ void display_Idle()
 {
 
 	LcmClear();
-	//UTC2BeiJingTime();
-	//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-	//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
 	Update_Page_Header();
 	Update_Idle_page4_5_1_2(TEST_6);
 }
@@ -939,10 +923,8 @@ void display_CeLiang_Page( bit timer_fresh)
 		if(celiangPage_idx==CELIANG_WORKING_PAGE)
 		{
 			LcmClear();
-			if(0 == FLAG1)
+			if(0 == celiang_mode)
 			{
-				//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-				//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
 				Update_Page_Header();
 
 				if(signal==0)	//定位不成功.
@@ -970,10 +952,8 @@ void display_CeLiang_Page( bit timer_fresh)
 					Display_Chinese(shi3,4,112); //始
 				}
 			}
-			else if(2 == FLAG1)
+			else if(2 == celiang_mode)
 			{
-				//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-				//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
 				Update_Page_Header();
 
 				Display_Chinese(dan,4,0); //单
@@ -1024,8 +1004,8 @@ void display_CeLiang_Page( bit timer_fresh)
 			   //Display_Chinese(maohao,2,32); //：
 			   for(celiangCount=0;celiangCount<8;celiangCount++)
 			   {
-				   if(TEST_9[celiangCount] != 0x2e)
-					   zf_disp8x16(Num_8_16[TEST_9[celiangCount]-0x30], 2, 32+celiangCount*8);
+				   if(g_area_value[celiangCount] != 0x2e)
+					   zf_disp8x16(Num_8_16[g_area_value[celiangCount]-0x30], 2, 32+celiangCount*8);
 				   else
 					   zf_disp8x16(Num_8_16[10], 2, 32+celiangCount*8);
 			   }
@@ -1044,11 +1024,11 @@ void display_CeLiang_Page( bit timer_fresh)
 			   ///计算金额部分:
 			   if((danjiasel >= 0)&&(danjiasel <= 4))//面积
 			   {
-				   TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(TEST_9);
+				   TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(g_area_value);
 			   }
 			   else  //长度
 			   {
-				   TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(GetLenthValue);
+				   TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(g_length_value);
 			   }
 
 			   if((TEST_8 >= 0)&&(TEST_8 <= 99999999))
@@ -1081,12 +1061,10 @@ void display_CeLiang_Page( bit timer_fresh)
 			   				   Display_Chinese(yuan,0,112); //元
 			   }
 			}
-			else if(1 == FLAG1)
+			else if(1 == celiang_mode)
 			{
 				if(gps_first_point == 1)
 				{
-						//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-						//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
 					Update_Page_Header();
 
 					Display_Chinese(ding,4,0); //定
@@ -1103,16 +1081,14 @@ void display_CeLiang_Page( bit timer_fresh)
 	
 				else
 				{
-					//TEST_5 = (TEST_1[0]-0x30)*1000+(TEST_1[1]-0x30)*100+(TEST_1[2]-0x30)*10+(TEST_1[3]-0x30);
-					//Update_Idle_Page7(TEST_5,BatQuan,StarNum,signal);
-
+					
 					Update_Page_Header();
 
 					Display_Chinese(dan,4,0); //单
 					Display_Chinese(jia,4,16); //价
 				//	Display_Chinese(maohao,4,32); //：
 			
-				//	zf_disp8x16(Num_8_16[TEST_1[0]-0x30], 6, 88);
+				//	zf_disp8x16(Num_8_16[g_beijing_time[0]-0x30], 6, 88);
 					for(celiangCount=0;celiangCount<4;celiangCount++)
 					{
 						if( offset>0 )
@@ -1188,7 +1164,7 @@ void display_CeLiang_Page( bit timer_fresh)
 							celiang_run_light = 0;
 
 					}
-					//	zf_disp8x16(Num_8_16[GetLenthValue[5]-0x30], 4, 40);
+					//	zf_disp8x16(Num_8_16[g_length_value[5]-0x30], 4, 40);
 					/*
 					if(0 == danwei_zouchang_sel) //米
 					{
@@ -1208,8 +1184,8 @@ void display_CeLiang_Page( bit timer_fresh)
 					//Display_Chinese(maohao,2,32); //：
 					for(celiangCount=0;celiangCount<8;celiangCount++)
 					{
-						if(TEST_9[celiangCount] != 0x2e)
-						zf_disp8x16(Num_8_16[TEST_9[celiangCount]-0x30], 2, 32+celiangCount*8);	
+						if(g_area_value[celiangCount] != 0x2e)
+						zf_disp8x16(Num_8_16[g_area_value[celiangCount]-0x30], 2, 32+celiangCount*8);	
 						else
 						zf_disp8x16(Num_8_16[10], 2, 32+celiangCount*8);	
 					}
@@ -1234,22 +1210,19 @@ void display_CeLiang_Page( bit timer_fresh)
 					///计算金额部分:
 					if((danjiasel >= 0)&&(danjiasel <= 4))//面积
 					{
-					//TEST_8 = ((TEST2[0]-0x30)*1000 + (TEST2[1]-0x30)*100 + (TEST2[2]-0x30)*10 +(TEST2[3]-0x30))*atof(TEST_9);
-				//	memcpy(CharBuffer,TEST2,4);
-				//	TEST2[4]='\0';
-					TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(TEST_9);
-				//	DataSend("\r\ndanjiasel == 0~4");
+					TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(g_area_value);
+				
 					
 					}
 					else  //长度
 					{
 				//	 memcpy(CharBuffer,TEST3,4);
 				//	TEST3[4]=0;
-					TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(GetLenthValue);
+					TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(g_length_value);
 				//	DataSend("\r\nTEST3:");
 				//	DataSend(TEST3);
 				//	DataSend("\r\ngetlenthvalue:");
-				//	DataSend(GetLenthValue);
+				//	DataSend(g_length_value);
 					}
 					
 	
@@ -1309,11 +1282,11 @@ void display_CeLiang_Page( bit timer_fresh)
 			Display_Chinese(kong,4,96); //空
 			Display_Chinese(kong,4,112);
 		
-			zf_disp4x8(num[TEST_1[0]-0x30],7,StartCol+0); //小时1	TEST_1
-			zf_disp4x8(num[TEST_1[1]-0x30],7,StartCol+4); //小时1	TEST_1
+			zf_disp4x8(num[g_beijing_time[0]-0x30],7,StartCol+0); //小时1	g_beijing_time
+			zf_disp4x8(num[g_beijing_time[1]-0x30],7,StartCol+4); //小时1	g_beijing_time
 			zf_disp4x8(num[10],7,StartCol+8); //：
-			zf_disp4x8(num[TEST_1[2]-0x30],7,StartCol+12); //小时1	TEST_1
-			zf_disp4x8(num[TEST_1[3]-0x30],7,StartCol+16); //小时1	TEST_1
+			zf_disp4x8(num[g_beijing_time[2]-0x30],7,StartCol+12); //小时1	g_beijing_time
+			zf_disp4x8(num[g_beijing_time[3]-0x30],7,StartCol+16); //小时1	g_beijing_time
 			
 		*/	
 			  //if((GPS_Point_Updata_WD_LCD_Fresh == 1)&&((GPS_Point_Updata_JD_LCD_Fresh == 1))&&(GPS_Point_Updata_SatNum_LCD_Fresh == 1))
@@ -1326,17 +1299,7 @@ void display_CeLiang_Page( bit timer_fresh)
 				{
 				Display_Chinese(ding,6,0); //定
 				Display_Chinese(wei,6,16); //位
-				Display_Chinese(zhong,6,32); //中
-		
-				//zf_disp8x16(Num_8_16[curr_time[0]-0x30], 6, 48);
-				//zf_disp8x16(Num_8_16[curr_time[1]-0x30], 6, 56);
-				//zf_disp8x16(Num_8_16[curr_time[2]-0x30], 6, 64);
-				//zf_disp8x16(Num_8_16[curr_time[3]-0x30], 6, 72);
-				//zf_disp8x16(Num_8_16[curr_time[4]-0x30], 6, 80);
-				//zf_disp8x16(Num_8_16[curr_time[5]-0x30], 6, 88);
-				//zf_disp8x16(Num_8_16[curr_time[6]-0x30], 6, 96);
-		
-				
+				Display_Chinese(zhong,6,32); //中				
 				}
 				else
 				
@@ -1350,12 +1313,12 @@ void display_CeLiang_Page( bit timer_fresh)
 			   	Display_Chinese(jian,6,64); //间
 				Display_Chinese(maohao,6,80); //：
 				
-				zf_disp8x16(Num_8_16[TEST_1[0]-0x30], 6, 88);
-				zf_disp8x16(Num_8_16[TEST_1[1]-0x30], 6, 96);
+				zf_disp8x16(Num_8_16[g_beijing_time[0]-0x30], 6, 88);
+				zf_disp8x16(Num_8_16[g_beijing_time[1]-0x30], 6, 96);
 				Display_Chinese(maohao,6,104); //：
 			//	zf_disp8x16(Num_8_16[10], 6, 104);
-				zf_disp8x16(Num_8_16[TEST_1[2]-0x30], 6, 112);
-				zf_disp8x16(Num_8_16[TEST_1[3]-0x30], 6, 120);
+				zf_disp8x16(Num_8_16[g_beijing_time[2]-0x30], 6, 112);
+				zf_disp8x16(Num_8_16[g_beijing_time[3]-0x30], 6, 120);
 		
 		
 				
@@ -1624,17 +1587,17 @@ void initiate_var(bit p_start)
 	unsigned char i;
 	for(i=0;i<20;i++)
 	{
-		TEST_9[i] = '0';
-		GetLenthValue[i] = '0';
+		g_area_value[i] = '0';
+		g_length_value[i] = '0';
 	}
 
 	if(p_start)
 	{
 		for(i=0;i<6;i++)
 		{
-			TEST_1[i] = '0';
+			g_beijing_time[i] = '0';
 		}
-		TEST_1[i] = '\0';
+		g_beijing_time[i] = '\0';
 	}
 
 	for(i=0;i<10;i++)

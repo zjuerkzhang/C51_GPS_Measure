@@ -16,55 +16,35 @@
 
 //LED FLASH
 # define uint unsigned int
-#define GpsGetCount 1000
 
-sbit Led_Flash =  P3^5;	 //
-bit LCD_Fresh = 0 ;
 sbit CHG_F1_STDBY = P1^7;
-sbit CHG_F2_CHRG = P3^3;
+sbit Power_key   = P3^2;
+sbit LCD_BL = P3^4;
 
-extern bit TEST4;
-//extern unsigned char  KeyPressValue;
-extern unsigned int TEST_5;
-extern bit FLAG3;
-extern unsigned char TEST1;
-//unsigned char test[]="hi,hello";
-extern unsigned char curr_time[6]; 
+bit g_lcd_refresh = 0;
+unsigned char g_page_id = 0;
+unsigned int PowerDownCount = 0;
+unsigned int StarNum = 0;
+unsigned char g_area_value[20];
+unsigned char g_length_value[20] ;
+unsigned int key_press_count = 0;
+unsigned char battery_timer_count = 40;
+bit time_valid_flag = 0;
+
 extern unsigned char JD[10]; 
 extern unsigned char WD[9]; 
-extern unsigned char lock; 
 extern unsigned char use_sat[3]; 
-extern unsigned char total_sat[3];
 extern bit GPS_UPDATA;
 extern bit GPS_TIME_UPDATE;
 extern bit TOTAL_SAT_UPDATE;
-extern unsigned char TEST_1[5];
-extern unsigned int PowerDownCount;
-extern unsigned int BatQuan; 
-extern unsigned char FLAG1;
-extern unsigned char sn_string[SYSTEM_DATA_SIZE];
-
-unsigned char debugF =0;
-sbit Power_key   = P3^2;
-sbit LCD_BL = P3^4;
-unsigned char ADCQuaValue = 0;
-//unsigned char Gra_Buffer[1024];
-unsigned int StarNum = 0;
-unsigned char TEST_9[20];
-unsigned char GetLenthValue[20] ;
 extern bit gps_first_point;	
-extern double testNum;
-extern bit GPS_Point_Updata_WD;
-extern bit GPS_Point_Updata_JD;
-extern bit GPS_Point_Updata_SatNum;
 extern bit danwei_zouchang_sel;	
 extern bit danwei_mianji_sel;
-extern bit Cacul_GoOn_F;
 extern unsigned char celiangPage_idx;
-unsigned int key_press_count = 0;
-unsigned char battery_timer_count = 40;
 extern bit signal;
-bit time_valid_flag = 0;
+extern unsigned int BatQuan; 
+extern unsigned char celiang_mode;
+
 
 void PowerUpSeque()
 {
@@ -79,12 +59,12 @@ void PowerUpSeque()
 	OpenGpsPower();
 	Initial_lcd();
 	display_LOGO();
-	TEST1 = 0;
+	g_page_id = 0;
 	Timer_Init_0_2ms();
 
 	gps_init();
 	InitADC();
-	ADCQuaValue = GetADCResult(0);
+	GetADCResult(0);
 	
 }
 
@@ -104,7 +84,7 @@ void main()
 	init_history_data();
 	get_sn_data();
 
-	FLAG3 = 1;
+	g_lcd_refresh = 1;
 
 	while(1) 
 	{
@@ -113,7 +93,7 @@ void main()
 			UTC2BeiJingTime();
 			GPS_TIME_UPDATE = 0;
 			timer_fresh = 1;
-			FLAG3 = 1;
+			g_lcd_refresh = 1;
 		}
 
 		if(GPS_UPDATA == 1)
@@ -126,7 +106,7 @@ void main()
 			if(signal)
 				time_valid_flag = 1;
 
-			if ((1 == TEST1)&&(1 == FLAG1)&&(signal))
+			if ((1 == g_page_id)&&(1 == celiang_mode)&&(signal))
 			{
 				MakeGeodeticByString(&point, JD, WD);
 
@@ -134,7 +114,6 @@ void main()
 				{
 					if (GeodeticPutSamplingPoint(&point, &out_point))
 					{
-						//	Led_Flash = 0;
 						GeodeticFirstPoint(&out_point);
 						GeodeticResetSamplingPoint();
 						gps_first_point = 0;
@@ -146,21 +125,21 @@ void main()
 				}
 
 				if(0 == danwei_mianji_sel)	//Ä¶
-					sprintf(TEST_9, "%08.1f", GeodeticGetArea()/666.666667);
+					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/666.666667);
 				else
-					sprintf(TEST_9, "%08.1f", GeodeticGetArea()/10000);
+					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/10000);
 
 				if(0 == danwei_zouchang_sel) //Ã×
 				{
-					sprintf(GetLenthValue, "%08.0f", GeodeticGetDistance());
+					sprintf(g_length_value, "%08.0f", GeodeticGetDistance());
 				}
 				else
 				{
-					sprintf(GetLenthValue, "%08.1f", GeodeticGetDistance()/1000);
+					sprintf(g_length_value, "%08.1f", GeodeticGetDistance()/1000);
 				}
 			}
 			GPS_UPDATA = 0;
-			FLAG3 = 1;
+			g_lcd_refresh = 1;
 		}
 
 		if(TOTAL_SAT_UPDATE == 1)
@@ -181,11 +160,11 @@ void main()
 			}
 			else
 			{
-				ADCQuaValue = GetADCResult(0);
+				GetADCResult(0);
 				ADC2BATVALUE();
 			}
 			battery_timer_count = 0;
-			FLAG3 = 1;
+			g_lcd_refresh = 1;
 		}
 
 		if(PowerDownCount>40)
@@ -200,17 +179,17 @@ void main()
 		}
 		else
 		{
-			if( 1==TEST1 && (CELIANG_SN_PAGE==celiangPage_idx || CELIANG_DETAIL_PAGE==celiangPage_idx)  )
+			if( 1==g_page_id && (CELIANG_SN_PAGE==celiangPage_idx || CELIANG_DETAIL_PAGE==celiangPage_idx)  )
 			{
 				celiangPage_idx = CELIANG_WORKING_PAGE;
-				FLAG3 = 1;
+				g_lcd_refresh = 1;
 			}
 		}
-		if((FLAG3 == 1))
+		if((g_lcd_refresh == 1))
 		{
-			FLAG3 = 0;
+			g_lcd_refresh = 0;
 
-			switch(TEST1)
+			switch(g_page_id)
 			{
 			case 0:
 				display_Idle();

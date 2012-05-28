@@ -11,17 +11,16 @@
 #define	 ADC_SPEEDL	 0x20
 #define	 ADC_SPEEDH	 0x40
 #define	 ADC_SPEDHH  0x60
-sbit Led_Flash =  P3^5;	
-extern unsigned int BatQuan; 
+unsigned int BatQuan = 0; 
 extern unsigned int BatQuan_LST;
-extern unsigned char ADCQuaValue;
+unsigned char ADCQuaValue = 0;
 extern bit BatQuanF;
 extern unsigned int  TEST_7;	
 void InitADC();
 
-unsigned char GetADCResult(unsigned char ch);
+void char GetADCResult(unsigned char ch);
 
-unsigned char GetADCResult(unsigned char ch)
+void GetADCResult(unsigned char ch)
 {
 	ADC_CONTR=ADC_POWER|ADC_SPEEDLL|ch|ADC_START;
 	_nop_();	
@@ -29,9 +28,8 @@ unsigned char GetADCResult(unsigned char ch)
 	_nop_();
 	_nop_();
 	while(!(ADC_CONTR&ADC_FLAG));
-//	Led_Flash = ~Led_Flash;
 	ADC_CONTR&=~ADC_FLAG;
-	return ADC_RES;  
+	ADCQuaValue = ADC_RES;  
 }
 void InitADC()
 {
