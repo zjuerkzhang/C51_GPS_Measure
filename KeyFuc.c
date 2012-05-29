@@ -16,9 +16,9 @@ sbit key_BL   = P2^7;
 extern unsigned char g_area_value[];
 extern unsigned char g_length_value[];
 extern unsigned char TEST_0[20];
-extern unsigned char TEST_2;
+extern unsigned char curr_history_idx;
 extern unsigned char g_page_id;
-extern unsigned char TEST_6;
+extern unsigned char menu_focus_idx;
 extern unsigned char g_beijing_time[7];
 extern bit g_lcd_refresh;
 
@@ -117,22 +117,22 @@ void KeyOperate()
 						{
 							case 1:	 
 							{
-								if(TEST_6 == 0)
+								if(menu_focus_idx == 0)
 								{
-								TEST_6 = 3;
+								menu_focus_idx = 3;
 								}
 								else
 								{
-								TEST_6 = TEST_6 -1;
+								menu_focus_idx = menu_focus_idx -1;
 								}
 								
 								break;
 							}
 							case 2:	 
 							{
-								if(TEST_6 > 1)
+								if(menu_focus_idx > 1)
 								{
-								TEST_6 = TEST_6 - 2;
+								menu_focus_idx = menu_focus_idx - 2;
 	
 								}
 								
@@ -140,14 +140,14 @@ void KeyOperate()
 							}
 							case 3:	  
 							{
-								if(TEST_6 == 3)
+								if(menu_focus_idx == 3)
 								{
-								TEST_6 = 0;
+								menu_focus_idx = 0;
 						
 								}
 								else
 								{
-								TEST_6 = TEST_6 +1;
+								menu_focus_idx = menu_focus_idx +1;
 								
 								}
 								
@@ -155,9 +155,9 @@ void KeyOperate()
 							}
 							case 4:	  
 							{
-								if(TEST_6 < 2)
+								if(menu_focus_idx < 2)
 								{
-								TEST_6 = TEST_6 +2;
+								menu_focus_idx = menu_focus_idx +2;
 								}
 								break;
 							}
@@ -167,7 +167,7 @@ void KeyOperate()
 					}
 						else if(KeyPressValue == 5)	
 					{						
-						switch(TEST_6)
+						switch(menu_focus_idx)
 						{
 							case 0:
 							celiangPage_idx = CELIANG_WORKING_PAGE;
@@ -188,11 +188,11 @@ void KeyOperate()
 							g_page_id = 4; 
 							if(get_history_data_cnt())
 							{
-							TEST_2 = get_history_data_cnt()-1;
+							curr_history_idx = get_history_data_cnt()-1;
 							}
 							else
 							{
-							  TEST_2 = 0;
+							  curr_history_idx = 0;
 							}
 							show_sn_count = 0;
 							clear_rec_count = 0;
@@ -503,12 +503,12 @@ void KeyOperate()
 						{
 							case 1:	 
 							{
-								if(0 == TEST_2)
+								if(0 == curr_history_idx)
 								{
-									 TEST_2 =	 get_history_data_cnt()-1;
+									 curr_history_idx =	 get_history_data_cnt()-1;
 								}
 								else
-								TEST_2--;
+								curr_history_idx--;
 								clear_rec_count = 0;
 								show_sn_count = 0;
 								break;
@@ -528,12 +528,12 @@ void KeyOperate()
 							}
 							case 3:	
 							{
-								if(TEST_2 >= get_history_data_cnt()-1)
+								if(curr_history_idx >= get_history_data_cnt()-1)
 								{
-									TEST_2 = 0;
+									curr_history_idx = 0;
 								}
 								else
-								TEST_2++;
+								curr_history_idx++;
 								clear_rec_count = 0;
 								show_sn_count = 0;
 								break;
