@@ -22,14 +22,10 @@
 #define data_bus   P0 
     
 sbit CS     =  P1^2; 
-
 sbit RES    =  P1^4;
-
 sbit A0     =  P1^3;
 sbit LCD_WR =  P3^6;  
 sbit LCD_RD =  P3^7;
-
-
 
 sbit DB0 =	P0^0 ;
 sbit DB1 =	P0^1 ;
@@ -49,24 +45,25 @@ sbit Led_Flash =  P3^5;
 sbit d1= P1^0;
 sbit d2= P1^1;
 
-unsigned int UTCTimer = 0;
-bit FLAG2 = 1;
+unsigned char curr_history_idx;
+unsigned char menu_focus_idx = 0;
+double total_cost = 0;
+
 extern unsigned int BatQuan;
 extern unsigned char celiang_mode;
-unsigned char TEST_2;
-
-bit StarNumF = 0; 
 extern bit signal; 
 
-unsigned char TEST_6 = 0;
-unsigned int idata ZouChangValue = 0;
-bit idata  ZouChangValueFlag = 0;
-unsigned int idata mianjiValue = 0;
-bit idata  mianjiValueFlag = 0;
-unsigned int idata JinerValue = 0;
-bit  idata JinerValueFlag = 0;
 
- double TEST_8 = 0;
+
+
+
+
+
+
+
+
+
+
  unsigned char TEST_0[20];
 
  unsigned char TEST2[] = {0,0,8,0,0};
@@ -908,7 +905,7 @@ void display_Idle()
 
 	LcmClear();
 	Update_Page_Header();
-	Update_Idle_page4_5_1_2(TEST_6);
+	Update_Idle_page4_5_1_2(menu_focus_idx);
 }
 void display_CeLiang_Page( bit timer_fresh)
 {
@@ -1021,16 +1018,16 @@ void display_CeLiang_Page( bit timer_fresh)
 			   ///计算金额部分:
 			   if((danjiasel >= 0)&&(danjiasel <= 4))//面积
 			   {
-				   TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(g_area_value);
+				   total_cost = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(g_area_value);
 			   }
 			   else  //长度
 			   {
-				   TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(g_length_value);
+				   total_cost = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(g_length_value);
 			   }
 
-			   if((TEST_8 >= 0)&&(TEST_8 <= 99999999))
+			   if((total_cost >= 0)&&(total_cost <= 99999999))
 			   {
-				   sprintf(TEST_0, "%08.0f", TEST_8);
+				   sprintf(TEST_0, "%08.0f", total_cost);
 				   //					DataSend("\r\n TEST_0:");
 				   //					DataSend(TEST_0);
 
@@ -1207,7 +1204,7 @@ void display_CeLiang_Page( bit timer_fresh)
 					///计算金额部分:
 					if((danjiasel >= 0)&&(danjiasel <= 4))//面积
 					{
-					TEST_8 = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(g_area_value);
+					total_cost = (TEST2[0]*1000+TEST2[1]*100+TEST2[2]*10+TEST2[3])*atof(g_area_value);
 				
 					
 					}
@@ -1215,7 +1212,7 @@ void display_CeLiang_Page( bit timer_fresh)
 					{
 				//	 memcpy(CharBuffer,TEST3,4);
 				//	TEST3[4]=0;
-					TEST_8 = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(g_length_value);
+					total_cost = (TEST3[0]*1000+TEST3[1]*100+TEST3[2]*10+TEST3[3])*atof(g_length_value);
 				//	DataSend("\r\nTEST3:");
 				//	DataSend(TEST3);
 				//	DataSend("\r\ngetlenthvalue:");
@@ -1223,10 +1220,10 @@ void display_CeLiang_Page( bit timer_fresh)
 					}
 					
 	
-					if((TEST_8 >= 0)&&(TEST_8 <= 99999999))
+					if((total_cost >= 0)&&(total_cost <= 99999999))
 					{
 				
-					sprintf(TEST_0, "%08.0f", TEST_8);
+					sprintf(TEST_0, "%08.0f", total_cost);
 	//					DataSend("\r\n TEST_0:");
 	//					DataSend(TEST_0);
 					Display_Chinese(jin,0,0); //金
@@ -1262,7 +1259,7 @@ void display_CeLiang_Page( bit timer_fresh)
 					Display_Chinese(kong,0,96); //..
 					Display_Chinese(yuan,0,112); //元	
 					}
-	//				DataSend("\r\n--TEST_8:");
+	//				DataSend("\r\n--total_cost:");
 	//				DataSend(TEST_0);
 				}
 			}
@@ -1415,8 +1412,8 @@ void Update_jilu_page()
 	unsigned int IndexNewNumBuffer;
 	unsigned int danjia;
 	unsigned char offset = 0;
-	Get_Data(TEST_2,time,zouchang,mianji,TEST_8,&DanweiF, &danjia);
-	IndexNewNumBuffer =  TEST_2+1;
+	Get_Data(curr_history_idx,time,zouchang,mianji,TEST_8,&DanweiF, &danjia);
+	IndexNewNumBuffer =  curr_history_idx+1;
 	sprintf(ItoaBuffer, "%02d", IndexNewNumBuffer);
 	LcmClear();
 	if(get_history_data_cnt() == 0)
