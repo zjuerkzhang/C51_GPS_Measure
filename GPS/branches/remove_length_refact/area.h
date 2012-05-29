@@ -1,7 +1,5 @@
-
 #ifndef __AREA_H__
 #define __AREA_H__
-
 
 #define GEODETIC_SAMPLING_POINT	3
 #define CARTESIAN_POINT_MAX_DISTANCE 30 
@@ -15,26 +13,29 @@
 #define GEODETIC_MIN_STEP 40
 #define GEODETIC_END_START_MAX_DISTANCE 3
 
-typedef struct Point {
-    double x, y;
+typedef struct Point
+{
+	double x, y;
 } Point;
 
-typedef struct tagCRDCARTESIAN{
-double x;
-double y;
+typedef struct tagCRDCARTESIAN
+{
+	double x;
+	double y;
 
-}CRDCARTESIAN,*PCRDCARTESIAN;
+} CRDCARTESIAN, *PCRDCARTESIAN;
 
-typedef struct tagCRDGEODETIC{
-double longitude;
-double latitude; 
+typedef struct tagCRDGEODETIC
+{
+	double longitude;
+	double latitude;
 
-}CRDGEODETIC;
-
+} CRDGEODETIC;
 
 typedef CRDGEODETIC *PCRDGEODETIC;
-	 
-void MakeGeodeticByString(PCRDGEODETIC pcg, unsigned char* longitude, unsigned char* latitude);
+
+void MakeGeodeticByString(PCRDGEODETIC pcg, unsigned char* longitude,
+		unsigned char* latitude);
 
 void GeodeticFirstPoint(PCRDGEODETIC pcg);
 
@@ -46,11 +47,13 @@ double GeodeticGetDistance(void);
 
 void GeodeticResetSamplingPoint(void);
 
-unsigned char GeodeticPutSamplingPoint(PCRDGEODETIC pcg, PCRDGEODETIC pout_point);
+unsigned char GeodeticPutSamplingPoint(PCRDGEODETIC pcg,
+		PCRDGEODETIC pout_point);
 
-void GeodeticToCartesian (PCRDCARTESIAN pcc, PCRDGEODETIC pcg);
+void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg);
 
-void GeodeticToCartesian2 (PCRDCARTESIAN pcc, PCRDGEODETIC pcg, PCRDGEODETIC pcg2);
+void GeodeticToCartesian2(PCRDCARTESIAN pcc, PCRDGEODETIC pcg,
+		PCRDGEODETIC pcg2);
 
 void GeodeticAreaReset(void);
 

@@ -1,4 +1,4 @@
- #ifndef _keyfuc_h_
+#ifndef _keyfuc_h_
 #define _keyfuc_h_
 
 #define CELIANG_DETAIL_PAGE  0

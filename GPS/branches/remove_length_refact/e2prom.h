@@ -16,10 +16,11 @@
 
 void init_history_data(void);
 unsigned char get_history_data_cnt(void);
-void Stor_Data(unsigned char Stor_Time[],unsigned char zouchang[],
-	unsigned char mianji[],unsigned char jiner[], unsigned char add_data);
-char Get_Data(unsigned char index, unsigned char Stor_Time[],unsigned char zouchang[],
-	unsigned char mianji[],unsigned char jiner[], unsigned char *add_data, unsigned int *danjia);
+void Stor_Data(unsigned char Stor_Time[], unsigned char zouchang[],
+		unsigned char mianji[], unsigned char jiner[], unsigned char add_data);
+char Get_Data(unsigned char index, unsigned char Stor_Time[],
+		unsigned char zouchang[], unsigned char mianji[],
+		unsigned char jiner[], unsigned char *add_data, unsigned int *danjia);
 void Clear_Data(void);
 
 void eeprom_erase(unsigned char AddrH);
