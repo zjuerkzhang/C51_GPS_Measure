@@ -1,5 +1,9 @@
+#include <stdio.h>
 #include "area.h"
 #include "math.h"
+
+#define __PRINT_AREA_VALUES 1
+
 
 #define GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE
 
@@ -406,10 +410,11 @@ int GeodeticNextPoint(PCRDGEODETIC pcg2)
 
 	dx = cur_point.x - before_point.x;
 	dy = cur_point.y - before_point.y;
-	printf("[x]:    %.6f\n", cur_point.x);
-	printf("[y]:    %.6f\n", cur_point.y);
-	printf("[dx]:   %.6f\n", dx);
-	printf("[dy]:   %.6f\n", dy);
+	
+#if __PRINT_AREA_VALUES
+	printf("%.6f,%.6f\n", cur_point.x, cur_point.y);	
+#endif
+
 	max_distance = CARTESIAN_POINT_MAX_DISTANCE * (1 + discard_point_cnt);
 	min_distance = CARTESIAN_POINT_MIN_DISTANCE;//下一个如果在原点1m左右走动的话舍掉。
 	if (dx < 0)
