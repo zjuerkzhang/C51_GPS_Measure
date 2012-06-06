@@ -36,6 +36,33 @@ unsigned int point_step = 0;
 
 void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 {
+    double X, N, t, t2, m, m2, ng2;
+    double sinB, cosB;
+    double a = 6378140;
+    double f = 298.257;
+    double e2, e12, A1, A2, A3, A4;
+    double L, B;
+    
+    e2 = 1 - ((f - 1) / f) * ((f - 1) / f);
+    e12 = (f / (f - 1)) * (f / (f - 1)) - 1;
+    
+    X = A1 * B * 180.0 / PI + A2 * sin(2 * B) + A3 * sin(4 * B) + A4 * sin(6 * B);
+    sinB = sin(B);
+    cosB = cos(B);
+    t = tan(B);
+    t2 = t * t;
+    N = a / sqrt(1 - e2 * sinB * sinB);
+    m = cosB * (L - L0);
+    m2 = m * m;
+    ng2 = cosB * cosB * e2 / (1 - e2);
+    x = X + N * t * ((0.5 + ((5 - t2 + 9 * ng2 + 4 * ng2 * ng2) / 24.0 + (61 -
+                            58 * t2 + t2 * t2) * m2 / 720.0) * m2) * m2);
+    y = N * m * ( 1 + m2 * ( (1 - t2 + ng2) / 6.0 + m2 * ( 5 - 18 * t2 + t2 * t
+                             2 + 14 * ng2 - 58 * ng2 * t2 ) / 120.0));
+    y += 500000;
+}
+
+/*
 #if defined(GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE)
 	double L, B;
 	double l, L0;
@@ -142,6 +169,7 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 	pcc->x = Y;
 	pcc->y = X;
 #endif
+*/
 }
 
 void GeodeticToCartesian2(PCRDCARTESIAN pcc, PCRDGEODETIC pcg,
