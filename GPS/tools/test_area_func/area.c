@@ -37,7 +37,7 @@ unsigned int point_step = 0;
 
 void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 {
-
+#if 0
     double S, N, t, t2, m, m2, ng2;
     double sinB, cosB;
     double e2, e12;
@@ -95,8 +95,8 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
     */
     pcc->x = x;
     pcc->y = y;
+#endif
 
-/*
 #if defined(GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE)
 	double L, B;
 	double l, L0;
@@ -203,7 +203,7 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 	pcc->x = Y;
 	pcc->y = X;
 #endif
-*/
+
 }
 
 void GeodeticToCartesian2(PCRDCARTESIAN pcc, PCRDGEODETIC pcg,
@@ -337,6 +337,9 @@ CRDCARTESIAN GeodeticMergeSimilarPoints(PCRDCARTESIAN pcc)
 				<= GEODETIC_MERGE_POINT_RADIUS)
 		{
 			//printf("--dx:%lf\r\n--dy:%lf\r\n", before_point.x, before_point.y);
+#if __PRINT_AREA_VALUES
+	        printf("Discard(M),");	
+#endif		
 			return before_point;
 		}
 		else
@@ -353,13 +356,15 @@ CRDCARTESIAN GeodeticMergeSimilarPoints(PCRDCARTESIAN pcc)
 	{
 		merge_points[0] = *pcc;
 		similar_point_cnt = 0;
-
 		return *pcc;
 	}
 
 	merge_points[++similar_point_cnt] = *pcc;
 	if (similar_point_cnt < CARTESIAN_MERGE_POINT_TRIGGER_COUNT)
 	{
+#if __PRINT_AREA_VALUES
+	    printf("Used(M),");	
+#endif
 		return *pcc;
 	}
 
@@ -474,7 +479,7 @@ int GeodeticNextPoint(PCRDGEODETIC pcg2)
 	dy = cur_point.y - before_point.y;
 	
 #if __PRINT_AREA_VALUES
-	printf("%.6f,%.6f\n", cur_point.x, cur_point.y);	
+	printf("%.6f,%.6f,", cur_point.x, cur_point.y);	
 #endif
 
 	max_distance = CARTESIAN_POINT_MAX_DISTANCE * (1 + discard_point_cnt);
@@ -486,6 +491,9 @@ int GeodeticNextPoint(PCRDGEODETIC pcg2)
 	if (dx > max_distance || dy > max_distance)
 	{
 		++discard_point_cnt;
+#if __PRINT_AREA_VALUES
+	    printf("Discard,");	
+#endif		
 		return -1;
 	}
 #if 0
@@ -521,6 +529,10 @@ int GeodeticNextPoint(PCRDGEODETIC pcg2)
 			//printf("--end measuring, the area is %lf, the distance is %lf\r\n", area, distance);
 		}
 	}
+
+#if __PRINT_AREA_VALUES
+	printf("\n");	
+#endif		
 
 	before_point = cur_point;
 	return 0;

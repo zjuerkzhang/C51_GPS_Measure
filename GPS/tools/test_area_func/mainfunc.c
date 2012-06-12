@@ -3,7 +3,7 @@
 #include "area.h"
 #include "test_uart.h"
 
-#define __PRINT_MEDIA_VALUES 1
+#define __PRINT_MEDIA_VALUES 0
 
 
 typedef unsigned char bit;
@@ -107,6 +107,12 @@ main(int argc, char **argv)
 
 		}
 	}
+	
+	printf("\n\n\n\n\n");
+	printf("[area]: %08.1f\n", GeodeticGetArea());
+	printf("[len]:  %08.0f\n", GeodeticGetDistance());
+	
+	
 	free(file_buff);
 	
 	printf("\n\n\n\n\n\n");
