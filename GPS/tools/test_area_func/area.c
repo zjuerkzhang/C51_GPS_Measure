@@ -35,9 +35,20 @@ unsigned char similar_point_cnt = 0;
 unsigned char is_measuring = 0;
 unsigned int point_step = 0;
 
+PointPlus point_plus_array[POINT_PLUS_ARRAY_LENGTH];
+unsigned char ppa_new = 0;
+unsigned char ppa_old = 0;
+double distance_as_moving = 4.0;
+
+double GetDistanceBetweenPoints(CRDCARTESIAN p_p1, CRDCARTESIAN p_p2)
+{
+    return sqrt(pow(p_p1.x - p_p2.x, 2) + pow(p_p1.y - p_p2.y, 2));
+}
+
+
 void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 {
-#if 0
+
     double S, N, t, t2, m, m2, ng2;
     double sinB, cosB;
     double e2, e12;
@@ -93,10 +104,10 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
     printf("--------------------\n");
     printf("x:%8f y:%8f\n", x, y);
     */
-    pcc->x = x;
-    pcc->y = y;
-#endif
+    pcc->x = y;
+    pcc->y = x;
 
+/*
 #if defined(GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE)
 	double L, B;
 	double l, L0;
@@ -203,7 +214,7 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 	pcc->x = Y;
 	pcc->y = X;
 #endif
-
+*/
 }
 
 void GeodeticToCartesian2(PCRDCARTESIAN pcc, PCRDGEODETIC pcg,
@@ -434,6 +445,7 @@ CRDCARTESIAN GeodeticMergeSimilarPoints(PCRDCARTESIAN pcc)
 void GeodeticFirstPoint(PCRDGEODETIC pcg)
 {
 	double B;
+	unsigned char i;
 
 	B = pcg->latitude * PI / 180;
 	r1 = r_a / sqrt(1 - e2 * sin(B) * sin(B));
@@ -442,9 +454,24 @@ void GeodeticFirstPoint(PCRDGEODETIC pcg)
 	cg = *pcg;
 
 #if defined(GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE)
-	GeodeticToCartesian(&first_cartesian, pcg);
+	//GeodeticToCartesian(&first_cartesian, pcg);
 #endif
-
+    first_cartesian.x = 0;
+    first_cartesian.y = 0;
+    for(i=0; i<POINT_PLUS_ARRAY_LENGTH; i++)
+    {
+        first_cartesian.x += point_plus_array[i].point.x;
+        first_cartesian.y += point_plus_array[i].point.y;
+    }
+    first_cartesian.x = first_cartesian.x/POINT_PLUS_ARRAY_LENGTH;
+    first_cartesian.y = first_cartesian.y/POINT_PLUS_ARRAY_LENGTH;
+    
+    for(i=0; i<POINT_PLUS_ARRAY_LENGTH; i++)
+    {
+        point_plus_array[i].point.x -= first_cartesian.x;
+        point_plus_array[i].point.y -= first_cartesian.y;
+    }
+    
 	before_point.x = before_point.y = 0;
 	area = 0;
 	distance = 0;
@@ -570,4 +597,115 @@ void GeodeticAreaReset(void)
 {
 	GeodeticResetSamplingPoint();
 	GeodeticResetDiscardPoint();
+}
+
+unsigned char PreparePointPlusArray(PCRDGEODETIC p_in_pgp)
+{
+    CRDCARTESIAN pcp;
+    unsigned char i;
+    
+    GeodeticToCartesian(&pcp, p_in_pgp);
+    if( ppa_new>0 && 
+        GetDistanceBetweenPoints(pcp, point_plus_array[ppa_new-1].point)>= CARTESIAN_POINT_MAX_DISTANCE )
+    {
+        return 0;
+    }
+    point_plus_array[ppa_new].point = pcp;
+    point_plus_array[ppa_new].used = 0;
+    ppa_new++;
+    
+    if( POINT_PLUS_ARRAY_LENGTH == ppa_new )
+    {
+        ppa_new--;        
+        ppa_old = POINT_PLUS_ARRAY_AVR_BUFF_LEN-1;
+        return 1;
+    }
+    
+    return 0;
+}
+
+unsigned char GetNextPointIndex(unsigned char p_idx)
+{
+    p_idx++;
+    if(POINT_PLUS_ARRAY_LENGTH==p_idx)
+        p_idx = 0;
+        
+    return p_idx;
+}
+
+unsigned char GetPreviousPointIndex(unsigned char p_idx)
+{   
+    if(0==p_idx)
+        p_idx = POINT_PLUS_ARRAY_LENGTH-1;
+    else
+        p_idx--;
+         
+    return p_idx;
+}
+
+void GeodeticNextPointPlus(PCRDGEODETIC p_pgp)
+{
+    CRDCARTESIAN cur_point;
+    CRDCARTESIAN base_point;
+	double dx, dy;
+	unsigned char i,j;
+	
+	GeodeticToCartesian(&cur_point, p_pgp);
+	cur_point.x -= first_cartesian.x;
+	cur_point.y -= first_cartesian.y;
+	
+#if __PRINT_AREA_VALUES
+	printf("%.6f,%.6f,", cur_point.x, cur_point.y);	
+#endif
+	
+	dx = cur_point.x - before_point.x;
+	dy = cur_point.y - before_point.y;
+	
+	if( GetDistanceBetweenPoints(cur_point, point_plus_array[ppa_new].point)>CARTESIAN_POINT_MAX_DISTANCE )
+	{
+#if __PRINT_AREA_VALUES
+	    printf("B,");
+	    printf("\n");	
+#endif
+	    return;
+	}
+	
+	base_point.x = base_point.y = 0;
+	j = ppa_old;
+	for(i=0; i<POINT_PLUS_ARRAY_AVR_BUFF_LEN; i++)
+	{
+	    if( point_plus_array[j].used )
+	    {
+	        base_point = point_plus_array[j].point;
+	        break;
+	    }
+	    base_point.x += point_plus_array[j].point.x;
+	    base_point.y += point_plus_array[j].point.y;
+	    j = GetPreviousPointIndex(j);
+	}
+	if( i>= POINT_PLUS_ARRAY_AVR_BUFF_LEN )
+	{
+	    base_point.x = base_point.x/POINT_PLUS_ARRAY_AVR_BUFF_LEN;
+	    base_point.y = base_point.y/POINT_PLUS_ARRAY_AVR_BUFF_LEN;
+	}
+	
+	ppa_old = GetNextPointIndex(ppa_old);
+	ppa_new = GetNextPointIndex(ppa_new);
+	point_plus_array[ppa_new].point = cur_point;
+	point_plus_array[ppa_new].used = 0;
+	
+	if(GetDistanceBetweenPoints(base_point, cur_point)>distance_as_moving)
+	{
+	    area += (before_point.x * cur_point.y - before_point.y * cur_point.x) / 2.0;
+	    distance += sqrt(dx * dx + dy * dy);
+	    
+	    point_plus_array[ppa_new].used = 1;
+	    before_point = cur_point;
+#if __PRINT_AREA_VALUES
+	    printf("U,");	
+#endif
+	}
+#if __PRINT_AREA_VALUES
+	printf("\n");	
+#endif
 }

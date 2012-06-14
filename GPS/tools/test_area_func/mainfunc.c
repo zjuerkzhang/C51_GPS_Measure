@@ -85,12 +85,15 @@ main(int argc, char **argv)
 
 				if (gps_first_point) //如果是第一个点的话。
 				{
-					GeodeticFirstPoint(&point);
-					gps_first_point = 0;
+				    if(PreparePointPlusArray(&point))
+				    {
+				        GeodeticFirstPoint(&point);
+				        gps_first_point = 0;
+				    }					
 				}
 				else
 				{
-					GeodeticNextPoint(&point);
+					GeodeticNextPointPlus(&point);
 				}
 				
 #if __PRINT_MEDIA_VALUES
