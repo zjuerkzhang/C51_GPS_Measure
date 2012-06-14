@@ -44,6 +44,7 @@ extern unsigned char celiangPage_idx;
 extern bit signal;
 extern unsigned int BatQuan;
 extern unsigned char celiang_mode;
+extern unsigned char danwei_sel;
 
 void PowerUpSeque()
 {
@@ -72,6 +73,7 @@ void main()
 	unsigned char test;
 	unsigned char EppromAddrH, EppromAddrL;
 	unsigned int TestNumber = 0;
+	unsigned char i;
 	CRDGEODETIC point, out_point;
 	bit timer_fresh = 0;
 
@@ -122,19 +124,16 @@ void main()
 					GeodeticNextPoint(&point);
 				}
 
-				if (0 == danwei_mianji_sel) //亩
-					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/666.666667);
-				else
+				if (1 == danwei_sel) //公顷
 					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/10000);
+				else //默认面积单位为亩
+					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/666.666667);
 
-				if (0 == danwei_zouchang_sel) //米
-				{
-					sprintf(g_length_value, "%08.0f", GeodeticGetDistance());
-				}
-				else
-				{
+				if (3 == danwei_sel) //千米
 					sprintf(g_length_value, "%08.1f", GeodeticGetDistance()/1000);
-				}
+				else // 默认长度单位为米
+					sprintf(g_length_value, "%08.0f", GeodeticGetDistance());
+
 			}
 			GPS_UPDATA = 0;
 			g_lcd_refresh = 1;
