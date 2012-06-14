@@ -1,6 +1,11 @@
 #ifndef _display_h_
 #define _display_h_
 
+#define DANWEI_SEL_MU       0
+#define DANWEI_SEL_GONGQING 1
+#define DANWEI_SEL_MI       2
+#define DANWEI_SEL_QIANMI   3
+
 void delay_ms(unsigned int ms);
 void LCD_Reset();
 void Write_Data(unsigned char dat);

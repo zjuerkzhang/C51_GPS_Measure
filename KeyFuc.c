@@ -23,6 +23,8 @@ unsigned char celiang_mode = 0;
 unsigned char clear_rec_count = 0;
 unsigned char show_sn_count = 0;
 bit searching_sat = 1;
+unsigned char price_for_edit[] = { 0, 0, 8, 0, 0 };
+unsigned char danwei_sel_for_edit = 0;
 
 extern unsigned char g_area_value[];
 extern unsigned char g_length_value[];
@@ -36,6 +38,7 @@ extern unsigned char price_per_len[];
 extern unsigned char price_per_area[];
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
+extern unsigned char danwei_sel;
 
 unsigned char keyscan()
 {
@@ -95,7 +98,8 @@ unsigned char keyscan()
 
 void KeyOperate()
 {
-	unsigned char i, DanweiState;
+	unsigned char i;
+	bit flag;
 
 	if ((g_page_id == 0) || (g_page_id == 1) || (g_page_id == 2) || (g_page_id
 			== 3) || (g_page_id == 4) || (g_page_id == 5))
@@ -174,9 +178,14 @@ void KeyOperate()
 
 					break;
 				case 1:
+					for(i=0; i<5; i++)
+					{
+						price_for_edit[i] = price_per_area[i];
+					}
 					g_page_id = 2;
 					break;
 				case 2:
+					danwei_sel_for_edit = danwei_sel;
 					g_page_id = 3;
 					break;
 				case 3:
@@ -253,11 +262,8 @@ void KeyOperate()
 					{
 						if (gps_first_point != 1)
 						{
-							DanweiState = 0x00 | danwei_mianji_sel;
-							DanweiState <<= 1;
-							DanweiState = DanweiState | danwei_zouchang_sel;
 							Stor_Data(g_beijing_time, g_length_value,
-									g_area_value, total_cost_str, DanweiState);
+									g_area_value, total_cost_str, danwei_sel);
 							celiang_mode++;
 						}
 					}
@@ -299,10 +305,10 @@ void KeyOperate()
 
 					if ((danjia_sel_focus >= 2) && (danjia_sel_focus < 5))
 					{
-						if (price_per_area[danjia_sel_focus - 1] == 9)
-							price_per_area[danjia_sel_focus - 1] = 0;
+						if (price_for_edit[danjia_sel_focus - 1] == 9)
+							price_for_edit[danjia_sel_focus - 1] = 0;
 						else
-							price_per_area[danjia_sel_focus - 1]++;
+							price_for_edit[danjia_sel_focus - 1]++;
 
 					}
 
@@ -345,10 +351,10 @@ void KeyOperate()
 
 					if ((danjia_sel_focus >= 2) && (danjia_sel_focus < 5))
 					{
-						if (price_per_area[danjia_sel_focus - 1] == 0)
-							price_per_area[danjia_sel_focus - 1] = 9;
+						if (price_for_edit[danjia_sel_focus - 1] == 0)
+							price_for_edit[danjia_sel_focus - 1] = 9;
 						else
-							price_per_area[danjia_sel_focus - 1]--;
+							price_for_edit[danjia_sel_focus - 1]--;
 
 					}
 
@@ -391,12 +397,23 @@ void KeyOperate()
 					}
 				}
 
-				get_system_data(system_data);
-				system_data[PRICE_OFFSET] = price_per_area[1];
-				system_data[PRICE_OFFSET + 1] = price_per_area[2];
-				system_data[PRICE_OFFSET + 2] = price_per_area[3];
-				store_sn_data();
-
+				flag = 0;
+				for(i=0; i<4; i++)
+				{
+					if(price_per_area[i]!=price_for_edit[i])
+					{
+						price_per_area[i] = price_for_edit[i];
+						flag = 1;
+					}
+				}
+				if(flag)
+				{
+					get_system_data(system_data);
+					system_data[PRICE_OFFSET] = price_per_area[1];
+					system_data[PRICE_OFFSET + 1] = price_per_area[2];
+					system_data[PRICE_OFFSET + 2] = price_per_area[3];
+					store_sn_data();
+				}
 				g_page_id = 0;
 				g_lcd_refresh = 1;
 
@@ -418,56 +435,43 @@ void KeyOperate()
 				{
 				case 1:
 				{
-					/*
-					 if(FLAG4 == 0)
-					 {
-					 danwei_zouchang_sel= ~danwei_zouchang_sel;
-					 }
-					 else
-					 */
-					{
-						danwei_mianji_sel = ~danwei_mianji_sel;
-					}
-
+					if( danwei_sel_for_edit > 0 )
+						danwei_sel_for_edit--;
 					break;
 				}
-					/*
-					 case 2:
-					 {
 
-					 FLAG4 = ~FLAG4;
-					 break;
-					 }
-					 */
+				case 2:
+				{
+					if( danwei_sel_for_edit > 1 )
+						danwei_sel_for_edit-=2;
+					break;
+				}
 				case 3:
 				{
-					/*
-					 if(FLAG4 == 0)
-					 {
-					 danwei_zouchang_sel= ~danwei_zouchang_sel;
-					 }
-					 else
-					 */
-					{
-						danwei_mianji_sel = ~danwei_mianji_sel;
-					}
-
+					if( danwei_sel_for_edit < 3)
+						danwei_sel_for_edit++;
 					break;
 				}
-					/*
-					 case 4:
-					 {
-
-					 FLAG4 = ~FLAG4;
-					 break;
-					 }
-					 */
+				case 4:
+				{
+					if( danwei_sel_for_edit <2 )
+						danwei_sel_for_edit+=2;
+					break;
+				}
 				}
 
 				g_lcd_refresh = 1;
 			}
 			else if (KeyPressValue == 5)
 			{
+				if(danwei_sel != danwei_sel_for_edit)
+				{
+					danwei_sel = danwei_sel_for_edit;
+					get_system_data(system_data);
+					system_data[DANWEI_OFFSET] = danwei_sel;
+					store_sn_data();
+				}
+
 				g_page_id = 0;
 				g_lcd_refresh = 1;
 

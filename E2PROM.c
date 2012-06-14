@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "gps.h"
+#include "display.h"
 
 #define uchar unsigned char
 #define uint unsigned int 
@@ -49,6 +50,7 @@ unsigned char system_data[SYSTEM_DATA_SIZE];
 unsigned char sn_focus_idx = 0;
 
 extern unsigned char price_per_area[];
+extern unsigned char danwei_sel;
 
 void delay(unsigned int z)
 {
@@ -476,6 +478,14 @@ void get_sn_data()
 		}
 		price_per_area[i + 1] = system_data[PRICE_OFFSET + i];
 	}
+
+	if( system_data[DANWEI_OFFSET] > DANWEI_SEL_QIANMI )
+	{
+		flag = 1;
+		system_data[DANWEI_OFFSET] = DANWEI_SEL_MU;
+	}
+	danwei_sel = system_data[DANWEI_OFFSET];
+
 	if (flag)
 		store_sn_data();
 }
@@ -567,11 +577,15 @@ char Get_Data(unsigned char index, unsigned char Stor_Time[],
 	read_one_history_data(&data1, data_addr);
 
 	time_int_to_str(Stor_Time, data1.time);
-	sprintf(zouchang, "%08.1f", data1.zouchang);
-	sprintf(mianji, "%08.1f", data1.mianji);
-	sprintf(jiner, "%08.0f", data1.jiner);
 	*add_data = (unsigned char) ((data1.add_data >> 14) & 0x3);
 	*danjia = data1.add_data & 0x3FFF;
+    if(*add_data == 2)
+    	sprintf(zouchang, "%08.0f", data1.zouchang);
+    else
+    	sprintf(zouchang, "%08.1f", data1.zouchang);
+	sprintf(mianji, "%08.1f", data1.mianji);
+	sprintf(jiner, "%08.0f", data1.jiner);
+
 
 	return 0;
 }
