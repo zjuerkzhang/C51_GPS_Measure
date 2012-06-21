@@ -4,6 +4,7 @@
 #include "display.h"
 #include "led.h"
 #include "e2prom.h"
+#include "area.h"
 
 sbit KEY_LEFT_UP = P2 ^ 1;
 sbit KEY_OK = P2 ^ 2;
@@ -25,6 +26,7 @@ unsigned char show_sn_count = 0;
 bit searching_sat = 1;
 unsigned char price_for_edit[] = { 0, 0, 8, 0, 0 };
 unsigned char danwei_sel_for_edit = 0;
+unsigned char len_moving[2] = {4, 0};
 
 extern unsigned char g_area_value[];
 extern unsigned char g_length_value[];
@@ -39,6 +41,7 @@ extern unsigned char price_per_area[];
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 extern unsigned char danwei_sel;
+extern double distance_as_moving;
 
 unsigned char keyscan()
 {
@@ -255,6 +258,7 @@ void KeyOperate()
 							initiate_var(0);
 							celiang_mode++;
 							gps_first_point = 1;
+							ResetPointPlusArray();
 							GeodeticAreaReset();
 						}
 					}
@@ -567,6 +571,8 @@ void KeyOperate()
 					sn_focus_idx--;
 				else if (0 == sn_focus_idx)
 					sn_focus_idx = 20;
+				else if (sn_focus_idx>40 && sn_focus_idx<=42)
+					sn_focus_idx--;
 				else
 				{
 				}
@@ -575,12 +581,23 @@ void KeyOperate()
 
 			case 2:
 			{
+				if (40 == sn_focus_idx)
+				{
+					sn_focus_idx = 30;
+				}
 				if (30 == sn_focus_idx)
 				{
 					sn_focus_idx = 20;
 				}
 				else if (20 == sn_focus_idx)
 				{
+				}
+				else if (sn_focus_idx==41 || sn_focus_idx==42)
+				{
+					if (len_moving[sn_focus_idx-41] == 9)
+						len_moving[sn_focus_idx-41] = 0;
+					else
+						len_moving[sn_focus_idx-41]++;
 				}
 				else
 				{
@@ -598,6 +615,10 @@ void KeyOperate()
 					sn_focus_idx++;
 				else if (sn_focus_idx == 20)
 					sn_focus_idx = 0;
+				else if (sn_focus_idx == 40 )
+					sn_focus_idx = 41;
+				else if (sn_focus_idx == 41 )
+					sn_focus_idx = 42;
 				else
 				{
 				}
@@ -612,6 +633,17 @@ void KeyOperate()
 				}
 				else if (30 == sn_focus_idx)
 				{
+					sn_focus_idx = 40;
+				}
+				else if (40 == sn_focus_idx)
+				{
+				}
+				else if (sn_focus_idx==41 || sn_focus_idx==42)
+				{
+					if (len_moving[sn_focus_idx-41] == 0)
+						len_moving[sn_focus_idx-41] = 9;
+					else
+						len_moving[sn_focus_idx-41]--;
 				}
 				else
 				{
@@ -625,6 +657,7 @@ void KeyOperate()
 
 			case 5:
 			{
+				distance_as_moving = len_moving[0]*1.0 + len_moving[1]/10.0;
 				if (30 == sn_focus_idx)
 				{
 					system_data[0] = 1;
