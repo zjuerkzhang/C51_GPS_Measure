@@ -13,6 +13,9 @@
 #define GEODETIC_MIN_STEP 40
 #define GEODETIC_END_START_MAX_DISTANCE 3
 
+#define POINT_PLUS_ARRAY_LENGTH 5
+#define POINT_PLUS_ARRAY_AVR_BUFF_LEN 3
+
 typedef struct Point
 {
 	double x, y;
@@ -31,6 +34,12 @@ typedef struct tagCRDGEODETIC
 	double latitude;
 
 } CRDGEODETIC;
+
+typedef struct tagPointPlus
+{
+    CRDCARTESIAN point;
+    unsigned char used;
+} PointPlus;
 
 typedef CRDGEODETIC *PCRDGEODETIC;
 
@@ -55,6 +64,12 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg);
 void GeodeticToCartesian2(PCRDCARTESIAN pcc, PCRDGEODETIC pcg,
 		PCRDGEODETIC pcg2);
 
+unsigned char PreparePointPlusArray(PCRDGEODETIC p_in_pgp);
+
 void GeodeticAreaReset(void);
+
+void GeodeticNextPointPlus(PCRDGEODETIC p_pgp);
+
+void ResetPointPlusArray();
 
 #endif // __AREA_H__

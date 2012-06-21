@@ -78,6 +78,7 @@ extern unsigned char sn_focus_idx;
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char price_for_edit[];
 extern unsigned char danwei_sel_for_edit;
+extern unsigned char len_moving[];
 
 void delay_ms(unsigned int ms)
 {
@@ -1333,33 +1334,51 @@ void dispay_sn_edit_page()
 
 	LcmClear();
 	if (sn_focus_idx == 20)
-		Revers_Data(hao, 4, 0);
+		Revers_Data(hao, 6, 0);
 	else
-		Display_Chinese(hao, 4, 0);
+		Display_Chinese(hao, 6, 0);
 
-	Display_Chinese(maohao, 4, 16);
+	Display_Chinese(maohao, 6, 16);
 
 	for (i = 0; i < SN_NUM_LEN; i++)
 	{
 		if (i == sn_focus_idx)
 		{
-			reverse_zf_disp8x16(Num_8_16[system_data[i]], 4, 32 + 8 * i);
+			reverse_zf_disp8x16(Num_8_16[system_data[i]], 6, 32 + 8 * i);
 		}
 		else
 		{
-			zf_disp8x16(Num_8_16[system_data[i]], 4, 32 + 8 * i);
+			zf_disp8x16(Num_8_16[system_data[i]], 6, 32 + 8 * i);
 		}
 	}
-	zf_clear_page_to_end(4, 32 + 8 * SN_NUM_LEN);
-	zf_clear_page_to_end(5, 32 + 8 * SN_NUM_LEN);
+	zf_clear_page_to_end(6, 32 + 8 * SN_NUM_LEN);
+	zf_clear_page_to_end(7, 32 + 8 * SN_NUM_LEN);
 
 	if (sn_focus_idx == 30)
-		Revers_Data(shi3, 1, 0);
+		Revers_Data(shi3, 3, 0);
 	else
-		Display_Chinese(shi3, 1, 0);
+		Display_Chinese(shi3, 3, 0);
 
-	zf_clear_page_to_end(1, 16);
-	zf_clear_page_to_end(2, 16);
+	zf_clear_page_to_end(3, 16);
+	zf_clear_page_to_end(4, 16);
+
+	if (sn_focus_idx == 40)
+		Revers_Data(chang, 0, 0);
+	else
+		Display_Chinese(chang, 0, 0);
+	Display_Chinese(maohao, 0, 16);
+	if (sn_focus_idx == 41)
+		reverse_zf_disp8x16(Num_8_16[len_moving[0]], 0, 32);
+	else
+		zf_disp8x16(Num_8_16[len_moving[0]], 0, 32);
+
+	zf_disp8x16(Num_8_16[10], 0, 40);
+	if (sn_focus_idx == 42)
+		reverse_zf_disp8x16(Num_8_16[len_moving[1]], 0, 48);
+	else
+		zf_disp8x16(Num_8_16[len_moving[1]], 0, 48);
+	zf_clear_page_to_end(0, 56);
+	zf_clear_page_to_end(1, 56);
 }
 
 void initiate_var(bit p_start)

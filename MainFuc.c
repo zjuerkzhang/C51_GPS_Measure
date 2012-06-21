@@ -112,7 +112,7 @@ void main()
 
 				if (gps_first_point) //如果是第一个点的话。
 				{
-					if (GeodeticPutSamplingPoint(&point, &out_point))
+					if (PreparePointPlusArray(&point))
 					{
 						GeodeticFirstPoint(&out_point);
 						GeodeticResetSamplingPoint();
@@ -121,7 +121,7 @@ void main()
 				}
 				else
 				{
-					GeodeticNextPoint(&point);
+					GeodeticNextPointPlus(&point);
 				}
 
 				if (1 == danwei_sel) //公顷
