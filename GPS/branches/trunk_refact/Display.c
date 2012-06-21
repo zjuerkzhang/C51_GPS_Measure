@@ -944,7 +944,7 @@ void display_CeLiang_Page(bit timer_fresh)
 
 			if ((total_cost >= 0) && (total_cost <= 99999999))
 			{
-				sprintf(total_cost_str, "%08.0f", total_cost+0.5);
+				sprintf(total_cost_str, "%08.0f", total_cost);
 
 				Display_Chinese(jin, 0, 0); //½ð
 				Display_Chinese(er, 0, 16); //¶î
@@ -1089,7 +1089,7 @@ void display_CeLiang_Page(bit timer_fresh)
 				if ((total_cost >= 0) && (total_cost <= 99999999))
 				{
 
-					sprintf(total_cost_str, "%08.0f", total_cost+0.5);
+					sprintf(total_cost_str, "%08.0f", total_cost);
 					Display_Chinese(jin, 0, 0); //½ð
 					Display_Chinese(er, 0, 16); //¶î
 					Display_Chinese(maohao, 0, 32); //£º
