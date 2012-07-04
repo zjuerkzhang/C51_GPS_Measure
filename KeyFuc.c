@@ -266,8 +266,8 @@ void KeyOperate()
 					{
 						if (gps_first_point != 1)
 						{
-							Stor_Data(g_beijing_time, g_length_value,
-									g_area_value, total_cost_str, danwei_sel);
+							Stor_Data( g_beijing_time, 0, g_length_value,
+									   g_area_value, danwei_sel, price_per_area);
 							celiang_mode++;
 						}
 					}

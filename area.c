@@ -21,6 +21,9 @@ unsigned char ppa_new = 0;
 unsigned char ppa_old = 0;
 double distance_as_moving = 4.0;
 
+unsigned char spa_idx = 0;
+unsigned char spa_len = 3;
+
 double GetDistanceBetweenPoints(CRDCARTESIAN p_p1, CRDCARTESIAN p_p2)
 {
     return sqrt(pow(p_p1.x - p_p2.x, 2) + pow(p_p1.y - p_p2.y, 2));

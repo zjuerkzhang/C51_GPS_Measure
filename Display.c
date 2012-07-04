@@ -573,32 +573,57 @@ void display_PowerD_LOGO()
 
 }
 
-void display_danwei(unsigned char l_danwei_sel, unsigned char row, unsigned char col )
+void display_danwei( unsigned char l_danwei_sel,
+		             unsigned char row,
+		             unsigned char col,
+		             unsigned char reverse )
 {
 	switch (l_danwei_sel)
 	{
 	case 0:
 	{
-		Display_Chinese(mu, row, col);
+		if (reverse)
+			Revers_Data(mu, row, col);
+		else
+			Display_Chinese(mu, row, col);
 		Display_Chinese(kong, row, col+16);
 		break;
 	}
 	case 1:
 	{
-		Display_Chinese(gong, row, col);
-		Display_Chinese(qing, row, col+16);
+		if (reverse)
+		{
+			Revers_Data(gong, row, col);
+			Revers_Data(qing, row, col+16);
+		}
+		else
+		{
+			Display_Chinese(gong, row, col);
+			Display_Chinese(qing, row, col+16);
+		}
 		break;
 	}
 	case 2:
 	{
-		Display_Chinese(mi, row, col);
+		if (reverse)
+			Revers_Data(mi, row, col);
+		else
+			Display_Chinese(mi, row, col);
 		Display_Chinese(kong, row, col+16);
 		break;
 	}
 	case 3:
 	{
-		Display_Chinese(qian, row, col);
-		Display_Chinese(mi, row, col+16);
+		if (reverse)
+		{
+			Revers_Data(qian, row, col);
+			Revers_Data(mi, row, col+16);
+		}
+		else
+		{
+			Display_Chinese(qian, row, col);
+			Display_Chinese(mi, row, col+16);
+		}
 		break;
 	}
 	default:
@@ -610,6 +635,23 @@ void display_danwei(unsigned char l_danwei_sel, unsigned char row, unsigned char
 		zf_disp8x16(kong, row, col);
 	}
 }
+
+void display_num_str_8x16( unsigned char p_num_str[],
+		                   unsigned char p_length,
+		                   unsigned char p_row,
+		                   unsigned char p_col )
+{
+	unsigned char idx;
+
+	for (idx = 0; idx < p_length; idx++)
+	{
+		if (p_num_str[idx] != 0x2e)
+			zf_disp8x16(Num_8_16[p_num_str[idx] - 0x30], p_row, p_col + idx * 8);
+		else
+			zf_disp8x16(Num_8_16[10], p_row, p_col + idx * 8);
+	}
+}
+
 
 void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 {
@@ -714,7 +756,7 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 	Display_Chinese(yuan, 4, 72);
 	zf_disp8x16(xie_gang, 4, 88);
 
-	display_danwei(danwei_sel, 4, 96);
+	display_danwei(danwei_sel, 4, 96, 1);
 }
 
 void Update_danwei_page4_5_1_2(unsigned char l_danwei_sel)
@@ -938,7 +980,7 @@ void display_CeLiang_Page(bit timer_fresh)
 					zf_disp8x16(Num_8_16[10], 2, 32 + idx * 8);
 			}
 
-			display_danwei(danwei_sel, 2, 96);
+			display_danwei(danwei_sel, 2, 96, 0);
 
 			///计算金额部分:
 			total_cost = (price_per_area[0] * 1000 + price_per_area[1] * 100 +
@@ -1083,7 +1125,7 @@ void display_CeLiang_Page(bit timer_fresh)
 						zf_disp8x16(Num_8_16[10], 2, 32 + idx * 8);
 				}
 
-				display_danwei(danwei_sel, 2, 96);
+				display_danwei(danwei_sel, 2, 96, 0);
 
 				total_cost = (price_per_area[0] * 1000 + price_per_area[1] * 100 +
 							  price_per_area[2] * 10 + price_per_area[3]) * atof(g_measure_for_show);
@@ -1221,14 +1263,17 @@ void display_danwei_Page()
 }
 void Update_jilu_page()
 {
-	unsigned char time[5], zouchang[20], mianji[20], TEST_8[20], ItoaBuffer[6];
+	unsigned char time[5], str_buff[10], ItoaBuffer[4];
+	unsigned char l_data1[10], l_data2[10];
 	unsigned char *measure_show;
-	unsigned char count, DanweiF;
+	unsigned char l_danwei_sel, l_mode;
 	unsigned int IndexNewNumBuffer;
-	unsigned int danjia;
+	unsigned int danjia, l_danjia;
 	unsigned char offset = 0;
-	Get_Data(curr_history_idx, time, zouchang, mianji, TEST_8, &DanweiF,
-			&danjia);
+	double l_total_cost;
+	Get_Data( curr_history_idx, time, &l_mode,
+			  l_data1, l_data2, &l_danwei_sel,
+			  &l_danjia);
 	IndexNewNumBuffer = curr_history_idx + 1;
 	sprintf(ItoaBuffer, "%02d", IndexNewNumBuffer);
 	LcmClear();
@@ -1258,75 +1303,98 @@ void Update_jilu_page()
 		zf_disp8x16(Num_8_16[time[2] - 0x30], 6, 112);
 		zf_disp8x16(Num_8_16[time[3] - 0x30], 6, 120);
 
-		Display_Chinese(dan, 4, 0);
-		Display_Chinese(jia, 4, 16);
-		offset = 32;
-		if ((unsigned char) (danjia / 1000) > 0)
+		if (1==l_mode)
 		{
-			zf_disp8x16(Num_8_16[(unsigned char) (danjia / 1000)], 4, offset);
-			offset += 8;
-		}
-		danjia = danjia % 1000;
-		if (offset > 32 || (unsigned char) (danjia / 100) > 0)
-		{
-			zf_disp8x16(Num_8_16[(unsigned char) (danjia / 100)], 4, offset);
-			offset += 8;
-		}
-		danjia = danjia % 100;
-		if (offset > 32 || (unsigned char) (danjia / 10) > 0)
-		{
-			zf_disp8x16(Num_8_16[(unsigned char) (danjia / 10)], 4, offset);
-			offset += 8;
-		}
-		danjia = danjia % 10;
-		zf_disp8x16(Num_8_16[danjia], 4, offset);
-		offset += 8;
-		Display_Chinese(yuan, 4, offset);
-		offset += 16;
-		zf_disp8x16(xie_gang, 4, offset);
-		offset += 8;
-
-		display_danwei(DanweiF, 4, offset);
-
-		if(DanweiF < 2)
-		{
-			Display_Chinese(mian, 2, 0); //面
-			Display_Chinese(ji2, 2, 16); //积
-			measure_show = mianji;
+			Display_Chinese(chang, 4, 0);
+			display_num_str_8x16( l_data1, 6, 4, 16 );
+			Display_Chinese(kuan, 4, 64);
+			display_num_str_8x16( l_data2, 6, 4, 80 );
 		}
 		else
 		{
-			Display_Chinese(zou, 2, 0); //走
-			Display_Chinese(chang, 2, 16); //长
-			measure_show = zouchang;
+			Display_Chinese(dan, 4, 0);
+			Display_Chinese(jia, 4, 16);
+			danjia = l_danjia;
+			offset = 32;
+			if ((unsigned char) (danjia / 1000) > 0)
+			{
+				zf_disp8x16(Num_8_16[(unsigned char) (danjia / 1000)], 4, offset);
+				offset += 8;
+			}
+			danjia = danjia % 1000;
+			if (offset > 32 || (unsigned char) (danjia / 100) > 0)
+			{
+				zf_disp8x16(Num_8_16[(unsigned char) (danjia / 100)], 4, offset);
+				offset += 8;
+			}
+			danjia = danjia % 100;
+			if (offset > 32 || (unsigned char) (danjia / 10) > 0)
+			{
+				zf_disp8x16(Num_8_16[(unsigned char) (danjia / 10)], 4, offset);
+				offset += 8;
+			}
+			danjia = danjia % 10;
+			zf_disp8x16(Num_8_16[danjia], 4, offset);
+			offset += 8;
+			Display_Chinese(yuan, 4, offset);
+			offset += 16;
+			zf_disp8x16(xie_gang, 4, offset);
+			offset += 8;
+
+			display_danwei(l_danwei_sel, 4, offset, 0);
 		}
 
-		for (count = 0; count < 8; count++)
+		if (1==l_mode)
 		{
-			if (measure_show[count] != 0x2e)
-				zf_disp8x16(Num_8_16[measure_show[count] - 0x30], 2, 32 + count * 8);
+			l_total_cost = atof(l_data1) * atof(l_data2);
+			if (0==l_danwei_sel)
+				l_total_cost = l_total_cost/666.666667;
 			else
-				zf_disp8x16(Num_8_16[10], 2, 32 + count * 8);
+				l_total_cost = l_total_cost/10000.0;
+			sprintf(str_buff, "%08.1f", l_total_cost);
+			Display_Chinese(mian, 2, 0);
+			Display_Chinese(ji2, 2, 16);
+			display_num_str_8x16( str_buff, 8, 2, 32 );
+			display_danwei(l_danwei_sel, 2, 96, 0);
 		}
-
-		display_danwei(DanweiF, 2, 96);
+		else
+		{
+			if(l_danwei_sel < 2)
+			{
+				Display_Chinese(mian, 2, 0); //面
+				Display_Chinese(ji2, 2, 16); //积
+				measure_show = l_data2;
+			}
+			else
+			{
+				Display_Chinese(zou, 2, 0); //走
+				Display_Chinese(chang, 2, 16); //长
+				measure_show = l_data1;
+			}
+			display_num_str_8x16( measure_show, 8, 2, 32 );
+			display_danwei(l_danwei_sel, 2, 96, 0);
+		}
 
 		Display_Chinese(jin, 0, 0); //金
 		Display_Chinese(er, 0, 16); //额
-		Display_Chinese(maohao, 0, 32); //:
-		for (count = 0; count < 8; count++)
+		if (1==l_mode)
 		{
-			zf_disp8x16(Num_8_16[TEST_8[count] - 0x30], 0, 40 + count * 8);
+			l_total_cost = l_danjia * l_total_cost;
 		}
+		else
+		{
+			l_total_cost = l_danjia * atof(measure_show);
+		}
+		sprintf(str_buff, "%08.1f", l_total_cost);
+		display_num_str_8x16( str_buff, 8, 0, 32 );
 
-		Display_Chinese(yuan, 0, 104); //元
-		Display_Chinese(kong, 0, 120); //kong
+		Display_Chinese(yuan, 0, 96); //元
+		Display_Chinese(kong, 0, 112); //kong
 	}
 }
 void display_jilu_page()
 {
 	Update_jilu_page();
-
 }
 
 void dispay_sn_edit_page()

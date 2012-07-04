@@ -274,9 +274,12 @@ unsigned char EEPROM_Read(unsigned char EEPROM_Addr)
 typedef struct _HistoryData
 {
 	unsigned int time;
-	double zouchang;
-	double mianji;
-	double jiner;
+	unsigned char mode;
+	/* 0: area measurement
+	 * 1: length measurement
+	 */
+	double data1;  /* mode=0, data1=length; mode=1, data1=a; */
+	double data2;  /* mode=0, data2=area; mode=1, data2=b; */
 	unsigned int add_data;
 /* Used to store danjia and Danwei selection
  * bit 15-14: Danwei selection
@@ -528,20 +531,20 @@ unsigned char get_history_data_cnt(void)
 }
 
 //
-void Stor_Data(unsigned char Stor_Time[], unsigned char zouchang[],
-		unsigned char mianji[], unsigned char jiner[], unsigned char add_data)
+void Stor_Data(unsigned char p_time[], unsigned char p_mode, unsigned char p_data1[],
+		unsigned char p_data2[], unsigned char p_danwei_sel, unsigned char p_price[])
 {
 	unsigned int data_addr;
-	HistoryData data1;
+	HistoryData data_buff;
 
 	data_addr = HISTORY_DATA_START_ADDR + history_index * sizeof(HistoryData);
-	data1.time = time_str_to_int(Stor_Time);
-	data1.zouchang = atof(zouchang);
-	data1.mianji = atof(mianji);
-	data1.jiner = atof(jiner);
-	data1.add_data = (add_data & 0x3) << 14;
-	data1.add_data |= price_per_area[0] * 1000 + price_per_area[1] * 100
-			+ price_per_area[2] * 10 + price_per_area[3];
+	data_buff.time = time_str_to_int(p_time);
+	data_buff.mode = p_mode;
+	data_buff.data1 = atof(p_data1);
+	data_buff.data2 = atof(p_data2);
+	data_buff.add_data = (p_danwei_sel & 0x3) << 14;
+	data_buff.add_data |= p_price[0] * 1000 + p_price[1] * 100
+			+ p_price[2] * 10 + p_price[3];
 
 	if (history_cnt >= HISTORY_DATA_MAX_CNT)
 		history_cnt = HISTORY_DATA_MAX_CNT;
@@ -552,15 +555,15 @@ void Stor_Data(unsigned char Stor_Time[], unsigned char zouchang[],
 	if (history_index >= HISTORY_DATA_MAX_CNT)
 		history_index = 0;
 
-	write_all_data(history_cnt, history_index, &data1, data_addr);
+	write_all_data(history_cnt, history_index, &data_buff, data_addr);
 }
 //
 
-char Get_Data(unsigned char index, unsigned char Stor_Time[],
-		unsigned char zouchang[], unsigned char mianji[],
-		unsigned char jiner[], unsigned char* add_data, unsigned int *danjia)
+char Get_Data(unsigned char index, unsigned char p_time[], unsigned char *p_mode,
+		      unsigned char p_data1[], unsigned char p_data2[], unsigned char *p_danwei_sel,
+		      unsigned int *p_price)
 {
-	HistoryData data1;
+	HistoryData data_buff;
 	unsigned data_addr;
 
 	if (index >= history_cnt)
@@ -574,18 +577,25 @@ char Get_Data(unsigned char index, unsigned char Stor_Time[],
 	}
 
 	data_addr = HISTORY_DATA_START_ADDR + index * sizeof(HistoryData);
-	read_one_history_data(&data1, data_addr);
+	read_one_history_data(&data_buff, data_addr);
 
-	time_int_to_str(Stor_Time, data1.time);
-	*add_data = (unsigned char) ((data1.add_data >> 14) & 0x3);
-	*danjia = data1.add_data & 0x3FFF;
-    if(*add_data == 2)
-    	sprintf(zouchang, "%08.0f", data1.zouchang);
-    else
-    	sprintf(zouchang, "%08.1f", data1.zouchang);
-	sprintf(mianji, "%08.1f", data1.mianji);
-	sprintf(jiner, "%08.0f", data1.jiner);
+	time_int_to_str(p_time, data_buff.time);
+	*p_mode = data_buff.mode;
+	*p_danwei_sel = (unsigned char) ((data_buff.add_data >> 14) & 0x3);
+	*p_price = data_buff.add_data & 0x3FFF;
 
+	if(*p_mode == 1)/* data1 and data2 are a and b */
+	{
+		sprintf(p_data1, "%06.1f", data_buff.data1);
+		sprintf(p_data2, "%06.1f", data_buff.data2);
+	}
+	else if(*p_mode == 0) /* data1 for len, data2 for area */
+	{
+		sprintf(p_data1, "%08.1f", data_buff.data1);
+		sprintf(p_data2, "%08.2f", data_buff.data2);
+	}
+	else
+	{}
 
 	return 0;
 }
