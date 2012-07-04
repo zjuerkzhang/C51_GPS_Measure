@@ -186,6 +186,7 @@ void KeyOperate()
 					{
 						price_for_edit[i] = price_per_area[i];
 					}
+					danwei_sel_for_edit = danwei_sel;
 					g_page_id = 2;
 					break;
 				case 2:
@@ -297,6 +298,10 @@ void KeyOperate()
 					{
 						danjia_sel_focus -= 2;
 					}
+					else if (danjia_sel_focus == 20)
+					{
+						danjia_sel_focus = 4;
+					}
 					else
 					{
 						danjia_sel_focus--;
@@ -315,7 +320,13 @@ void KeyOperate()
 							price_for_edit[danjia_sel_focus - 1]++;
 
 					}
-
+					else if (danjia_sel_focus == 20)
+					{
+						if (danwei_sel_for_edit == DANWEI_SEL_GONGQING)
+							danwei_sel_for_edit = DANWEI_SEL_MU;
+						else
+							danwei_sel_for_edit++;
+					}
 					else if ((danjia_sel_focus >= 7) && (danjia_sel_focus < 10))
 					{
 						if (price_per_len[danjia_sel_focus - 6] == 9)
@@ -334,10 +345,16 @@ void KeyOperate()
 				}
 				case 3:
 				{
-					if ((danjia_sel_focus == 4) || (danjia_sel_focus == 9))
+					if (danjia_sel_focus == 4)
+					{
+						danjia_sel_focus = 20;
+					}
+					else if (danjia_sel_focus == 9)
 					{
 
 					}
+					else if (danjia_sel_focus == 20 )
+					{}
 					else if ((danjia_sel_focus == 0) || (danjia_sel_focus == 5))
 					{
 						danjia_sel_focus += 2;
@@ -370,6 +387,13 @@ void KeyOperate()
 							price_per_len[danjia_sel_focus - 6]--;
 
 					}
+					else if (danjia_sel_focus == 20)
+					{
+						if (danwei_sel_for_edit == DANWEI_SEL_MU)
+							danwei_sel_for_edit = DANWEI_SEL_GONGQING;
+						else
+							danwei_sel_for_edit--;
+					}
 					/*
 					 else if(danjia_sel_focus==0)
 					 {
@@ -384,7 +408,11 @@ void KeyOperate()
 			}
 			else if (KeyPressValue == 5)
 			{
-				if (danjia_sel_focus >= 5)
+				if (danjia_sel_focus==20)
+				{
+
+				}
+				else if (danjia_sel_focus >= 5)
 				{
 					danjia_sel_focus = 5;
 					for (i = 0; i < 4; i++)
@@ -410,12 +438,18 @@ void KeyOperate()
 						flag = 1;
 					}
 				}
+				if (danwei_sel_for_edit!=danwei_sel)
+				{
+					danwei_sel = danwei_sel_for_edit;
+					flag = 1;
+				}
 				if(flag)
 				{
 					get_system_data(system_data);
 					system_data[PRICE_OFFSET] = price_per_area[1];
 					system_data[PRICE_OFFSET + 1] = price_per_area[2];
 					system_data[PRICE_OFFSET + 2] = price_per_area[3];
+					system_data[DANWEI_OFFSET] = danwei_sel;
 					store_sn_data();
 				}
 				g_page_id = 0;
