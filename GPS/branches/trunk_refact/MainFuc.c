@@ -70,11 +70,9 @@ void PowerUpSeque()
 void main()
 {
 
-	unsigned char test;
 	unsigned char EppromAddrH, EppromAddrL;
 	unsigned int TestNumber = 0;
-	unsigned char i;
-	CRDGEODETIC point, out_point;
+	CRDGEODETIC point;
 	bit timer_fresh = 0;
 
 	PowerUpSeque();
@@ -114,8 +112,7 @@ void main()
 				{
 					if (PreparePointPlusArray(&point))
 					{
-						GeodeticFirstPoint(&out_point);
-						GeodeticResetSamplingPoint();
+						GeodeticFirstPoint();
 						gps_first_point = 0;
 					}
 				}
