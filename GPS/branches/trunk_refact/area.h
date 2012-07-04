@@ -60,4 +60,16 @@ void GeodeticNextPointPlus(PCRDGEODETIC p_pgp);
 
 void ResetPointPlusArray();
 
+void ResetStartPointArray();
+
+double GetLineLength();
+
+void ResetLineLength();
+
+unsigned char PrepareStartPointArray(PCRDGEODETIC p_in_pgp);
+
+void GetLineStartPoint();
+
+void GetNextLinePoint(PCRDGEODETIC p_in_pgp);
+
 #endif // __AREA_H__

@@ -30,6 +30,8 @@ unsigned char g_length_value[20];
 unsigned int key_press_count = 0;
 unsigned char battery_timer_count = 40;
 bit time_valid_flag = 0;
+unsigned char height[10];
+unsigned char width[10];
 
 extern unsigned char JD[10];
 extern unsigned char WD[9];
@@ -45,6 +47,7 @@ extern bit signal;
 extern unsigned int BatQuan;
 extern unsigned char celiang_mode;
 extern unsigned char danwei_sel;
+extern unsigned char ruler_mode;
 
 void PowerUpSeque()
 {
@@ -77,6 +80,7 @@ void main()
 
 	PowerUpSeque();
 	initiate_var(1);
+	initiate_ruler_var();
 
 	init_history_data();
 	get_sn_data();
@@ -132,6 +136,29 @@ void main()
 					sprintf(g_length_value, "%08.1f", GeodeticGetDistance());
 
 			}
+
+			if ((3==g_page_id) && (1==ruler_mode || 3==ruler_mode) && (signal) )
+			{
+				MakeGeodeticByString(&point, JD, WD);
+				if (gps_first_point) //如果是第一个点的话。
+				{
+					if (PrepareStartPointArray(&point))
+					{
+						GetLineStartPoint();
+						gps_first_point = 0;
+					}
+				}
+				else
+				{
+					GetNextLinePoint(&point);
+
+					if (1==ruler_mode)
+						sprintf(height, "%06.1f", GetLineLength());
+					else if(3==ruler_mode)
+						sprintf(width, "%06.1f", GetLineLength());
+				}
+			}
+
 			GPS_UPDATA = 0;
 			g_lcd_refresh = 1;
 		}
@@ -200,7 +227,9 @@ void main()
 				break;
 
 			case 3:
-				display_danwei_Page();
+				display_ruler_page(timer_fresh);
+				timer_fresh = 0;
+				//display_danwei_Page();
 				break;
 
 			case 4:

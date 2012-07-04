@@ -11,6 +11,7 @@ const double PI = 3.1415926535897932;
 
 CRDCARTESIAN before_point;
 double area, distance;
+double line_length;
 
 #if defined(GEODETIC_TO_CARTESIAN_USE_MORE_ACCURATE)
 CRDCARTESIAN first_cartesian;
@@ -245,4 +246,67 @@ void ResetPointPlusArray()
 {
 	ppa_new = 0;
 	ppa_old = 0;
+}
+
+void ResetStartPointArray()
+{
+	spa_idx = 0;
+}
+
+double GetLineLength()
+{
+	return line_length;
+}
+
+void ResetLineLength()
+{
+	line_length = 0.0;
+}
+
+unsigned char PrepareStartPointArray(PCRDGEODETIC p_in_pgp)
+{
+    CRDCARTESIAN pcp;
+
+    GeodeticToCartesian(&pcp, p_in_pgp);
+    if( spa_idx>0 &&
+        GetDistanceBetweenPoints(pcp, point_plus_array[spa_idx-1].point)>= CARTESIAN_POINT_MAX_DISTANCE )
+    {
+        return 0;
+    }
+    point_plus_array[spa_idx].point = pcp;
+    point_plus_array[spa_idx].used = 0;
+    spa_idx++;
+
+    if( spa_idx >= spa_len )
+    {
+    	spa_idx--;
+        return 1;
+    }
+
+    return 0;
+}
+
+void GetLineStartPoint()
+{
+	unsigned char i;
+
+	first_cartesian.x = 0;
+	first_cartesian.y = 0;
+	for(i=0; i<=spa_idx; i++)
+	{
+		first_cartesian.x += point_plus_array[i].point.x;
+		first_cartesian.y += point_plus_array[i].point.y;
+	}
+	first_cartesian.x = first_cartesian.x/spa_len;
+	first_cartesian.y = first_cartesian.y/spa_len;
+
+	line_length = 0.0;
+}
+
+void GetNextLinePoint(PCRDGEODETIC p_in_pgp)
+{
+	CRDCARTESIAN pcp;
+
+	GeodeticToCartesian(&pcp, p_in_pgp);
+	line_length = GetDistanceBetweenPoints(pcp, first_cartesian);
 }
