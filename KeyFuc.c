@@ -42,6 +42,7 @@ extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 extern unsigned char danwei_sel;
 extern double distance_as_moving;
+extern unsigned char spa_len;
 
 unsigned char keyscan()
 {
@@ -572,6 +573,8 @@ void KeyOperate()
 					sn_focus_idx = 20;
 				else if (sn_focus_idx>40 && sn_focus_idx<=42)
 					sn_focus_idx--;
+				else if (sn_focus_idx==51)
+					sn_focus_idx--;
 				else
 				{
 				}
@@ -580,11 +583,15 @@ void KeyOperate()
 
 			case 2:
 			{
-				if (40 == sn_focus_idx)
+				if (50 == sn_focus_idx)
+				{
+					sn_focus_idx = 40;
+				}
+				else if (40 == sn_focus_idx)
 				{
 					sn_focus_idx = 30;
 				}
-				if (30 == sn_focus_idx)
+				else if (30 == sn_focus_idx)
 				{
 					sn_focus_idx = 20;
 				}
@@ -597,6 +604,13 @@ void KeyOperate()
 						len_moving[sn_focus_idx-41] = 0;
 					else
 						len_moving[sn_focus_idx-41]++;
+				}
+				else if (sn_focus_idx==51)
+				{
+					if (spa_len == 5)
+						spa_len = 1;
+					else
+						spa_len++;
 				}
 				else
 				{
@@ -618,6 +632,8 @@ void KeyOperate()
 					sn_focus_idx = 41;
 				else if (sn_focus_idx == 41 )
 					sn_focus_idx = 42;
+				else if (sn_focus_idx == 50 )
+					sn_focus_idx = 51;
 				else
 				{
 				}
@@ -636,13 +652,23 @@ void KeyOperate()
 				}
 				else if (40 == sn_focus_idx)
 				{
+					sn_focus_idx = 50;
 				}
+				else if (50 == sn_focus_idx)
+				{}
 				else if (sn_focus_idx==41 || sn_focus_idx==42)
 				{
 					if (len_moving[sn_focus_idx-41] == 0)
 						len_moving[sn_focus_idx-41] = 9;
 					else
 						len_moving[sn_focus_idx-41]--;
+				}
+				else if (sn_focus_idx == 51)
+				{
+					if (spa_len==1)
+						spa_len = 5;
+					else
+						spa_len--;
 				}
 				else
 				{
