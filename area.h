@@ -46,27 +46,15 @@ typedef CRDGEODETIC *PCRDGEODETIC;
 void MakeGeodeticByString(PCRDGEODETIC pcg, unsigned char* longitude,
 		unsigned char* latitude);
 
-void GeodeticFirstPoint(PCRDGEODETIC pcg);
-
-int GeodeticNextPoint(PCRDGEODETIC pcg2);
+void GeodeticFirstPoint();
 
 double GeodeticGetArea(void);
 
 double GeodeticGetDistance(void);
 
-void GeodeticResetSamplingPoint(void);
-
-unsigned char GeodeticPutSamplingPoint(PCRDGEODETIC pcg,
-		PCRDGEODETIC pout_point);
-
 void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg);
 
-void GeodeticToCartesian2(PCRDCARTESIAN pcc, PCRDGEODETIC pcg,
-		PCRDGEODETIC pcg2);
-
 unsigned char PreparePointPlusArray(PCRDGEODETIC p_in_pgp);
-
-void GeodeticAreaReset(void);
 
 void GeodeticNextPointPlus(PCRDGEODETIC p_pgp);
 

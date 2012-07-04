@@ -174,7 +174,7 @@ void KeyOperate()
 				case 0:
 					celiangPage_idx = CELIANG_WORKING_PAGE;
 					gps_first_point = 1;
-					GeodeticAreaReset();
+					ResetPointPlusArray();
 
 					celiang_mode = 0;
 					g_page_id = 1;
@@ -259,7 +259,6 @@ void KeyOperate()
 							celiang_mode++;
 							gps_first_point = 1;
 							ResetPointPlusArray();
-							GeodeticAreaReset();
 						}
 					}
 					else
