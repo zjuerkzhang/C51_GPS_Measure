@@ -482,7 +482,7 @@ void get_sn_data()
 		price_per_area[i + 1] = system_data[PRICE_OFFSET + i];
 	}
 
-	if( system_data[DANWEI_OFFSET] > DANWEI_SEL_QIANMI )
+	if( system_data[DANWEI_OFFSET] > DANWEI_SEL_GONGQING )
 	{
 		flag = 1;
 		system_data[DANWEI_OFFSET] = DANWEI_SEL_MU;

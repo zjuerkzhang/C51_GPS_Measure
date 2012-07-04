@@ -652,6 +652,41 @@ void display_num_str_8x16( unsigned char p_num_str[],
 	}
 }
 
+void display_non_zero_num_list_8x16( unsigned char p_num_list[],
+		                             unsigned char p_length,
+		                             unsigned char p_row,
+		                             unsigned char p_col,
+		                             unsigned char *p_offset)
+{
+	unsigned char idx;
+
+	*p_offset = 0;
+	for (idx = 0; idx < p_length; idx++)
+	{
+		if (*p_offset > 0)
+		{
+			zf_disp8x16(Num_8_16[p_num_list[idx]], p_row, p_col + *p_offset);
+			*p_offset += 8;
+		}
+		else
+		{
+			if (p_num_list[idx] != 0)
+			{
+				zf_disp8x16(Num_8_16[p_num_list[idx]], p_row, p_col + *p_offset);
+				*p_offset += 8;
+			}
+			else
+			{
+				if (idx == p_length-1)
+				{
+					zf_disp8x16(Num_8_16[p_num_list[idx]], p_row, p_col + *p_offset);
+					*p_offset += 8;
+				}
+			}
+		}
+	}
+}
+
 
 void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 {
@@ -756,7 +791,10 @@ void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 	Display_Chinese(yuan, 4, 72);
 	zf_disp8x16(xie_gang, 4, 88);
 
-	display_danwei(danwei_sel, 4, 96, 1);
+	if (Sel_flag == 20)
+		display_danwei(danwei_sel_for_edit, 4, 96, 1);
+	else
+		display_danwei(danwei_sel_for_edit, 4, 96, 0);
 }
 
 void Update_danwei_page4_5_1_2(unsigned char l_danwei_sel)
@@ -823,6 +861,7 @@ void Update_danwei_page4_5_1_2(unsigned char l_danwei_sel)
 
 	Display_Chinese(kong, 1, 112);
 }
+
 
 Update_Page_Header()
 {
