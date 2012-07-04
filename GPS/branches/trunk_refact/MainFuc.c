@@ -122,14 +122,14 @@ void main()
 				}
 
 				if (1 == danwei_sel) //公顷
-					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/10000);
+					sprintf(g_area_value, "%08.2f", GeodeticGetArea()/10000);
 				else //默认面积单位为亩
-					sprintf(g_area_value, "%08.1f", GeodeticGetArea()/666.666667);
+					sprintf(g_area_value, "%08.2f", GeodeticGetArea()/666.666667);
 
 				if (3 == danwei_sel) //千米
 					sprintf(g_length_value, "%08.1f", GeodeticGetDistance()/1000);
 				else // 默认长度单位为米
-					sprintf(g_length_value, "%08.0f", GeodeticGetDistance());
+					sprintf(g_length_value, "%08.1f", GeodeticGetDistance());
 
 			}
 			GPS_UPDATA = 0;

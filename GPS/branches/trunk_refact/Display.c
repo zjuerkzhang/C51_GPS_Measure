@@ -919,9 +919,60 @@ void display_Idle()
 	Update_Page_Header();
 	Update_Idle_page4_5_1_2(menu_focus_idx);
 }
+void display_running_light(unsigned char p_row, unsigned char p_offset, bit p_update)
+{
+	if (celiang_run_light >= 1)
+	{
+		Display_Chinese(ce, p_row, p_offset); //测
+		p_offset += 16;
+	}
+	if (celiang_run_light >= 2)
+	{
+		Display_Chinese(liang, p_row, p_offset); //量
+		p_offset += 16;
+	}
+	if (celiang_run_light >= 3)
+	{
+		Display_Chinese(zhong, p_row, p_offset); //中
+		p_offset += 16;
+	}
+	zf_clear_page_to_end(p_row, p_offset, 0x00);
+	zf_clear_page_to_end(p_row+1, p_offset, 0x00);
+	if (p_update)
+		celiang_run_light++;
+
+	if (celiang_run_light >= 4)
+		celiang_run_light = 0;
+}
+
+void reverse_running_light(unsigned char p_row, unsigned char p_col, bit p_update)
+{
+	if (celiang_run_light >= 1)
+	{
+		Revers_Data(ce, p_row, p_col); //测
+		p_col += 16;
+	}
+	if (celiang_run_light >= 2)
+	{
+		Revers_Data(liang, p_row, p_col); //量
+		p_col += 16;
+	}
+	if (celiang_run_light >= 3)
+	{
+		Revers_Data(zhong, p_row, p_col); //中
+		p_col += 16;
+	}
+	zf_clear_page_to_end(p_row, p_col, 0xFF);
+	zf_clear_page_to_end(p_row+1, p_col, 0xFF);
+	if (p_update)
+		celiang_run_light++;
+
+	if (celiang_run_light >= 4)
+		celiang_run_light = 0;
+}
+
 void display_CeLiang_Page(bit timer_fresh)
 {
-	unsigned char idx;
 	unsigned char offset = 0;
 
 	LcmClear();
@@ -964,30 +1015,7 @@ void display_CeLiang_Page(bit timer_fresh)
 			Display_Chinese(dan, 4, 0); //单
 			Display_Chinese(jia, 4, 16); //价
 
-			for (idx = 0; idx < 4; idx++)
-			{
-				if (offset > 0)
-				{
-					zf_disp8x16(Num_8_16[price_per_area[idx]], 4, 32 + offset);
-					offset += 8;
-				}
-				else
-				{
-					if (price_per_area[idx] != 0)
-					{
-						zf_disp8x16(Num_8_16[price_per_area[idx]], 4, 32 + offset);
-						offset += 8;
-					}
-					else
-					{
-						if (idx == 3)
-						{
-							zf_disp8x16(Num_8_16[price_per_area[idx]], 4, 32 + offset);
-							offset += 8;
-						}
-					}
-				}
-			}
+			display_non_zero_num_list_8x16( price_per_area, 4, 4, 32, &offset);
 			Display_Chinese(yuan, 4, 32 + offset); //元
 			offset += 16;
 			for (; offset < 80; offset += 8)
@@ -1011,14 +1039,7 @@ void display_CeLiang_Page(bit timer_fresh)
 				g_measure_for_show = g_length_value;
 			}
 			// 没有冒号，因为如果单位为公顷的话，字长就不够了
-			for (idx = 0; idx < 8; idx++)
-			{
-				if (g_measure_for_show[idx] != 0x2e)
-					zf_disp8x16(Num_8_16[g_measure_for_show[idx] - 0x30], 2, 32 + idx * 8);
-				else
-					zf_disp8x16(Num_8_16[10], 2, 32 + idx * 8);
-			}
-
+			display_num_str_8x16( g_measure_for_show, 8, 2, 32 );
 			display_danwei(danwei_sel, 2, 96, 0);
 
 			///计算金额部分:
@@ -1027,17 +1048,13 @@ void display_CeLiang_Page(bit timer_fresh)
 
 			if ((total_cost >= 0) && (total_cost <= 99999999))
 			{
-				sprintf(total_cost_str, "%08.0f", total_cost);
+				sprintf(total_cost_str, "%08.1f", total_cost);
 
 				Display_Chinese(jin, 0, 0); //金
 				Display_Chinese(er, 0, 16); //额
 				Display_Chinese(maohao, 0, 32); //：
 
-				for (idx = 0; idx < 8; idx++)
-				{
-					zf_disp8x16(Num_8_16[total_cost_str[idx] - 0x30], 0, 40 + idx * 8);
-				}
-
+				display_num_str_8x16( total_cost_str, 8, 0, 40 );
 				Display_Chinese(yuan, 0, 104); //元
 				Display_Chinese(kong, 0, 120);
 			}
@@ -1075,31 +1092,7 @@ void display_CeLiang_Page(bit timer_fresh)
 				Display_Chinese(dan, 4, 0); //单
 				Display_Chinese(jia, 4, 16); //价
 
-				for (idx = 0; idx < 4; idx++)
-				{
-					if (offset > 0)
-					{
-						zf_disp8x16(Num_8_16[price_per_area[idx]], 4, 32 + offset);
-						offset += 8;
-					}
-					else
-					{
-						if (price_per_area[idx] != 0)
-						{
-							zf_disp8x16(Num_8_16[price_per_area[idx]], 4, 32 + offset);
-							offset += 8;
-						}
-						else
-						{
-							if (idx == 3)
-							{
-								zf_disp8x16(Num_8_16[price_per_area[idx]], 4, 32 + offset);
-								offset += 8;
-							}
-						}
-					}
-				}
-
+				display_non_zero_num_list_8x16( price_per_area, 4, 4, 32, &offset);
 				Display_Chinese(yuan, 4, 32 + offset); //元
 				offset += 16;
 				for (; offset < 80; offset += 8)
@@ -1120,28 +1113,7 @@ void display_CeLiang_Page(bit timer_fresh)
 				}
 				else
 				{
-					offset = 80;
-					if (celiang_run_light >= 1)
-					{
-						Display_Chinese(ce, 4, 80); //测
-						offset += 16;
-					}
-					if (celiang_run_light >= 2)
-					{
-						Display_Chinese(liang, 4, 96); //量
-						offset += 16;
-					}
-					if (celiang_run_light >= 3)
-					{
-						Display_Chinese(zhong, 4, 112); //中
-						offset += 16;
-					}
-					zf_clear_page_to_end(4, offset, 0x00);
-					zf_clear_page_to_end(5, offset, 0x00);
-					if (timer_fresh)
-						celiang_run_light++;
-					if (celiang_run_light >= 4)
-						celiang_run_light = 0;
+					display_running_light(4, 80, timer_fresh);
 				}
 
 				if(danwei_sel<2)
@@ -1156,14 +1128,8 @@ void display_CeLiang_Page(bit timer_fresh)
 					Display_Chinese(chang, 2, 16); //长
 					g_measure_for_show = g_length_value;
 				}
-				for (idx = 0; idx < 8; idx++)
-				{
-					if (g_measure_for_show[idx] != 0x2e)
-						zf_disp8x16(Num_8_16[g_measure_for_show[idx] - 0x30], 2, 32 + idx * 8);
-					else
-						zf_disp8x16(Num_8_16[10], 2, 32 + idx * 8);
-				}
 
+				display_num_str_8x16( g_measure_for_show, 8, 2, 32 );
 				display_danwei(danwei_sel, 2, 96, 0);
 
 				total_cost = (price_per_area[0] * 1000 + price_per_area[1] * 100 +
@@ -1172,16 +1138,12 @@ void display_CeLiang_Page(bit timer_fresh)
 				if ((total_cost >= 0) && (total_cost <= 99999999))
 				{
 
-					sprintf(total_cost_str, "%08.0f", total_cost);
+					sprintf(total_cost_str, "%08.1f", total_cost);
 					Display_Chinese(jin, 0, 0); //金
 					Display_Chinese(er, 0, 16); //额
 					Display_Chinese(maohao, 0, 32); //：
 
-					for (idx = 0; idx < 8; idx++)
-					{
-						zf_disp8x16(Num_8_16[total_cost_str[idx]-0x30], 0, 40 + idx * 8);
-					}
-
+					display_num_str_8x16( total_cost_str, 8, 0, 40 );
 					Display_Chinese(yuan, 0, 104); //元
 					Display_Chinese(kong, 0, 120);
 				}
@@ -1509,6 +1471,8 @@ void initiate_var(bit p_start)
 		g_area_value[i] = '0';
 		g_length_value[i] = '0';
 	}
+	g_area_value[5] = '.';
+	g_length_value[6] = '.';
 
 	if (p_start)
 	{
