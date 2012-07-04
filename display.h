@@ -39,4 +39,6 @@ void display_PowerD_LOGO();
 void display_jilu_page();
 void Display_PD(unsigned char *p);
 void initiate_var(bit p_start);
+void display_ruler_page(bit timer_fresh);
+void initiate_ruler_var();
 #endif

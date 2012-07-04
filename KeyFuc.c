@@ -42,6 +42,10 @@ extern unsigned char system_data[SYSTEM_DATA_SIZE];
 extern unsigned char sn_focus_idx;
 extern unsigned char danwei_sel;
 extern double distance_as_moving;
+extern unsigned char ruler_mode;
+
+extern unsigned char height[];
+extern unsigned char width[];
 extern unsigned char spa_len;
 
 unsigned char keyscan()
@@ -172,7 +176,7 @@ void KeyOperate()
 			{
 				switch (menu_focus_idx)
 				{
-				case 0:
+				case 2:
 					celiangPage_idx = CELIANG_WORKING_PAGE;
 					gps_first_point = 1;
 					ResetPointPlusArray();
@@ -189,8 +193,10 @@ void KeyOperate()
 					danwei_sel_for_edit = danwei_sel;
 					g_page_id = 2;
 					break;
-				case 2:
-					danwei_sel_for_edit = danwei_sel;
+				case 0:
+					//danwei_sel_for_edit = danwei_sel;
+					initiate_ruler_var();
+					ruler_mode = 0;
 					g_page_id = 3;
 					break;
 				case 3:
@@ -468,49 +474,65 @@ void KeyOperate()
 
 			if ((KeyPressValue > 0) && (KeyPressValue < 5))
 			{
-
-				switch (KeyPressValue)
-				{
-				case 1:
-				{
-					if( danwei_sel_for_edit > 0 )
-						danwei_sel_for_edit--;
-					break;
-				}
-
-				case 2:
-				{
-					if( danwei_sel_for_edit > 1 )
-						danwei_sel_for_edit-=2;
-					break;
-				}
-				case 3:
-				{
-					if( danwei_sel_for_edit < 3)
-						danwei_sel_for_edit++;
-					break;
-				}
-				case 4:
-				{
-					if( danwei_sel_for_edit <2 )
-						danwei_sel_for_edit+=2;
-					break;
-				}
-				}
-
 				g_lcd_refresh = 1;
 			}
 			else if (KeyPressValue == 5)
 			{
-				if(danwei_sel != danwei_sel_for_edit)
+				switch (ruler_mode)
 				{
-					danwei_sel = danwei_sel_for_edit;
-					get_system_data(system_data);
-					system_data[DANWEI_OFFSET] = danwei_sel;
-					store_sn_data();
+				case 0:
+				{
+					if (searching_sat!=1)
+					{
+						initiate_ruler_var();
+						ResetStartPointArray();
+						gps_first_point = 1;
+						ruler_mode++;
+					}
+					break;
+				}
+				case 1:
+				{
+					if(gps_first_point!=1)
+					{
+						ruler_mode++;
+					}
+					break;
+				}
+				case 2:
+				{
+					if (searching_sat!=1)
+					{
+						ResetStartPointArray();
+						gps_first_point = 1;
+						ruler_mode++;
+					}
+					break;
+				}
+				case 3:
+				{
+					if(gps_first_point!=1)
+					{
+						Stor_Data( g_beijing_time, 1, height,
+								   width, danwei_sel, price_per_area);
+						ruler_mode++;
+					}
+					break;
+				}
+				case 4:
+				{
+					initiate_ruler_var();
+					ruler_mode = 0;
+					break;
+				}
+				default:
+				{
+					initiate_ruler_var();
+					ruler_mode = 0;
+					break;
+				}
 				}
 
-				g_page_id = 0;
 				g_lcd_refresh = 1;
 
 			}
