@@ -16,6 +16,7 @@ sbit key_BL = P2 ^ 7;
 unsigned char KeyPressValue = 0;
 unsigned char danjia_sel_focus = 0;
 bit gps_first_point = 1;
+bit gps_last_point = 0;
 bit danwei_zouchang_sel = 0;
 bit danwei_mianji_sel = 0;
 unsigned char celiangPage_idx = CELIANG_WORKING_PAGE;
@@ -194,7 +195,8 @@ void KeyOperate()
 					g_page_id = 2;
 					break;
 				case 0:
-					//danwei_sel_for_edit = danwei_sel;
+					gps_first_point = 1;
+					gps_last_point = 0;
 					initiate_ruler_var();
 					ruler_mode = 0;
 					g_page_id = 3;
@@ -487,15 +489,16 @@ void KeyOperate()
 						initiate_ruler_var();
 						ResetStartPointArray();
 						gps_first_point = 1;
+						gps_last_point = 0;
 						ruler_mode++;
 					}
 					break;
 				}
 				case 1:
 				{
-					if(gps_first_point!=1)
+					if(gps_first_point!=1 && gps_last_point!=1)
 					{
-						ruler_mode++;
+						gps_last_point = 1;
 					}
 					break;
 				}
@@ -505,17 +508,16 @@ void KeyOperate()
 					{
 						ResetStartPointArray();
 						gps_first_point = 1;
+						gps_last_point = 0;
 						ruler_mode++;
 					}
 					break;
 				}
 				case 3:
 				{
-					if(gps_first_point!=1)
+					if(gps_first_point!=1 && gps_last_point!=1)
 					{
-						Stor_Data( g_beijing_time, 1, height,
-								   width, danwei_sel, price_per_area);
-						ruler_mode++;
+						gps_last_point = 1;
 					}
 					break;
 				}

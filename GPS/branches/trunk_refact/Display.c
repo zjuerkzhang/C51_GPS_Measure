@@ -74,6 +74,7 @@ extern unsigned int StarNum;
 extern unsigned char g_area_value[];
 extern unsigned char g_length_value[];
 extern bit gps_first_point;
+extern bit gps_last_point;
 extern bit searching_sat;
 extern unsigned char sn_focus_idx;
 extern unsigned char system_data[SYSTEM_DATA_SIZE];
@@ -1633,6 +1634,12 @@ void display_ruler_page(bit timer_fresh)
 					Revers_Data(wei, 5, 96);
 					Revers_Data(zhong, 5, 112);
 				}
+				else if (1==gps_last_point)
+				{
+					Revers_Data(ji_cal, 5, 80);
+					Revers_Data(suan_cal, 5, 96);
+					Revers_Data(zhong, 5, 112);
+				}
 				else
 				{
 					if (signal == 0) //定位不成功.
@@ -1675,6 +1682,12 @@ void display_ruler_page(bit timer_fresh)
 				{
 					Revers_Data(ding, 3, 80);
 					Revers_Data(wei, 3, 96);
+					Revers_Data(zhong, 3, 112);
+				}
+				else if (1==gps_last_point)
+				{
+					Revers_Data(ji_cal, 3, 80);
+					Revers_Data(suan_cal, 3, 96);
 					Revers_Data(zhong, 3, 112);
 				}
 				else

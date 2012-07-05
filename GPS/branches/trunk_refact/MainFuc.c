@@ -40,6 +40,7 @@ extern bit GPS_UPDATA;
 extern bit GPS_TIME_UPDATE;
 extern bit TOTAL_SAT_UPDATE;
 extern bit gps_first_point;
+extern bit gps_last_point;
 extern bit danwei_zouchang_sel;
 extern bit danwei_mianji_sel;
 extern unsigned char celiangPage_idx;
@@ -48,6 +49,8 @@ extern unsigned int BatQuan;
 extern unsigned char celiang_mode;
 extern unsigned char danwei_sel;
 extern unsigned char ruler_mode;
+extern unsigned char g_beijing_time[7];
+extern unsigned char price_per_area[];
 
 void PowerUpSeque()
 {
@@ -73,10 +76,9 @@ void PowerUpSeque()
 void main()
 {
 
-	unsigned char EppromAddrH, EppromAddrL;
-	unsigned int TestNumber = 0;
 	CRDGEODETIC point;
 	bit timer_fresh = 0;
+	unsigned char l_last_point_count = 0;
 
 	PowerUpSeque();
 	initiate_var(1);
@@ -146,6 +148,7 @@ void main()
 					{
 						GetLineStartPoint();
 						gps_first_point = 0;
+						l_last_point_count = 0;
 					}
 				}
 				else
@@ -156,6 +159,21 @@ void main()
 						sprintf(height, "%06.1f", GetLineLength());
 					else if(3==ruler_mode)
 						sprintf(width, "%06.1f", GetLineLength());
+
+					if (gps_last_point)
+					{
+						l_last_point_count++;
+						if (l_last_point_count>=2)
+						{
+							l_last_point_count = 0;
+							gps_last_point = 0;
+
+							if (ruler_mode == 3)
+								Stor_Data( g_beijing_time, 1, height,
+										   width, danwei_sel, price_per_area);
+							ruler_mode++;
+						}
+					}
 				}
 			}
 
