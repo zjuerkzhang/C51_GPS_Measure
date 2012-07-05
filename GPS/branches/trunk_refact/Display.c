@@ -656,6 +656,54 @@ void display_num_str_8x16( unsigned char p_num_str[],
 	}
 }
 
+void display_non_zero_num_str_8x16( unsigned char p_num_str[],
+		                            unsigned char p_length,
+		                            unsigned char p_row,
+		                            unsigned char p_col,
+		                            unsigned char *p_offset )
+{
+	unsigned char idx;
+
+	*p_offset = 0;
+	for (idx = 0; idx < p_length; idx++)
+	{
+		if (*p_offset > 0)
+		{
+			if (p_num_str[idx] != 0x2e)
+				zf_disp8x16(Num_8_16[p_num_str[idx]-0x30], p_row, p_col + *p_offset);
+			else
+				zf_disp8x16(Num_8_16[10], p_row, p_col + *p_offset);
+			*p_offset += 8;
+		}
+		else
+		{
+			if (p_num_str[idx] == 0x2e)
+			{
+				if (idx>0)
+				{
+					zf_disp8x16(Num_8_16[p_num_str[idx-1]-0x30], p_row, p_col + *p_offset);
+					*p_offset += 8;
+				}
+				zf_disp8x16(Num_8_16[10], p_row, p_col + *p_offset);
+				*p_offset += 8;
+			}
+			else if (p_num_str[idx] != 0x30)
+			{
+				zf_disp8x16(Num_8_16[p_num_str[idx]-0x30], p_row, p_col + *p_offset);
+				*p_offset += 8;
+			}
+			else
+			{
+				if (idx == p_length-1)
+				{
+					zf_disp8x16(Num_8_16[p_num_str[idx]-0x30], p_row, p_col + *p_offset);
+					*p_offset += 8;
+				}
+			}
+		}
+	}
+}
+
 void display_non_zero_num_list_8x16( unsigned char p_num_list[],
 		                             unsigned char p_length,
 		                             unsigned char p_row,
@@ -1298,9 +1346,15 @@ void Update_jilu_page()
 		if (1==l_mode)
 		{
 			Display_Chinese(chang, 4, 0);
-			display_num_str_8x16( l_data1, 6, 4, 16 );
+			offset = 0;
+			display_non_zero_num_str_8x16(l_data1, 6, 4, 16, &offset);
+			zf_clear_page_to_end(4, 16+offset, 0x00);
+			zf_clear_page_to_end(5, 16+offset, 0x00);
 			Display_Chinese(kuan, 4, 64);
-			display_num_str_8x16( l_data2, 6, 4, 80 );
+			offset = 0;
+			display_non_zero_num_str_8x16(l_data1, 6, 4, 80, &offset);
+			zf_clear_page_to_end(4, 80+offset, 0x00);
+			zf_clear_page_to_end(5, 80+offset, 0x00);
 		}
 		else
 		{
