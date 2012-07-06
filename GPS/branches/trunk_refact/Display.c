@@ -117,30 +117,6 @@ void Write_Data(uchar dat)
 	CS = 1;
 }
 
-#if 0 
-void Write_Data_rail(uchar dat)
-{
-	CS = 1;
-	A0 = 1;
-
-	LCD_WR = 0;
-	LCD_RD = 1;
-	data_bus = dat;
-	CS = 1;
-}
-#endif
-
-#if 0  
-uchar Read_Data(void)
-{
-	CS = 0;
-	return data_bus;
-	A0 = 1;
-	LCD_WR = 1;
-	LCD_RD = 0;
-	CS = 1;
-}
-#endif 
 
 void Write_Instruction(uchar cmd)
 {
@@ -181,21 +157,6 @@ void LcmClear(void)
 		}
 	}
 }
-#if 0
-void DisplayCGRAM(unsigned char x,unsigned char y)
-{
-	switch(y)
-	{
-		case 1: Write_Instruction(0x80+x);break;
-		case 2: Write_Instruction(0x90+x);break;
-		case 3: Write_Instruction(0x88+x);break;
-		case 4: Write_Instruction(0x98+x);break;
-		default:break;
-	}
-	Write_Data(00);
-	Write_Data(00);
-}
-#endif
 
 void Revers_Data(unsigned char ft[], uchar page, uchar column)
 {
@@ -296,61 +257,7 @@ void Display_PD(unsigned char *p)
 	}
 	return;
 }
-#if 0
 
-void Display_bank(unsigned char *p)
-{
-	unsigned char page,column;
-	for(page=0xB0;page>=0xB1;page++)
-	{
-		Write_Instruction(page);
-		Write_Instruction(0x10);
-		Write_Instruction(0x00);
-		for(column=0;column<16;column++)
-		{
-			Write_Data(*p++);
-		}
-	}
-	return;
-}
-#endif
-
-#if 0
-
-void Display_Chinese_2(unsigned char ft[],uchar page,uchar column)
-{
-	unsigned char k,num=0;
-	Set_Page_Address(page);
-	Set_Column_Address(column);
-	num=87;
-	for(k=0;k<29;k++)
-	{
-		Write_Data(ft[num+k]);
-	}
-	Set_Page_Address(page+1);
-	Set_Column_Address(column);
-	num=58;
-	for(k=0;k<29;k++)
-	{
-		Write_Data(ft[num+k]);
-	}
-	Set_Page_Address(page+2);
-	Set_Column_Address(column);
-	num=29;
-	for(k=0;k<29;k++)
-	{
-		Write_Data(ft[num+k]);
-	}
-	Set_Page_Address(page+3);
-	Set_Column_Address(column);
-	num=0;
-	for(k=0;k<29;k++)
-	{
-		Write_Data(ft[num+k]);
-	}
-	return;
-}
-#endif
 
 void zf_disp8x16(unsigned char ft[], uchar page, uchar column)
 {
@@ -451,20 +358,6 @@ void zf_disp16x8(unsigned char ft[], uchar page, uchar column)
 	}
 }
 
-#if 0
-
-void reverse_zf_disp16x8(unsigned char ft[],uchar page,uchar column)
-{
-	unsigned char k,num=0;;
-	num=0;
-	Set_Page_Address(page);
-	Set_Column_Address(column);
-	for(k=0;k<16;k++)
-	{
-		Write_Data(~ft[num+k]);
-	}
-}
-#endif
 
 void zf_disp4x8(unsigned char ft[], uchar page, uchar column)
 {
@@ -499,58 +392,6 @@ void Display_xinhao(unsigned char ft[], uchar page, uchar column)
 	return;
 }
 
-void display_chinesestring()
-{
-
-	Display(logo);
-	delay_ms(3000);
-
-	LcmClear();
-
-	Display_Chinese(num3, 1, 0);
-	Display_Chinese(dan, 1, 16);
-	Display_Chinese(wei, 1, 32);
-	Display_Chinese(kong, 1, 48);
-
-	Display_Chinese(num4, 1, 64);
-	Display_Chinese(ji, 1, 80);
-	Display_Chinese(lu, 1, 96);
-
-	Display_Chinese(kong, 1, 112);
-	Display_Chinese(kong, 1, 128);
-
-	Display_Chinese(num1, 4, 0);
-	Display_Chinese(ce, 4, 16);
-	Display_Chinese(liang, 4, 32);
-
-	Display_Chinese(kong, 4, 48);
-
-	Display_Chinese(num2, 4, 64);
-	Display_Chinese(dan, 4, 80);
-	Display_Chinese(jia, 4, 96);
-
-	Display_Chinese(kong, 4, 112);
-	Display_Chinese(kong, 4, 128);
-
-	zf_disp4x8(num[1], 7, 4); //1
-	zf_disp4x8(num[2], 7, 8); //1
-	zf_disp4x8(num[10], 7, 12); //£º
-	zf_disp4x8(num[3], 7, 16); //3
-	zf_disp4x8(num[0], 7, 20); //0
-	Display_Chinese(kong, 7, 24);
-	Display_Chinese(kong, 7, 39);
-	Display_Chinese(kong, 7, 55);
-	Display_Chinese(kong, 7, 71);
-	Display_Chinese(kong, 7, 87);
-	Display_Chinese(kong, 7, 103);
-	zf_disp16x8(xinhao, 7, 110);
-
-	delay_ms(10000);
-
-	Revers_Data(num3, 1, 0);
-	Revers_Data(dan, 1, 16);
-	Revers_Data(wei, 1, 32);
-}
 void display_LOGO()
 {
 
@@ -799,76 +640,6 @@ void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 		Display_Chinese(ji, 1, 96);
 		Display_Chinese(lu, 1, 112);
 	}
-
-	/*
-	Display_Chinese(num1, 4, 0);
-	Display_Chinese(ce, 4, 16);
-	Display_Chinese(liang, 4, 32);
-	Display_Chinese(kong, 4, 48);
-	Display_Chinese(num2, 4, 64);
-	Display_Chinese(dan, 4, 80);
-	Display_Chinese(jia, 4, 96);
-	Display_Chinese(kong, 4, 112);
-	Display_Chinese(num3, 1, 0);
-	Display_Chinese(dan, 1, 16);
-	Display_Chinese(wei, 1, 32);
-	Display_Chinese(kong, 1, 48);
-	Display_Chinese(num4, 1, 64);
-	Display_Chinese(ji, 1, 80);
-	Display_Chinese(lu, 1, 96);
-	Display_Chinese(kong, 1, 112);
-
-	if ((Sel_flag == 0) || (Sel_flag == 1))
-	{
-		if (Sel_flag == 0)
-		{
-			Revers_Data(num1, 4, 0);
-			Revers_Data(ce, 4, 16);
-			Revers_Data(liang, 4, 32);
-			Display_Chinese(kong, 4, 48);
-			Display_Chinese(num2, 4, 64);
-			Display_Chinese(dan, 4, 80);
-			Display_Chinese(jia, 4, 96);
-			Display_Chinese(kong, 4, 112);
-		}
-		else
-		{
-			Display_Chinese(num1, 4, 0);
-			Display_Chinese(ce, 4, 16);
-			Display_Chinese(liang, 4, 32);
-			Display_Chinese(kong, 4, 48);
-			Revers_Data(num2, 4, 64);
-			Revers_Data(dan, 4, 80);
-			Revers_Data(jia, 4, 96);
-			Display_Chinese(kong, 4, 112);
-		}
-	}
-	else if ((Sel_flag == 2) || (Sel_flag == 3))
-	{
-		if (Sel_flag == 2)
-		{
-			Revers_Data(num3, 1, 0);
-			Revers_Data(dan, 1, 16);
-			Revers_Data(wei, 1, 32);
-			Display_Chinese(kong, 1, 48);
-			Display_Chinese(num4, 1, 64);
-			Display_Chinese(ji, 1, 80);
-			Display_Chinese(lu, 1, 96);
-			Display_Chinese(kong, 1, 112);
-		}
-		else
-		{
-			Display_Chinese(num3, 1, 0);
-			Display_Chinese(dan, 1, 16);
-			Display_Chinese(wei, 1, 32);
-			Display_Chinese(kong, 1, 48);
-			Revers_Data(num4, 1, 64);
-			Revers_Data(ji, 1, 80);
-			Revers_Data(lu, 1, 96);
-			Display_Chinese(kong, 1, 112);
-		}
-	}
-*/
 }
 void Update_danjia_page4_5_1_2(unsigned char Sel_flag)
 {
