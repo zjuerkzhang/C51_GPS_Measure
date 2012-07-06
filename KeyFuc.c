@@ -68,6 +68,10 @@ unsigned char keyscan()
 					else if (!KEY_RIGHT_UP)
 					{
 						KeyPressValue = 2; // up
+						if (0==g_page_id || 1==g_page_id || 3==g_page_id)
+						{
+							KeyPressValue = 5;
+						}
 					}
 				}
 
@@ -84,6 +88,10 @@ unsigned char keyscan()
 					else if (!KEY_LEFT_DOWN)
 					{
 						KeyPressValue = 4; // down
+						if (0==g_page_id || 1==g_page_id || 3==g_page_id)\
+						{
+							KeyPressValue = 5;
+						}
 					}
 				}
 			}
@@ -100,6 +108,10 @@ unsigned char keyscan()
 	else if (!key_BL)
 	{
 		KeyPressValue = 6; // menu
+		if (2==g_page_id)
+		{
+			KeyPressValue = 5;
+		}
 	}
 	return KeyPressValue;
 
