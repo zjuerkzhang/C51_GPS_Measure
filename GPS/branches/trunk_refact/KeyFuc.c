@@ -108,7 +108,7 @@ unsigned char keyscan()
 	else if (!key_BL)
 	{
 		KeyPressValue = 6; // menu
-		if (2==g_page_id)
+		if (2==g_page_id || 5==g_page_id)
 		{
 			KeyPressValue = 5;
 		}
@@ -753,6 +753,7 @@ void KeyOperate()
 			case 5:
 			{
 				distance_as_moving = len_moving[0]*1.0 + len_moving[1]/10.0;
+				system_data[RULER_START_POINT_COUNT_OFFSET] = spa_len;
 				if (30 == sn_focus_idx)
 				{
 					system_data[0] = 1;
