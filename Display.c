@@ -610,14 +610,14 @@ void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 		Display_Chinese(dian2, 4, 17);
 	Display_Chinese(kong, 4, 33);
 	if (1==Sel_flag)
-		Revers_Data(dan, 4, 43);
+		Revers_Data(ce, 4, 43);
 	else
-		Display_Chinese(dan, 4, 43);
+		Display_Chinese(ce, 4, 43);
 	Display_Chinese(kong, 4, 59);
 	if (2==Sel_flag)
-		Revers_Data(ce, 4, 69);
+		Revers_Data(dan, 4, 69);
 	else
-		Display_Chinese(ce, 4, 69);
+		Display_Chinese(dan, 4, 69);
 	Display_Chinese(kong, 4, 85);
 	if (3==Sel_flag)
 		Revers_Data(ji, 4, 95);
@@ -632,14 +632,14 @@ void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 		Display_Chinese(zi, 2, 17);
 	Display_Chinese(kong, 2, 33);
 	if (1==Sel_flag)
-		Revers_Data(kong, 2, 43);
+		Revers_Data(mu, 2, 43);
 	else
-		Display_Chinese(kong, 2, 43);
+		Display_Chinese(mu, 2, 43);
 	Display_Chinese(kong, 2, 59);
 	if (2==Sel_flag)
-		Revers_Data(mu, 2, 69);
+		Revers_Data(kong, 2, 69);
 	else
-		Display_Chinese(mu, 2, 69);
+		Display_Chinese(kong, 2, 69);
 	Display_Chinese(kong, 2, 85);
 	if (3==Sel_flag)
 		Revers_Data(kong, 2, 95);
@@ -654,14 +654,14 @@ void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 		Display_Chinese(chi, 0, 17);
 	Display_Chinese(kong, 0, 33);
 	if (1==Sel_flag)
-		Revers_Data(jia, 0, 43);
+		Revers_Data(yi_2, 0, 43);
 	else
-		Display_Chinese(jia, 0, 43);
+		Display_Chinese(yi_2, 0, 43);
 	Display_Chinese(kong, 0, 59);
 	if (2==Sel_flag)
-		Revers_Data(yi_2, 0, 69);
+		Revers_Data(jia, 0, 69);
 	else
-		Display_Chinese(yi_2, 0, 69);
+		Display_Chinese(jia, 0, 69);
 	Display_Chinese(kong, 0, 85);
 	if (3==Sel_flag)
 		Revers_Data(lu, 0, 95);
@@ -1213,7 +1213,7 @@ void Update_jilu_page()
 			zf_clear_page_to_end(5, 16+offset, 0x00);
 			Display_Chinese(kuan, 4, 64);
 			offset = 0;
-			display_non_zero_num_str_8x16(l_data1, 6, 4, 80, &offset);
+			display_non_zero_num_str_8x16(l_data2, 6, 4, 80, &offset);
 			zf_clear_page_to_end(4, 80+offset, 0x00);
 			zf_clear_page_to_end(5, 80+offset, 0x00);
 		}
