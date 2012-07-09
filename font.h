@@ -1,6 +1,11 @@
 #ifndef _font_h_
 #define _font_h_
 
+unsigned char code point_8x8[]=
+{
+0x00,0x00,0x18,0x3C,0x3C,0x18,0x00,0x00
+};
+
 unsigned char code dian2[]=
 {
 //--  ÎÄ×Ö:  µç  --
