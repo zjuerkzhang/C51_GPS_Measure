@@ -14,6 +14,7 @@
 #define SN_DATA_START_ADDR HISTORY_DATA_START_ADDR
 #define PRICE_OFFSET       15
 #define DANWEI_OFFSET      18
+#define RULER_START_POINT_COUNT_OFFSET  19
 
 void init_history_data(void);
 unsigned char get_history_data_cnt(void);

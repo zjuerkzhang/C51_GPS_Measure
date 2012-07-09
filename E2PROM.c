@@ -51,6 +51,7 @@ unsigned char sn_focus_idx = 0;
 
 extern unsigned char price_per_area[];
 extern unsigned char danwei_sel;
+extern unsigned char spa_len;
 
 void delay(unsigned int z)
 {
@@ -488,6 +489,13 @@ void get_sn_data()
 		system_data[DANWEI_OFFSET] = DANWEI_SEL_MU;
 	}
 	danwei_sel = system_data[DANWEI_OFFSET];
+
+	if (system_data[RULER_START_POINT_COUNT_OFFSET]>5)
+	{
+		flag = 1;
+		system_data[RULER_START_POINT_COUNT_OFFSET] = 3;
+	}
+	spa_len = system_data[RULER_START_POINT_COUNT_OFFSET];
 
 	if (flag)
 		store_sn_data();
