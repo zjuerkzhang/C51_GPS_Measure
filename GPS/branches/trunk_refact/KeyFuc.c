@@ -189,7 +189,7 @@ void KeyOperate()
 			{
 				switch (menu_focus_idx)
 				{
-				case 2:
+				case 1:
 					celiangPage_idx = CELIANG_WORKING_PAGE;
 					gps_first_point = 1;
 					ResetPointPlusArray();
@@ -198,7 +198,7 @@ void KeyOperate()
 					g_page_id = 1;
 
 					break;
-				case 1:
+				case 2:
 					for(i=0; i<5; i++)
 					{
 						price_for_edit[i] = price_per_area[i];
