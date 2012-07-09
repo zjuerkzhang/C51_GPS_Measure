@@ -584,67 +584,88 @@ void display_non_zero_num_list_8x16( unsigned char p_num_list[],
 void Update_Idle_page4_5_1_2(unsigned char Sel_flag)
 {
 	if (0==Sel_flag)
-		Revers_Data(dian2, 5, 8);
-	else
-		Display_Chinese(dian2, 5, 8);
-	Display_Chinese(kong, 5, 24);
-	if (1==Sel_flag)
-		Revers_Data(dan, 5, 40);
-	else
-		Display_Chinese(dan, 5, 40);
-	Display_Chinese(kong, 5, 56);
-	if (2==Sel_flag)
-		Revers_Data(ce, 5, 72);
-	else
-		Display_Chinese(ce, 5, 72);
-	Display_Chinese(kong, 5, 88);
-	if (3==Sel_flag)
-		Revers_Data(ji, 5, 104);
-	else
-		Display_Chinese(ji, 5, 104);
-	zf_disp8x16(kong, 5, 120);
+	{
+		zf_disp8x8(point_8x8, 6, 12);
+		zf_clear_page_to_end(6, 20, 0x00);
+	}
+	else if(1==Sel_flag)
+	{
+		zf_disp8x8(point_8x8, 6, 44);
+		zf_clear_page_to_end(6, 52, 0x00);
+	}
+	else if(2==Sel_flag)
+	{
+		zf_disp8x8(point_8x8, 6, 76);
+		zf_clear_page_to_end(6, 84, 0x00);
+	}
+	else if(3==Sel_flag)
+	{
+		zf_disp8x8(point_8x8, 6, 108);
+		zf_clear_page_to_end(6, 116, 0x00);
+	}
 
 	if (0==Sel_flag)
-		Revers_Data(zi, 3, 8);
+		Revers_Data(dian2, 4, 8);
 	else
-		Display_Chinese(zi, 3, 8);
-	Display_Chinese(kong, 3, 24);
+		Display_Chinese(dian2, 4, 8);
+	Display_Chinese(kong, 4, 24);
 	if (1==Sel_flag)
-		Revers_Data(kong, 3, 40);
+		Revers_Data(dan, 4, 40);
 	else
-		Display_Chinese(kong, 3, 40);
-	Display_Chinese(kong, 3, 56);
+		Display_Chinese(dan, 4, 40);
+	Display_Chinese(kong, 4, 56);
 	if (2==Sel_flag)
-		Revers_Data(mu, 3, 72);
+		Revers_Data(ce, 4, 72);
 	else
-		Display_Chinese(mu, 3, 72);
-	Display_Chinese(kong, 3, 88);
+		Display_Chinese(ce, 4, 72);
+	Display_Chinese(kong, 4, 88);
 	if (3==Sel_flag)
-		Revers_Data(kong, 3, 104);
+		Revers_Data(ji, 4, 104);
 	else
-		Display_Chinese(kong, 3, 104);
-	zf_disp8x16(kong, 3, 120);
+		Display_Chinese(ji, 4, 104);
+	zf_disp8x16(kong, 4, 120);
 
 	if (0==Sel_flag)
-		Revers_Data(chi, 1, 8);
+		Revers_Data(zi, 2, 8);
 	else
-		Display_Chinese(chi, 1, 8);
-	Display_Chinese(kong, 1, 24);
+		Display_Chinese(zi, 2, 8);
+	Display_Chinese(kong, 2, 24);
 	if (1==Sel_flag)
-		Revers_Data(jia, 1, 40);
+		Revers_Data(kong, 2, 40);
 	else
-		Display_Chinese(jia, 1, 40);
-	Display_Chinese(kong, 1, 56);
+		Display_Chinese(kong, 2, 40);
+	Display_Chinese(kong, 2, 56);
 	if (2==Sel_flag)
-		Revers_Data(yi_2, 1, 72);
+		Revers_Data(mu, 2, 72);
 	else
-		Display_Chinese(yi_2, 1, 72);
-	Display_Chinese(kong, 1, 88);
+		Display_Chinese(mu, 2, 72);
+	Display_Chinese(kong, 2, 88);
 	if (3==Sel_flag)
-		Revers_Data(lu, 1, 104);
+		Revers_Data(kong, 2, 104);
 	else
-		Display_Chinese(lu, 1, 104);
-	zf_disp8x16(kong, 1, 120);
+		Display_Chinese(kong, 2, 104);
+	zf_disp8x16(kong, 2, 120);
+
+	if (0==Sel_flag)
+		Revers_Data(chi, 0, 8);
+	else
+		Display_Chinese(chi, 0, 8);
+	Display_Chinese(kong, 0, 24);
+	if (1==Sel_flag)
+		Revers_Data(jia, 0, 40);
+	else
+		Display_Chinese(jia, 0, 40);
+	Display_Chinese(kong, 0, 56);
+	if (2==Sel_flag)
+		Revers_Data(yi_2, 0, 72);
+	else
+		Display_Chinese(yi_2, 0, 72);
+	Display_Chinese(kong, 0, 88);
+	if (3==Sel_flag)
+		Revers_Data(lu, 0, 104);
+	else
+		Display_Chinese(lu, 0, 104);
+	zf_disp8x16(kong, 0, 120);
 
 	/*
 	if (Sel_flag==0)
