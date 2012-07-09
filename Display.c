@@ -1234,7 +1234,7 @@ void Update_jilu_page()
 				l_total_cost = l_total_cost/666.666667;
 			else
 				l_total_cost = l_total_cost/10000.0;
-			sprintf(str_buff, "%08.1f", l_total_cost);
+			sprintf(str_buff, "%08.2f", l_total_cost);
 			Display_Chinese(mian, 2, 0);
 			Display_Chinese(ji2, 2, 16);
 			display_num_str_8x16( str_buff, 8, 2, 32 );
