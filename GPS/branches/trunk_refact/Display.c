@@ -1453,113 +1453,113 @@ void display_ruler_page(bit timer_fresh)
 		{
 			searching_sat = 0;
 
-			Display_Chinese(chang, 5, 0); // 长
-			display_num_str_8x16(height, 6, 5, 16);
-			Display_Chinese(mi, 5, 64);
+			Display_Chinese(chang, 4, 0); // 长
+			display_num_str_8x16(height, 6, 4, 16);
+			Display_Chinese(mi, 4, 64);
 			if(0==ruler_mode)
 			{
-				Revers_Data(dai, 5, 80);
-				Revers_Data(ce, 5, 96);
-				Revers_Data(liang, 5, 112);
+				Revers_Data(dai, 4, 80);
+				Revers_Data(ce, 4, 96);
+				Revers_Data(liang, 4, 112);
 			}
 			else if(1==ruler_mode)//测量长
 			{
 				if (1==gps_first_point)
 				{
-					Revers_Data(ding, 5, 80);
-					Revers_Data(wei, 5, 96);
-					Revers_Data(zhong, 5, 112);
+					Revers_Data(ding, 4, 80);
+					Revers_Data(wei, 4, 96);
+					Revers_Data(zhong, 4, 112);
 				}
 				else if (1==gps_last_point)
 				{
-					Revers_Data(ji_cal, 5, 80);
-					Revers_Data(suan_cal, 5, 96);
-					Revers_Data(zhong, 5, 112);
+					Revers_Data(ji_cal, 4, 80);
+					Revers_Data(suan_cal, 4, 96);
+					Revers_Data(zhong, 4, 112);
 				}
 				else
 				{
 					if (signal == 0) //定位不成功.
 					{
-						Revers_Data(xin, 5, 80); //信
-						Revers_Data(hao, 5, 96); //号
-						Revers_Data(wu, 5, 112); //无
+						Revers_Data(xin, 4, 80); //信
+						Revers_Data(hao, 4, 96); //号
+						Revers_Data(wu, 4, 112); //无
 					}
 					else if (StarNum <= 2)
 					{
-						Revers_Data(xin, 5, 80); //信
-						Revers_Data(hao, 5, 96); //号
-						Revers_Data(cha, 5, 112); //差
+						Revers_Data(xin, 4, 80); //信
+						Revers_Data(hao, 4, 96); //号
+						Revers_Data(cha, 4, 112); //差
 					}
 					else
 					{
-						reverse_running_light(5, 80, timer_fresh);
+						reverse_running_light(4, 80, timer_fresh);
 					}
 				}
 			}
 			else
 			{
-				Display_Chinese(yi, 5, 80);
-				Display_Chinese(ji, 5, 96);
-				Display_Chinese(lu, 5, 112);
+				Display_Chinese(yi, 4, 80);
+				Display_Chinese(ji, 4, 96);
+				Display_Chinese(lu, 4, 112);
 			}
 
-			Display_Chinese(kuan, 3, 0); // 宽
-			display_num_str_8x16(width, 6, 3, 16);
-			Display_Chinese(mi, 3, 64);
+			Display_Chinese(kuan, 2, 0); // 宽
+			display_num_str_8x16(width, 6, 2, 16);
+			Display_Chinese(mi, 2, 64);
 			if(2==ruler_mode)
 			{
-				Revers_Data(dai, 3, 80);
-				Revers_Data(ce, 3, 96);
-				Revers_Data(liang, 3, 112);
+				Revers_Data(dai, 2, 80);
+				Revers_Data(ce, 2, 96);
+				Revers_Data(liang, 2, 112);
 			}
 			else if(3==ruler_mode)
 			{
 				if (1==gps_first_point)
 				{
-					Revers_Data(ding, 3, 80);
-					Revers_Data(wei, 3, 96);
-					Revers_Data(zhong, 3, 112);
+					Revers_Data(ding, 2, 80);
+					Revers_Data(wei, 2, 96);
+					Revers_Data(zhong, 2, 112);
 				}
 				else if (1==gps_last_point)
 				{
-					Revers_Data(ji_cal, 3, 80);
-					Revers_Data(suan_cal, 3, 96);
-					Revers_Data(zhong, 3, 112);
+					Revers_Data(ji_cal, 2, 80);
+					Revers_Data(suan_cal, 2, 96);
+					Revers_Data(zhong, 2, 112);
 				}
 				else
 				{
 					if (signal == 0) //定位不成功.
 					{
-						Revers_Data(xin, 3, 80); //信
-						Revers_Data(hao, 3, 96); //号
-						Revers_Data(wu, 3, 112); //无
+						Revers_Data(xin, 2, 80); //信
+						Revers_Data(hao, 2, 96); //号
+						Revers_Data(wu, 2, 112); //无
 					}
 					else if (StarNum <= 2)
 					{
-						Revers_Data(xin, 3, 80); //信
-						Revers_Data(hao, 3, 96); //号
-						Revers_Data(cha, 3, 112); //差
+						Revers_Data(xin, 2, 80); //信
+						Revers_Data(hao, 2, 96); //号
+						Revers_Data(cha, 2, 112); //差
 					}
 					else
 					{
-						reverse_running_light(3, 80, timer_fresh);
+						reverse_running_light(2, 80, timer_fresh);
 					}
 				}
 			}
 			else
 			{
-				Display_Chinese(kong, 3, 80);
-				Display_Chinese(kong, 3, 96);
-				Display_Chinese(kong, 3, 112);
+				Display_Chinese(kong, 2, 80);
+				Display_Chinese(kong, 2, 96);
+				Display_Chinese(kong, 2, 112);
 			}
 
-			Display_Chinese(dan, 1, 0); // 单
-			Display_Chinese(jia, 1, 16); // 价
+			Display_Chinese(dan, 0, 0); // 单
+			Display_Chinese(jia, 0, 16); // 价
 			offset = 0;
-			display_non_zero_num_list_8x16( price_per_area, 4, 1, 32, &offset);
-			Display_Chinese(yuan, 1, 32 + offset); //元
-			zf_disp8x16(xie_gang, 1, 48 + offset);
-			display_danwei(danwei_sel, 1, 56 + offset, 0);
+			display_non_zero_num_list_8x16( price_per_area, 4, 0, 32, &offset);
+			Display_Chinese(yuan, 0, 32 + offset); //元
+			zf_disp8x16(xie_gang, 0, 48 + offset);
+			display_danwei(danwei_sel, 0, 56 + offset, 0);
 		}
 	}
 }
