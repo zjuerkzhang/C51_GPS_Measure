@@ -204,6 +204,7 @@ void GeodeticNextPointPlus(PCRDGEODETIC p_pgp)
 	cur_point.y -= first_cartesian.y;
 	
 #if __PRINT_AREA_VALUES
+    printf("%.6f,%.6f,", p_pgp->latitude, p_pgp->longitude);
 	printf("%.6f,%.6f,", cur_point.x, cur_point.y);	
 #endif
 	
