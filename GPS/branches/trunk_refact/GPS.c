@@ -113,7 +113,8 @@ void gps_init()
 	//	TMOD = 0x21;
 	TMOD &= 0x0F;
 	TMOD |= 0x21;
-	TH1 = 0xFA;
+	//TH1 = 0xFA;  // 4800
+	TH1 = 0xFD;  // 9600
 	TR1 = 1;
 	//	IE=0x90;
 	IE |= 0x90;
@@ -319,7 +320,7 @@ void uart(void) interrupt 4
 							{
 								lock_LST = lock;
 							}
-							if(lock == '1')
+							if(lock > '0')
 							TEST4 =1;
 							else
 							TEST4 =0;
@@ -337,7 +338,7 @@ void uart(void) interrupt 4
 							{
 								use_sat[byte_count+1]='\0';
 
-								if(lock == '1')
+								if(lock > '0')
 								{
 									if( (use_sat[0]-'0')*10+(use_sat[1]-'0') > 0 )
 									signal = 1;
