@@ -18,7 +18,7 @@ sfr P1ASF = 0x9D;
 sfr AUXR = 0x8E;
 
 /*
- sfr IAP_DATA=0xe2;  //¼Ä´æÆ÷ÉêÃ÷
+ sfr IAP_DATA=0xe2;  //å¯„å­˜å™¨ç”³æ˜Ž
  //sfr IAP_ADDRH=0xe3;
  sfr IAP_ADDRH=0xc3;
  //sfr IAP_ADDRL=0xe4;

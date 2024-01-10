@@ -41,11 +41,11 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
     double L_rad, B_rad, L0;
     double n0;
     double x, y;
-    
+
     e2 = (r_a*r_a - r_b*r_b)/(r_a*r_a);
     e12 = (r_a*r_a - r_b*r_b)/(r_b*r_b);
     n0 = (r_a - r_b)/(r_a + r_b);
-    
+
     L_rad = pcg->longitude * PI /180.0;
 	B_rad = pcg->latitude * PI /180.0;
 	if(L_rad < 0.0 )
@@ -57,7 +57,7 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
 	    L0 = (unsigned char)(pcg->longitude / 6) + 31;
 	}
 	L0 = L0*6 - 3 - 180;
-    
+
     A0 = (r_a + r_b)*(1 + pow(n0, 2)/4.0 + pow(n0, 4)/64.0 )/2;
     B0 = A0*( -3/2.0*n0 + 9/16.0*pow(n0, 3) - 3/32.0*pow(n0, 5) );
     C0 = A0*(15/16.0*pow(n0,2) - 15/32.0*pow(n0,4));
@@ -71,7 +71,7 @@ void GeodeticToCartesian(PCRDCARTESIAN pcc, PCRDGEODETIC pcg)
     printf("E0: %f\n", E0);
     printf("L0: %f\n", L0);
     */
-    S = A0*B_rad + B0*sin(2 * B_rad) + C0 * sin(4 * B_rad) + 
+    S = A0*B_rad + B0*sin(2 * B_rad) + C0 * sin(4 * B_rad) +
         D0 * sin(6 * B_rad) + E0 * sin(8*B_rad);
     sinB = sin(B_rad);
     cosB = cos(B_rad);
@@ -107,13 +107,13 @@ void GeodeticFirstPoint()
     }
     first_cartesian.x = first_cartesian.x/POINT_PLUS_ARRAY_LENGTH;
     first_cartesian.y = first_cartesian.y/POINT_PLUS_ARRAY_LENGTH;
-    
+
     for(i=0; i<POINT_PLUS_ARRAY_LENGTH; i++)
     {
         point_plus_array[i].point.x -= first_cartesian.x;
         point_plus_array[i].point.y -= first_cartesian.y;
     }
-    
+
 	before_point.x = before_point.y = 0;
 	area = 0;
 	distance = 0;
@@ -149,9 +149,9 @@ void MakeGeodeticByString(PCRDGEODETIC pcg, unsigned char* longitude,
 unsigned char PreparePointPlusArray(PCRDGEODETIC p_in_pgp)
 {
     CRDCARTESIAN pcp;
-    
+
     GeodeticToCartesian(&pcp, p_in_pgp);
-    if( ppa_new>0 && 
+    if( ppa_new>0 &&
         GetDistanceBetweenPoints(pcp, point_plus_array[ppa_new-1].point)>= CARTESIAN_POINT_MAX_DISTANCE )
     {
         return 0;
@@ -159,14 +159,14 @@ unsigned char PreparePointPlusArray(PCRDGEODETIC p_in_pgp)
     point_plus_array[ppa_new].point = pcp;
     point_plus_array[ppa_new].used = 0;
     ppa_new++;
-    
+
     if( POINT_PLUS_ARRAY_LENGTH == ppa_new )
     {
-        ppa_new--;        
+        ppa_new--;
         ppa_old = POINT_PLUS_ARRAY_AVR_BUFF_LEN-1;
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -175,17 +175,17 @@ unsigned char GetNextPointIndex(unsigned char p_idx)
     p_idx++;
     if(POINT_PLUS_ARRAY_LENGTH==p_idx)
         p_idx = 0;
-        
+
     return p_idx;
 }
 
 unsigned char GetPreviousPointIndex(unsigned char p_idx)
-{   
+{
     if(0==p_idx)
         p_idx = POINT_PLUS_ARRAY_LENGTH-1;
     else
         p_idx--;
-         
+
     return p_idx;
 }
 
@@ -195,19 +195,19 @@ void GeodeticNextPointPlus(PCRDGEODETIC p_pgp)
     CRDCARTESIAN base_point;
 	double dx, dy;
 	unsigned char i,j;
-	
+
 	GeodeticToCartesian(&cur_point, p_pgp);
 	cur_point.x -= first_cartesian.x;
 	cur_point.y -= first_cartesian.y;
-	
+
 	dx = cur_point.x - before_point.x;
 	dy = cur_point.y - before_point.y;
-	
+
 	if( GetDistanceBetweenPoints(cur_point, point_plus_array[ppa_new].point)>CARTESIAN_POINT_MAX_DISTANCE )
 	{
 	    return;
 	}
-	
+
 	base_point.x = base_point.y = 0;
 	j = ppa_old;
 	for(i=0; i<POINT_PLUS_ARRAY_AVR_BUFF_LEN; i++)
@@ -226,17 +226,17 @@ void GeodeticNextPointPlus(PCRDGEODETIC p_pgp)
 	    base_point.x = base_point.x/POINT_PLUS_ARRAY_AVR_BUFF_LEN;
 	    base_point.y = base_point.y/POINT_PLUS_ARRAY_AVR_BUFF_LEN;
 	}
-	
+
 	ppa_old = GetNextPointIndex(ppa_old);
 	ppa_new = GetNextPointIndex(ppa_new);
 	point_plus_array[ppa_new].point = cur_point;
 	point_plus_array[ppa_new].used = 0;
-	
+
 	if(GetDistanceBetweenPoints(base_point, cur_point)>distance_as_moving)
 	{
 	    area += (before_point.x * cur_point.y - before_point.y * cur_point.x) / 2.0;
 	    distance += sqrt(dx * dx + dy * dy);
-	    
+
 	    point_plus_array[ppa_new].used = 1;
 	    before_point = cur_point;
 	}

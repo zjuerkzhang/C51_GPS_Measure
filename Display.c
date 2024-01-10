@@ -13,12 +13,12 @@
 #define  uchar  unsigned char
 #define  uint   unsigned int
 
-#define VC_ON 0x2C 
-#define VR_ON 0x2A   
-#define VF_ON 0x29 
+#define VC_ON 0x2C
+#define VR_ON 0x2A
+#define VF_ON 0x29
 
-#define NOP _nop_();_nop_();_nop_();_nop_()  
-#define data_bus   P0 
+#define NOP _nop_();_nop_();_nop_();_nop_()
+#define data_bus   P0
 
 sbit CS = P1 ^ 2;
 sbit RES = P1 ^ 4;
@@ -775,19 +775,19 @@ Update_Page_Header()
 	StarNum0 = (unsigned char) StarNum % 10;
 	StarNum1 = (unsigned char) StarNum / 10;
 
-	zf_disp4x8(num[g_beijing_time[0] - 0x30], 7, 0); //Ğ¡Ê±1
-	zf_disp4x8(num[g_beijing_time[1] - 0x30], 7, 4); //Ğ¡Ê±2
-	zf_disp4x8(num[10], 7, 8); //£º
-	zf_disp4x8(num[g_beijing_time[2] - 0x30], 7, 12); //·ÖÖÓ1
-	zf_disp4x8(num[g_beijing_time[3] - 0x30], 7, 16); //·ÖÖÓ2
-	zf_disp4x8(num[10], 7, 20); //£º
-	zf_disp4x8(num[g_beijing_time[4] - 0x30], 7, 24); //ÃëÖÓ1
-	zf_disp4x8(num[g_beijing_time[5] - 0x30], 7, 28); //ÃëÖÓ2
+	zf_disp4x8(num[g_beijing_time[0] - 0x30], 7, 0); //å°æ—¶1
+	zf_disp4x8(num[g_beijing_time[1] - 0x30], 7, 4); //å°æ—¶2
+	zf_disp4x8(num[10], 7, 8); //ï¼š
+	zf_disp4x8(num[g_beijing_time[2] - 0x30], 7, 12); //åˆ†é’Ÿ1
+	zf_disp4x8(num[g_beijing_time[3] - 0x30], 7, 16); //åˆ†é’Ÿ2
+	zf_disp4x8(num[10], 7, 20); //ï¼š
+	zf_disp4x8(num[g_beijing_time[4] - 0x30], 7, 24); //ç§’é’Ÿ1
+	zf_disp4x8(num[g_beijing_time[5] - 0x30], 7, 28); //ç§’é’Ÿ2
 
 	zf_disp8x8(kong8_8, 7, 32);
 	zf_disp4x8(kong8_8, 7, 40);
 
-	zf_disp16x8(font5[BatQuan], 7, 44); //µç³Ø
+	zf_disp16x8(font5[BatQuan], 7, 44); //ç”µæ± 
 
 	zf_disp8x8(kong8_8, 7, 60);
 	zf_disp16x8(kong8_16, 7, 68);
@@ -795,12 +795,12 @@ Update_Page_Header()
 	if (signal)
 	{
 		zf_disp4x8(num[StarNum1], 7, 84);
-		zf_disp4x8(num[StarNum0], 7, 88); //ĞÇÊıÁ¿
+		zf_disp4x8(num[StarNum0], 7, 88); //æ˜Ÿæ•°é‡
 
 		zf_disp16x8(kong8_16, 7, 92);
 		zf_disp4x8(kong8_4, 7, 108); //kong
 
-		zf_disp16x8(xinhao, 7, 112); //ĞÅºÅ
+		zf_disp16x8(xinhao, 7, 112); //ä¿¡å·
 	}
 	else
 	{
@@ -828,17 +828,17 @@ void display_running_light(unsigned char p_row, unsigned char p_offset, bit p_up
 {
 	if (celiang_run_light >= 1)
 	{
-		Display_Chinese(ce, p_row, p_offset); //²â
+		Display_Chinese(ce, p_row, p_offset); //æµ‹
 		p_offset += 16;
 	}
 	if (celiang_run_light >= 2)
 	{
-		Display_Chinese(liang, p_row, p_offset); //Á¿
+		Display_Chinese(liang, p_row, p_offset); //é‡
 		p_offset += 16;
 	}
 	if (celiang_run_light >= 3)
 	{
-		Display_Chinese(zhong, p_row, p_offset); //ÖĞ
+		Display_Chinese(zhong, p_row, p_offset); //ä¸­
 		p_offset += 16;
 	}
 	zf_clear_page_to_end(p_row, p_offset, 0x00);
@@ -854,17 +854,17 @@ void reverse_running_light(unsigned char p_row, unsigned char p_col, bit p_updat
 {
 	if (celiang_run_light >= 1)
 	{
-		Revers_Data(ce, p_row, p_col); //²â
+		Revers_Data(ce, p_row, p_col); //æµ‹
 		p_col += 16;
 	}
 	if (celiang_run_light >= 2)
 	{
-		Revers_Data(liang, p_row, p_col); //Á¿
+		Revers_Data(liang, p_row, p_col); //é‡
 		p_col += 16;
 	}
 	if (celiang_run_light >= 3)
 	{
-		Revers_Data(zhong, p_row, p_col); //ÖĞ
+		Revers_Data(zhong, p_row, p_col); //ä¸­
 		p_col += 16;
 	}
 	zf_clear_page_to_end(p_row, p_col, 0xFF);
@@ -888,66 +888,66 @@ void display_CeLiang_Page(bit timer_fresh)
 		{
 			Update_Page_Header();
 
-			if (signal == 0) //¶¨Î»²»³É¹¦.
+			if (signal == 0) //å®šä½ä¸æˆåŠŸ.
 			{
 				searching_sat = 1;
-				Display_Chinese(dai, 4, 0); //´ı
-				Display_Chinese(ce, 4, 16); //²â
+				Display_Chinese(dai, 4, 0); //å¾…
+				Display_Chinese(ce, 4, 16); //æµ‹
 				Display_Chinese(kong, 4, 32); //
-				Display_Chinese(zheng, 4, 48);//Õı
-				Display_Chinese(zai, 4, 64); //ÔÚ
-				Display_Chinese(sou, 4, 80); //ËÑ
-				Display_Chinese(xing, 4, 96); //ĞÇ
+				Display_Chinese(zheng, 4, 48);//æ­£
+				Display_Chinese(zai, 4, 64); //åœ¨
+				Display_Chinese(sou, 4, 80); //æœ
+				Display_Chinese(xing, 4, 96); //æ˜Ÿ
 				Display_Chinese(points, 4, 112); //
 			}
 			else
 			{
 				searching_sat = 0;
-				Display_Chinese(dai, 4, 0); //´ı
-				Display_Chinese(ce, 4, 16); //²â
+				Display_Chinese(dai, 4, 0); //å¾…
+				Display_Chinese(ce, 4, 16); //æµ‹
 				Display_Chinese(kong, 4, 32); //
-				Display_Chinese(an, 4, 48);//°´
-				Display_Chinese(que, 4, 64); //È·
-				Display_Chinese(ren, 4, 80); //ÈÏ
-				Display_Chinese(kai, 4, 96); //¿ª
-				Display_Chinese(shi3, 4, 112); //Ê¼
+				Display_Chinese(an, 4, 48);//æŒ‰
+				Display_Chinese(que, 4, 64); //ç¡®
+				Display_Chinese(ren, 4, 80); //è®¤
+				Display_Chinese(kai, 4, 96); //å¼€
+				Display_Chinese(shi3, 4, 112); //å§‹
 			}
 		}
 		else if (2 == celiang_mode)
 		{
 			Update_Page_Header();
 
-			Display_Chinese(dan, 4, 0); //µ¥
-			Display_Chinese(jia, 4, 16); //¼Û
+			Display_Chinese(dan, 4, 0); //å•
+			Display_Chinese(jia, 4, 16); //ä»·
 
 			display_non_zero_num_list_8x16( price_per_area, 4, 4, 32, &offset);
-			Display_Chinese(yuan, 4, 32 + offset); //Ôª
+			Display_Chinese(yuan, 4, 32 + offset); //å…ƒ
 			offset += 16;
 			for (; offset < 80; offset += 8)
 			{
 				zf_disp8x16(kong, 4, 32 + offset);
 			}
-			Display_Chinese(yi, 4, 80); //ÒÑ
-			Display_Chinese(ji, 4, 96); //¼Ç
-			Display_Chinese(lu, 4, 112); //Â¼
+			Display_Chinese(yi, 4, 80); //å·²
+			Display_Chinese(ji, 4, 96); //è®°
+			Display_Chinese(lu, 4, 112); //å½•
 
 			if(danwei_sel <2)
 			{
-				Display_Chinese(mian, 2, 0); //Ãæ
-				Display_Chinese(ji2, 2, 16); //»ı
+				Display_Chinese(mian, 2, 0); //é¢
+				Display_Chinese(ji2, 2, 16); //ç§¯
 				g_measure_for_show = g_area_value;
 			}
 			else
 			{
-				Display_Chinese(zou, 2, 0); //×ß
-				Display_Chinese(chang, 2, 16); //³¤
+				Display_Chinese(zou, 2, 0); //èµ°
+				Display_Chinese(chang, 2, 16); //é•¿
 				g_measure_for_show = g_length_value;
 			}
-			// Ã»ÓĞÃ°ºÅ£¬ÒòÎªÈç¹ûµ¥Î»Îª¹«ÇêµÄ»°£¬×Ö³¤¾Í²»¹»ÁË
+			// æ²¡æœ‰å†’å·ï¼Œå› ä¸ºå¦‚æœå•ä½ä¸ºå…¬é¡·çš„è¯ï¼Œå­—é•¿å°±ä¸å¤Ÿäº†
 			display_num_str_8x16( g_measure_for_show, 8, 2, 32 );
 			display_danwei(danwei_sel, 2, 96, 0);
 
-			///¼ÆËã½ğ¶î²¿·Ö:
+			///è®¡ç®—é‡‘é¢éƒ¨åˆ†:
 			total_cost = (price_per_area[0] * 1000 + price_per_area[1] * 100 +
 						  price_per_area[2] * 10 + price_per_area[3]) * atof(g_measure_for_show);
 
@@ -955,24 +955,24 @@ void display_CeLiang_Page(bit timer_fresh)
 			{
 				sprintf(total_cost_str, "%08.1f", total_cost);
 
-				Display_Chinese(jin, 0, 0); //½ğ
-				Display_Chinese(er, 0, 16); //¶î
-				Display_Chinese(maohao, 0, 32); //£º
+				Display_Chinese(jin, 0, 0); //é‡‘
+				Display_Chinese(er, 0, 16); //é¢
+				Display_Chinese(maohao, 0, 32); //ï¼š
 
 				display_num_str_8x16( total_cost_str, 8, 0, 40 );
-				Display_Chinese(yuan, 0, 104); //Ôª
+				Display_Chinese(yuan, 0, 104); //å…ƒ
 				Display_Chinese(kong, 0, 120);
 			}
 			else
 			{
-				Display_Chinese(jin, 0, 0); //½ğ
-				Display_Chinese(er, 0, 16); //¶î
-				Display_Chinese(maohao, 0, 32); //£º
+				Display_Chinese(jin, 0, 0); //é‡‘
+				Display_Chinese(er, 0, 16); //é¢
+				Display_Chinese(maohao, 0, 32); //ï¼š
 				Display_Chinese(chao, 0, 48);//..
 				Display_Chinese(fan, 0, 64); //..
 				Display_Chinese(wei3, 0, 80); //..
 				Display_Chinese(kong, 0, 96); //..
-				Display_Chinese(yuan, 0, 112); //Ôª
+				Display_Chinese(yuan, 0, 112); //å…ƒ
 			}
 		}
 		else if (1 == celiang_mode)
@@ -981,12 +981,12 @@ void display_CeLiang_Page(bit timer_fresh)
 			{
 				Update_Page_Header();
 
-				Display_Chinese(ding, 4, 0); //¶¨
-				Display_Chinese(wei, 4, 16); //Î»
-				Display_Chinese(qi, 4, 32); //Æğ
-				Display_Chinese(dian, 4, 48);//µã
-				Display_Chinese(shao, 4, 64); //ÉÔ
-				Display_Chinese(deng, 4, 80); //µÈ
+				Display_Chinese(ding, 4, 0); //å®š
+				Display_Chinese(wei, 4, 16); //ä½
+				Display_Chinese(qi, 4, 32); //èµ·
+				Display_Chinese(dian, 4, 48);//ç‚¹
+				Display_Chinese(shao, 4, 64); //ç¨
+				Display_Chinese(deng, 4, 80); //ç­‰
 				Display_Chinese(dengdai, 4, 96); //..
 				Display_Chinese(dengdai, 4, 112); //..
 			}
@@ -994,27 +994,27 @@ void display_CeLiang_Page(bit timer_fresh)
 			{
 				Update_Page_Header();
 
-				Display_Chinese(dan, 4, 0); //µ¥
-				Display_Chinese(jia, 4, 16); //¼Û
+				Display_Chinese(dan, 4, 0); //å•
+				Display_Chinese(jia, 4, 16); //ä»·
 
 				display_non_zero_num_list_8x16( price_per_area, 4, 4, 32, &offset);
-				Display_Chinese(yuan, 4, 32 + offset); //Ôª
+				Display_Chinese(yuan, 4, 32 + offset); //å…ƒ
 				offset += 16;
 				for (; offset < 80; offset += 8)
 				{
 					zf_disp8x16(kong, 4, 32 + offset);
 				}
-				if (signal == 0) //¶¨Î»²»³É¹¦.
+				if (signal == 0) //å®šä½ä¸æˆåŠŸ.
 				{
-					Display_Chinese(xin, 4, 80); //ĞÅ
-					Display_Chinese(hao, 4, 96); //ºÅ
-					Display_Chinese(wu, 4, 112); //ÎŞ
+					Display_Chinese(xin, 4, 80); //ä¿¡
+					Display_Chinese(hao, 4, 96); //å·
+					Display_Chinese(wu, 4, 112); //æ— 
 				}
 				else if (StarNum <= 2)
 				{
-					Display_Chinese(xin, 4, 80); //ĞÅ
-					Display_Chinese(hao, 4, 96); //ºÅ
-					Display_Chinese(cha, 4, 112); //²î
+					Display_Chinese(xin, 4, 80); //ä¿¡
+					Display_Chinese(hao, 4, 96); //å·
+					Display_Chinese(cha, 4, 112); //å·®
 				}
 				else
 				{
@@ -1023,14 +1023,14 @@ void display_CeLiang_Page(bit timer_fresh)
 
 				if(danwei_sel<2)
 				{
-					Display_Chinese(mian, 2, 0); //Ãæ
-					Display_Chinese(ji2, 2, 16); //»ı
+					Display_Chinese(mian, 2, 0); //é¢
+					Display_Chinese(ji2, 2, 16); //ç§¯
 					g_measure_for_show = g_area_value;
 				}
 				else
 				{
-					Display_Chinese(zou, 2, 0); //×ß
-					Display_Chinese(chang, 2, 16); //³¤
+					Display_Chinese(zou, 2, 0); //èµ°
+					Display_Chinese(chang, 2, 16); //é•¿
 					g_measure_for_show = g_length_value;
 				}
 
@@ -1044,35 +1044,35 @@ void display_CeLiang_Page(bit timer_fresh)
 				{
 
 					sprintf(total_cost_str, "%08.1f", total_cost);
-					Display_Chinese(jin, 0, 0); //½ğ
-					Display_Chinese(er, 0, 16); //¶î
-					Display_Chinese(maohao, 0, 32); //£º
+					Display_Chinese(jin, 0, 0); //é‡‘
+					Display_Chinese(er, 0, 16); //é¢
+					Display_Chinese(maohao, 0, 32); //ï¼š
 
 					display_num_str_8x16( total_cost_str, 8, 0, 40 );
-					Display_Chinese(yuan, 0, 104); //Ôª
+					Display_Chinese(yuan, 0, 104); //å…ƒ
 					Display_Chinese(kong, 0, 120);
 				}
 				else
 				{
-					Display_Chinese(jin, 0, 0); //½ğ
-					Display_Chinese(er, 0, 16); //¶î
-					Display_Chinese(maohao, 0, 32); //£º
+					Display_Chinese(jin, 0, 0); //é‡‘
+					Display_Chinese(er, 0, 16); //é¢
+					Display_Chinese(maohao, 0, 32); //ï¼š
 					Display_Chinese(chao, 0, 48);//..
 					Display_Chinese(fan, 0, 64); //..
 					Display_Chinese(wei3, 0, 80); //..
 					Display_Chinese(kong, 0, 96); //..
-					Display_Chinese(yuan, 0, 112); //Ôª
+					Display_Chinese(yuan, 0, 112); //å…ƒ
 				}
 			}
 		}
 	}
 	else if (celiangPage_idx == CELIANG_DETAIL_PAGE)
 	{
-		if (signal == 0) //¶¨Î»²»³É¹¦.
+		if (signal == 0) //å®šä½ä¸æˆåŠŸ.
 		{
-			Display_Chinese(ding, 6, 0); //¶¨
-			Display_Chinese(wei, 6, 16); //Î»
-			Display_Chinese(zhong, 6, 32); //ÖĞ
+			Display_Chinese(ding, 6, 0); //å®š
+			Display_Chinese(wei, 6, 16); //ä½
+			Display_Chinese(zhong, 6, 32); //ä¸­
 		}
 		else
 		{
@@ -1081,31 +1081,31 @@ void display_CeLiang_Page(bit timer_fresh)
 			Display_Chinese(wei, 6, 32);
 		}
 
-		Display_Chinese(shi, 6, 48); //Ê±
-		Display_Chinese(jian, 6, 64); //¼ä
-		Display_Chinese(maohao, 6, 80); //£º
+		Display_Chinese(shi, 6, 48); //æ—¶
+		Display_Chinese(jian, 6, 64); //é—´
+		Display_Chinese(maohao, 6, 80); //ï¼š
 
 		zf_disp8x16(Num_8_16[g_beijing_time[0] - 0x30], 6, 88);
 		zf_disp8x16(Num_8_16[g_beijing_time[1] - 0x30], 6, 96);
-		Display_Chinese(maohao, 6, 104); //£º
+		Display_Chinese(maohao, 6, 104); //ï¼š
 		zf_disp8x16(Num_8_16[g_beijing_time[2] - 0x30], 6, 112);
 		zf_disp8x16(Num_8_16[g_beijing_time[3] - 0x30], 6, 120);
 
-		Display_Chinese(zong, 4, 0); //×Ü
-		Display_Chinese(shu, 4, 16); //Êı
-		Display_Chinese(maohao, 4, 32); //£º
+		Display_Chinese(zong, 4, 0); //æ€»
+		Display_Chinese(shu, 4, 16); //æ•°
+		Display_Chinese(maohao, 4, 32); //ï¼š
 		zf_disp8x16(Num_8_16[total_sat_LST[0] - 0x30], 4, 40);
 		zf_disp8x16(Num_8_16[total_sat_LST[1] - 0x30], 4, 48);
-		Display_Chinese(kong, 4, 56); //£º
-		Display_Chinese(shi2, 4, 64); //Ê¹
-		Display_Chinese(yong, 4, 80); //ÓÃ
-		Display_Chinese(maohao, 4, 96); //£º
+		Display_Chinese(kong, 4, 56); //ï¼š
+		Display_Chinese(shi2, 4, 64); //ä½¿
+		Display_Chinese(yong, 4, 80); //ç”¨
+		Display_Chinese(maohao, 4, 96); //ï¼š
 		zf_disp8x16(Num_8_16[use_sat_LST[0] - 0x30], 4, 104);
 		zf_disp8x16(Num_8_16[use_sat_LST[1] - 0x30], 4, 112);
-		Display_Chinese(kong, 4, 120); //£º
+		Display_Chinese(kong, 4, 120); //ï¼š
 
-		Display_Chinese(jing, 2, 0); //¾­
-		Display_Chinese(du, 2, 16); //¶È
+		Display_Chinese(jing, 2, 0); //ç»
+		Display_Chinese(du, 2, 16); //åº¦
 		Display_Chinese(maohao, 2, 32); //:
 		zf_disp8x16(Num_8_16[JD[0] - 0x30], 2, 40);
 		zf_disp8x16(Num_8_16[JD[1] - 0x30], 2, 48);
@@ -1268,22 +1268,22 @@ void Update_jilu_page()
 		{
 			if(l_danwei_sel < 2)
 			{
-				Display_Chinese(mian, 2, 0); //Ãæ
-				Display_Chinese(ji2, 2, 16); //»ı
+				Display_Chinese(mian, 2, 0); //é¢
+				Display_Chinese(ji2, 2, 16); //ç§¯
 				measure_show = l_data2;
 			}
 			else
 			{
-				Display_Chinese(zou, 2, 0); //×ß
-				Display_Chinese(chang, 2, 16); //³¤
+				Display_Chinese(zou, 2, 0); //èµ°
+				Display_Chinese(chang, 2, 16); //é•¿
 				measure_show = l_data1;
 			}
 			display_num_str_8x16( measure_show, 8, 2, 32 );
 			display_danwei(l_danwei_sel, 2, 96, 0);
 		}
 
-		Display_Chinese(jin, 0, 0); //½ğ
-		Display_Chinese(er, 0, 16); //¶î
+		Display_Chinese(jin, 0, 0); //é‡‘
+		Display_Chinese(er, 0, 16); //é¢
 		if (1==l_mode)
 		{
 			l_total_cost = l_danjia * l_total_cost;
@@ -1295,7 +1295,7 @@ void Update_jilu_page()
 		sprintf(str_buff, "%08.1f", l_total_cost);
 		display_num_str_8x16( str_buff, 8, 0, 32 );
 
-		Display_Chinese(yuan, 0, 96); //Ôª
+		Display_Chinese(yuan, 0, 96); //å…ƒ
 		Display_Chinese(kong, 0, 112); //kong
 	}
 }
@@ -1424,7 +1424,7 @@ void display_ruler_page(bit timer_fresh)
 
 	if (ruler_mode==4)
 	{
-		Display_Chinese(chang, 6, 0); // ³¤
+		Display_Chinese(chang, 6, 0); // é•¿
 		display_num_str_8x16(height, 6, 6, 16);
 		Display_Chinese(mi, 6, 64);
 		Display_Chinese(yi, 6, 80);
@@ -1439,9 +1439,9 @@ void display_ruler_page(bit timer_fresh)
 		Display_Chinese(lu, 4, 112);
 
 		cal_val = atof(height)*atof(width);
-		if(1==danwei_sel) //¹«Çê
+		if(1==danwei_sel) //å…¬é¡·
 			cal_val = cal_val/10000;
-		else // Ä¶
+		else // äº©
 			cal_val = cal_val/666.666667;
 		sprintf(print_buff, "%08.2f", cal_val);
 		Display_Chinese(mian, 2, 0);
@@ -1464,20 +1464,20 @@ void display_ruler_page(bit timer_fresh)
 		if (0==signal && ( (0==ruler_mode)||(2==ruler_mode)))
 		{
 			searching_sat = 1;
-			Display_Chinese(dai, 4, 0); //´ı
-			Display_Chinese(ce, 4, 16); //²â
+			Display_Chinese(dai, 4, 0); //å¾…
+			Display_Chinese(ce, 4, 16); //æµ‹
 			Display_Chinese(kong, 4, 32); //
-			Display_Chinese(zheng, 4, 48);//Õı
-			Display_Chinese(zai, 4, 64); //ÔÚ
-			Display_Chinese(sou, 4, 80); //ËÑ
-			Display_Chinese(xing, 4, 96); //ĞÇ
+			Display_Chinese(zheng, 4, 48);//æ­£
+			Display_Chinese(zai, 4, 64); //åœ¨
+			Display_Chinese(sou, 4, 80); //æœ
+			Display_Chinese(xing, 4, 96); //æ˜Ÿ
 			Display_Chinese(points, 4, 112); //
 		}
 		else
 		{
 			searching_sat = 0;
 
-			Display_Chinese(chang, 4, 0); // ³¤
+			Display_Chinese(chang, 4, 0); // é•¿
 			display_num_str_8x16(height, 6, 4, 16);
 			Display_Chinese(mi, 4, 64);
 			if(0==ruler_mode)
@@ -1486,7 +1486,7 @@ void display_ruler_page(bit timer_fresh)
 				Revers_Data(ce, 4, 96);
 				Revers_Data(liang, 4, 112);
 			}
-			else if(1==ruler_mode)//²âÁ¿³¤
+			else if(1==ruler_mode)//æµ‹é‡é•¿
 			{
 				if (1==gps_first_point)
 				{
@@ -1502,17 +1502,17 @@ void display_ruler_page(bit timer_fresh)
 				}
 				else
 				{
-					if (signal == 0) //¶¨Î»²»³É¹¦.
+					if (signal == 0) //å®šä½ä¸æˆåŠŸ.
 					{
-						Revers_Data(xin, 4, 80); //ĞÅ
-						Revers_Data(hao, 4, 96); //ºÅ
-						Revers_Data(wu, 4, 112); //ÎŞ
+						Revers_Data(xin, 4, 80); //ä¿¡
+						Revers_Data(hao, 4, 96); //å·
+						Revers_Data(wu, 4, 112); //æ— 
 					}
 					else if (StarNum <= 2)
 					{
-						Revers_Data(xin, 4, 80); //ĞÅ
-						Revers_Data(hao, 4, 96); //ºÅ
-						Revers_Data(cha, 4, 112); //²î
+						Revers_Data(xin, 4, 80); //ä¿¡
+						Revers_Data(hao, 4, 96); //å·
+						Revers_Data(cha, 4, 112); //å·®
 					}
 					else
 					{
@@ -1527,7 +1527,7 @@ void display_ruler_page(bit timer_fresh)
 				Display_Chinese(lu, 4, 112);
 			}
 
-			Display_Chinese(kuan, 2, 0); // ¿í
+			Display_Chinese(kuan, 2, 0); // å®½
 			display_num_str_8x16(width, 6, 2, 16);
 			Display_Chinese(mi, 2, 64);
 			if(2==ruler_mode)
@@ -1552,17 +1552,17 @@ void display_ruler_page(bit timer_fresh)
 				}
 				else
 				{
-					if (signal == 0) //¶¨Î»²»³É¹¦.
+					if (signal == 0) //å®šä½ä¸æˆåŠŸ.
 					{
-						Revers_Data(xin, 2, 80); //ĞÅ
-						Revers_Data(hao, 2, 96); //ºÅ
-						Revers_Data(wu, 2, 112); //ÎŞ
+						Revers_Data(xin, 2, 80); //ä¿¡
+						Revers_Data(hao, 2, 96); //å·
+						Revers_Data(wu, 2, 112); //æ— 
 					}
 					else if (StarNum <= 2)
 					{
-						Revers_Data(xin, 2, 80); //ĞÅ
-						Revers_Data(hao, 2, 96); //ºÅ
-						Revers_Data(cha, 2, 112); //²î
+						Revers_Data(xin, 2, 80); //ä¿¡
+						Revers_Data(hao, 2, 96); //å·
+						Revers_Data(cha, 2, 112); //å·®
 					}
 					else
 					{
@@ -1577,11 +1577,11 @@ void display_ruler_page(bit timer_fresh)
 				Display_Chinese(kong, 2, 112);
 			}
 
-			Display_Chinese(dan, 0, 0); // µ¥
-			Display_Chinese(jia, 0, 16); // ¼Û
+			Display_Chinese(dan, 0, 0); // å•
+			Display_Chinese(jia, 0, 16); // ä»·
 			offset = 0;
 			display_non_zero_num_list_8x16( price_per_area, 4, 0, 32, &offset);
-			Display_Chinese(yuan, 0, 32 + offset); //Ôª
+			Display_Chinese(yuan, 0, 32 + offset); //å…ƒ
 			zf_disp8x16(xie_gang, 0, 48 + offset);
 			display_danwei(danwei_sel, 0, 56 + offset, 0);
 		}

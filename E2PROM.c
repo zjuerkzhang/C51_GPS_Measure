@@ -1,5 +1,5 @@
 #include <intrins.h>
-#include <reg52.h> 
+#include <reg52.h>
 #include "own_reg.h"
 //#include "lcd1602.h"
 #include "e2prom.h"
@@ -10,16 +10,16 @@
 #include "display.h"
 
 #define uchar unsigned char
-#define uint unsigned int 
+#define uint unsigned int
 
 #define RdCommand 0x01
 #define PrgCommand 0x02
-#define EraseCommand 0x03 
+#define EraseCommand 0x03
 
 #define Error 1
 
 #define Ok 0
-#define WaitTime 0x01 
+#define WaitTime 0x01
 
 typedef struct Saved_Data
 {
@@ -230,7 +230,7 @@ unsigned char EEPROM_Read(unsigned char EEPROM_AddrH,
 	return rs;
 }
 
-#if 0 
+#if 0
 void EEPROM_write(unsigned char EEPROM_dat,unsigned char EEPROM_AddrH,unsigned char EEPROM_AddrL)
 {
 
@@ -257,7 +257,7 @@ unsigned char EEPROM_Read(unsigned char EEPROM_AddrH,unsigned char EEPROM_AddrL)
 }
 #endif
 
-#if 0 
+#if 0
 
 unsigned char EEPROM_Read(unsigned char EEPROM_Addr)
 {

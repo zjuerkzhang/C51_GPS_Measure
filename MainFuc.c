@@ -114,7 +114,7 @@ void main()
 			{
 				MakeGeodeticByString(&point, JD, WD);
 
-				if (gps_first_point) //Èç¹ûÊÇµÚÒ»¸öµãµÄ»°¡£
+				if (gps_first_point) //å¦‚æœæ˜¯ç¬¬ä¸€ä¸ªç‚¹çš„è¯ã€‚
 				{
 					if (PreparePointPlusArray(&point))
 					{
@@ -127,14 +127,14 @@ void main()
 					GeodeticNextPointPlus(&point);
 				}
 
-				if (1 == danwei_sel) //¹«Çê
+				if (1 == danwei_sel) //å…¬é¡·
 					sprintf(g_area_value, "%08.2f", GeodeticGetArea()/10000);
-				else //Ä¬ÈÏÃæ»ıµ¥Î»ÎªÄ¶
+				else //é»˜è®¤é¢ç§¯å•ä½ä¸ºäº©
 					sprintf(g_area_value, "%08.2f", GeodeticGetArea()/666.666667);
 
-				if (3 == danwei_sel) //Ç§Ã×
+				if (3 == danwei_sel) //åƒç±³
 					sprintf(g_length_value, "%08.1f", GeodeticGetDistance()/1000);
-				else // Ä¬ÈÏ³¤¶Èµ¥Î»ÎªÃ×
+				else // é»˜è®¤é•¿åº¦å•ä½ä¸ºç±³
 					sprintf(g_length_value, "%08.1f", GeodeticGetDistance());
 
 			}
@@ -142,7 +142,7 @@ void main()
 			if ((3==g_page_id) && (1==ruler_mode || 3==ruler_mode) && (signal) )
 			{
 				MakeGeodeticByString(&point, JD, WD);
-				if (gps_first_point) //Èç¹ûÊÇµÚÒ»¸öµãµÄ»°¡£
+				if (gps_first_point) //å¦‚æœæ˜¯ç¬¬ä¸€ä¸ªç‚¹çš„è¯ã€‚
 				{
 					if (PrepareStartPointArray(&point))
 					{

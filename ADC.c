@@ -3,7 +3,7 @@
 #include "display.h"
 #include "own_reg.h"
 
-#define  ADC_POWER   0x80  
+#define  ADC_POWER   0x80
 #define	 ADC_FLAG    0x10
 #define	 ADC_START   0x08
 #define	 ADC_SPEEDLL 0x00
